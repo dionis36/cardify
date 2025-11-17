@@ -1,0 +1,37 @@
+{
+  "id": "template_02",
+  "name": "Modern Vertical",
+  "width": 600,
+  "height": 1050,
+  "thumbnail": "/templates/thumb_02.png",
+  "tags": ["modern", "unique"],
+  "orientation": "vertical",
+  "layers": [
+    {
+      "id": "text_01",
+      "type": "Text",
+      "props": {
+        "x": 50,
+        "y": 50,
+        "text": "Company Name",
+        "fontSize": 40,
+        "fill": "#111111",
+        "fontFamily": "Helvetica"
+      },
+      "editable": true
+    },
+    {
+      "id": "text_02",
+      "type": "Text",
+      "props": {
+        "x": 50,
+        "y": 150,
+        "text": "CEO",
+        "fontSize": 28,
+        "fill": "#333333",
+        "fontFamily": "Helvetica"
+      },
+      "editable": true
+    }
+  ]
+}

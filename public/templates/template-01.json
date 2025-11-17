@@ -1,0 +1,63 @@
+{
+  "id": "template_01",
+  "name": "Minimalist Horizontal Business Card",
+  "width": 600, 
+  "height": 350,
+  "thumbnail": "/templates/thumb_01.png",
+  "tags": ["minimalist", "modern"],
+  "orientation": "horizontal",
+  "layers": [
+    {
+      "id": "text_01",
+      "type": "Text",
+      "props": {
+        "x": 40,
+        "y": 100,
+        "text": "ALEXANDER CHEN",
+        "fontSize": 28,
+        "fill": "#000000",
+        "fontFamily": "Arial",
+        "width": 300,
+        "height": 40,
+        "rotation": 0,
+        "opacity": 1
+      },
+      "editable": true,
+      "locked": false 
+    },
+    {
+      "id": "text_02",
+      "type": "Text",
+      "props": {
+        "x": 40,
+        "y": 145,
+        "text": "Senior Product Designer | 555-0199",
+        "fontSize": 16,
+        "fill": "#555555",
+        "fontFamily": "Arial",
+        "width": 400,
+        "height": 20,
+        "rotation": 0,
+        "opacity": 1
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "rect_01",
+      "type": "Rect",
+      "props": {
+        "x": 520,
+        "y": 0,
+        "width": 80,
+        "height": 350,
+        "fill": "#2563EB",
+        "cornerRadius": 0,
+        "rotation": 0,
+        "opacity": 1
+      },
+      "editable": false,
+      "locked": true
+    }
+  ]
+}

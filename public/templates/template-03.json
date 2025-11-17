@@ -1,0 +1,112 @@
+{
+  "id": "template_03",
+  "name": "Bold Corporate Vertical",
+  "width": 600,
+  "height": 1050,
+  "tags": ["bold", "professional", "vertical"],
+  "orientation": "vertical",
+  "category": "professional",
+  "industry": ["finance", "corporate"],
+  "colors": ["#111827", "#D97706"],
+  "preview": {
+    "thumbnail": "/templates/thumb_03.png",
+    "fullPreview": "/templates/preview_03.png"
+  },
+  "features": ["Logo Ready", "Minimalist"],
+  "layers": [
+    {
+      "id": "bg_rect_01",
+      "type": "Rect",
+      "props": {
+        "x": 0,
+        "y": 0,
+        "width": 600,
+        "height": 1050,
+        "fill": "#F3F4F6"
+      },
+      "editable": false,
+      "locked": true
+    },
+    {
+      "id": "color_bar_01",
+      "type": "Rect",
+      "props": {
+        "x": 0,
+        "y": 0,
+        "width": 600,
+        "height": 150,
+        "fill": "#D97706"
+      },
+      "editable": false,
+      "locked": true
+    },
+    {
+      "id": "text_name",
+      "type": "Text",
+      "props": {
+        "x": 60,
+        "y": 250,
+        "text": "ALEXANDER CHEN",
+        "fontSize": 48,
+        "fill": "#111827",
+        "fontFamily": "Inter Bold",
+        "width": 480,
+        "height": 60,
+        "align": "left"
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "text_title",
+      "type": "Text",
+      "props": {
+        "x": 60,
+        "y": 320,
+        "text": "Chief Financial Officer",
+        "fontSize": 28,
+        "fill": "#6B7280",
+        "fontFamily": "Inter Regular",
+        "width": 480,
+        "height": 40,
+        "align": "left"
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "text_phone",
+      "type": "Text",
+      "props": {
+        "x": 60,
+        "y": 900,
+        "text": "P: +1 (555) 123-4567",
+        "fontSize": 20,
+        "fill": "#111827",
+        "fontFamily": "Inter Regular",
+        "width": 480,
+        "height": 30,
+        "align": "left"
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "text_email",
+      "type": "Text",
+      "props": {
+        "x": 60,
+        "y": 930,
+        "text": "E: alex.chen@corp.com",
+        "fontSize": 20,
+        "fill": "#111827",
+        "fontFamily": "Inter Regular",
+        "width": 480,
+        "height": 30,
+        "align": "left"
+      },
+      "editable": true,
+      "locked": false
+    }
+  ]
+}

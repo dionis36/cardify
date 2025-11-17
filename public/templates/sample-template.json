@@ -1,0 +1,58 @@
+{
+  "id": "template_01",
+  "name": "Modern Blue Card",
+  "width": 1050,
+  "height": 600,
+  "thumbnail": "/templates/sample-thumb.png",
+  "tags": ["modern", "blue", "minimal"],
+  "orientation": "horizontal",
+  "layers": [
+    {
+      "type": "Rect",
+      "editable": false,
+      "props": {
+        "x": 0,
+        "y": 0,
+        "width": 1050,
+        "height": 600,
+        "fill": "#1D4ED8",
+        "cornerRadius": 12
+      }
+    },
+    {
+      "type": "Text",
+      "editable": true,
+      "props": {
+        "x": 50,
+        "y": 50,
+        "text": "John Doe",
+        "fontSize": 48,
+        "fontFamily": "Arial",
+        "fill": "#FFFFFF"
+      }
+    },
+    {
+      "type": "Text",
+      "editable": true,
+      "props": {
+        "x": 50,
+        "y": 120,
+        "text": "Software Engineer",
+        "fontSize": 28,
+        "fontFamily": "Arial",
+        "fill": "#E0E7FF"
+      }
+    },
+    {
+      "type": "Image",
+      "editable": true,
+      "props": {
+        "x": 850,
+        "y": 50,
+        "width": 150,
+        "height": 150,
+        "src": "/templates/sample-logo.png"
+      }
+    }
+  ]
+}
