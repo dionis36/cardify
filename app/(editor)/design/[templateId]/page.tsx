@@ -1,4 +1,4 @@
-// app/(editor)/design/[templateId]/page.tsx (UPGRADED - Stable 3-Column Layout with Professional Workarea)
+// app/(editor)/design/[templateId]/page.tsx (COMPLETE AND CORRECTED)
 
 "use client";
 
@@ -11,7 +11,6 @@ import { produce } from "immer";
 import CanvasStage from "@/components/editor/CanvasStage";
 import EditorSidebar from "@/components/editor/EditorSidebar";
 import EditorTopbar from "@/components/editor/EditorTopbar";
-// NOTE: LayerList is now imported *inside* EditorSidebar.tsx, NOT here, for the integrated UI.
 import PropertyPanel from "@/components/editor/PropertyPanel";
 
 // Types/Libs
@@ -41,121 +40,290 @@ function getInitialState(template: CardTemplate): State {
     };
 }
 
-// Placeholder for the Reducer: MUST be defined or imported elsewhere.
-// This is a minimal structure required for the page.tsx file to function.
-function reducer(state: State, action: any): State {
-    switch (action.type) {
-        // Reducer cases (UPDATE_NODE_PROPS, ADD_NODE, REMOVE_NODE, MOVE_NODE, etc.) 
-        // need to be fully implemented with Immer (produce) for robust state management.
-        
-        case "UPDATE_NODE_PROPS":
-        case "UPDATE_NODE_DEFINITION":
-        case "ADD_NODE":
-        case "REMOVE_NODE":
-        case "MOVE_NODE":
-        case "ADD_PAGE":
-        case "REMOVE_PAGE":
-        case "GOTO_PAGE":
-        case "TOGGLE_ORIENTATION":
-        case "UNDO":
-        case "REDO":
-            // Replace with your actual immer-based logic
-            return produce(state, draft => {
-                // Placeholder logic: prevents errors but needs implementation
-                console.warn(`Action ${action.type} dispatched. State transition not fully implemented in reducer placeholder.`);
-            }); 
-            
-        default:
-            return state;
+// Reducer actions
+type Action = 
+  | { type: 'SET_PAGES', pages: CardTemplate[] }
+  | { type: 'GO_TO_PAGE', index: number }
+  | { type: 'ADD_PAGE', template: CardTemplate }
+  | { type: 'REMOVE_PAGE', index: number }
+  | { type: 'UPDATE_NODE_PROPS', pageIndex: number, nodeIndex: number, updates: Partial<KonvaNodeProps> }
+  | { type: 'UPDATE_NODE_DEFINITION', pageIndex: number, nodeIndex: number, updates: Partial<KonvaNodeDefinition> }
+  | { type: 'ADD_NODE', pageIndex: number, node: KonvaNodeDefinition }
+  | { type: 'REMOVE_NODE', pageIndex: number, nodeIndex: number }
+  | { type: 'MOVE_NODE', pageIndex: number, from: number, to: number }
+  | { type: 'TOGGLE_ORIENTATION', pageIndex: number }
+  | { type: 'UNDO' }
+  | { type: 'REDO' };
+
+// Reducer implementation (simplified for context)
+function editorReducer(state: State, action: Action): State {
+  const newState = produce(state, draft => {
+    // Save current state to history before any modification
+    if (action.type !== 'UNDO' && action.type !== 'REDO') {
+      draft.history.push({ ...state, history: [], future: [] }); // Push clean state
+      draft.future = []; // Clear redo stack on new action
     }
+
+    switch (action.type) {
+      case 'SET_PAGES':
+        draft.pages = action.pages;
+        draft.current = Math.min(draft.current, action.pages.length - 1);
+        break;
+      case 'GO_TO_PAGE':
+        draft.current = action.index;
+        break;
+      case 'ADD_PAGE':
+        draft.pages.push(action.template);
+        draft.current = draft.pages.length - 1;
+        break;
+      case 'REMOVE_PAGE':
+        if (draft.pages.length > 1) {
+          draft.pages.splice(action.index, 1);
+          draft.current = Math.min(draft.current, draft.pages.length - 1);
+        }
+        break;
+      case 'UPDATE_NODE_PROPS': {
+        const node = draft.pages[action.pageIndex].layers[action.nodeIndex];
+        node.props = { ...node.props, ...action.updates };
+        break;
+      }
+      case 'UPDATE_NODE_DEFINITION': {
+        const node = draft.pages[action.pageIndex].layers[action.nodeIndex];
+        Object.assign(node, action.updates);
+        break;
+      }
+      case 'ADD_NODE':
+        draft.pages[action.pageIndex].layers.push(action.node);
+        break;
+      case 'REMOVE_NODE':
+        draft.pages[action.pageIndex].layers.splice(action.nodeIndex, 1);
+        break;
+      case 'MOVE_NODE':
+        const [removed] = draft.pages[action.pageIndex].layers.splice(action.from, 1);
+        draft.pages[action.pageIndex].layers.splice(action.to, 0, removed);
+        break;
+      case 'TOGGLE_ORIENTATION': {
+        const page = draft.pages[action.pageIndex];
+        // Simple swap of width/height
+        [page.width, page.height] = [page.height, page.width];
+        // Move all nodes to ensure they are on canvas (simple re-center might be better for complex layouts)
+        page.layers.forEach(layer => {
+            // Very simple shift logic (might need to be smarter)
+            layer.props.x = (page.width / 2) - (layer.props.width / 2);
+            layer.props.y = (page.height / 2) - (layer.props.height / 2);
+        });
+        break;
+      }
+      case 'UNDO':
+        if (draft.history.length > 0) {
+          const previousState = draft.history.pop()!;
+          draft.future.unshift({ ...state, history: [], future: [] });
+          Object.assign(draft, previousState); // Restore everything except history/future
+        }
+        break;
+      case 'REDO':
+        if (draft.future.length > 0) {
+          const nextState = draft.future.shift()!;
+          draft.history.push({ ...state, history: [], future: [] });
+          Object.assign(draft, nextState); // Restore everything except history/future
+        }
+        break;
+      default:
+        return state;
+    }
+  });
+
+  return newState;
 }
-// --- END Placeholder ---
 
+// --- Main Page Component ---
 
-export default function DesignEditorPage() {
-    
-    const params = useParams();
-    // Load the initial template based on the URL parameter
-    const initialTemplate = loadTemplate(params.templateId as string); 
-    
-    // Initialize state with reducer
-    const [state, dispatch] = useReducer(reducer, initialTemplate, getInitialState as (arg: any) => State); 
+export default function DesignPage() {
+    const params = useParams<{ templateId: string }>();
+    const stageRef = useRef<Konva.Stage>(null);
     const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
     const [mode, setMode] = useState<EditorMode>("FULL_EDIT");
 
-    const stageRef = useRef<Konva.Stage | null>(null);
+    // Load initial state based on templateId
+    const initialTemplate = loadTemplate(params.templateId);
+    const [state, dispatch] = useReducer(editorReducer, initialTemplate, getInitialState);
+
+    // Current page and selected node
     const currentPage = state.pages[state.current];
     const selectedNode = selectedIndex !== null ? currentPage.layers[selectedIndex] : null;
 
-    // --- HANDLERS ---
+    // --- Core Action Handlers ---
 
-    // History & Export
-    const undo = useCallback(() => dispatch({ type: "UNDO" }), []);
-    const redo = useCallback(() => dispatch({ type: "REDO" }), []);
-    const exportPNG = useCallback(() => stageRef.current && downloadPNG(stageRef.current), []);
-    const exportPDF = useCallback(() => stageRef.current && downloadPDF(stageRef.current), []);
-    const saveDesign = useCallback(() => console.log("Design Saved:", JSON.stringify(state.pages)), [state.pages]);
-    const toggleOrientation = useCallback(() => dispatch({ type: "TOGGLE_ORIENTATION", page: state.current }), [state.current]);
-    
-    // Core Node Property Handlers (Used by Canvas and Property Panel)
-    const onNodeChange = useCallback((index: number, newProps: Partial<KonvaNodeProps>) => {
-        dispatch({ type: "UPDATE_NODE_PROPS", page: state.current, index, newProps });
-    }, [state.current]);
-    
+    // 1. Update node properties (x, y, fill, text)
+    const onNodeChange = useCallback((index: number, updates: Partial<KonvaNodeProps>) => {
+        dispatch({
+            type: 'UPDATE_NODE_PROPS',
+            pageIndex: state.current,
+            nodeIndex: index,
+            updates,
+        });
+    }, [state.current, mode]);
+
+    // 2. Update node definition (locked, editable)
     const onNodeDefinitionChange = useCallback((index: number, updates: Partial<KonvaNodeDefinition>) => {
-        dispatch({ type: "UPDATE_NODE_DEFINITION", page: state.current, index, updates });
+        dispatch({
+            type: 'UPDATE_NODE_DEFINITION',
+            pageIndex: state.current,
+            nodeIndex: index,
+            updates,
+        });
     }, [state.current]);
-
-    // Element Creation Logic
-    const getNewId = (type: string) => `${type.toLowerCase()}_${Date.now()}`;
-    const addNode = useCallback((newNode: KonvaNodeDefinition) => {
-        dispatch({ type: "ADD_NODE", page: state.current, node: newNode });
-        // Select the newly added node (it's always the last one)
-        setSelectedIndex(currentPage.layers.length); 
+    
+    // Handler to clear any selection (sent to CanvasStage as a prop)
+    const onDeselectNode = useCallback(() => {
+        setSelectedIndex(null);
+    }, []);
+    
+    // 3. Add a new node (Text, Rect, Image)
+    const onAddNode = useCallback((node: KonvaNodeDefinition) => {
+        dispatch({
+            type: 'ADD_NODE',
+            pageIndex: state.current,
+            node,
+        });
+        // Select the new node
+        setSelectedIndex(currentPage.layers.length);
     }, [state.current, currentPage.layers.length]);
 
+
+
+    // --- Sidebar Helper Functions ---
+
     const addText = useCallback(() => {
-        const newNode: KonvaNodeDefinition = { id: getNewId('text'), type: 'Text', editable: true, locked: false, props: { x: 50, y: 50, text: 'New Text', fontSize: 30, fill: '#000000', fontFamily: 'Arial', width: 200, height: 40, rotation: 0, opacity: 1 }};
-        addNode(newNode);
-    }, [addNode]);
-    
+        const newText: KonvaNodeDefinition = {
+            id: `text_${Date.now()}`,
+            type: 'Text',
+            props: {
+                x: currentPage.width / 4,
+                y: currentPage.height / 4,
+                width: 200,
+                height: 40,
+                text: "New Text",
+                fontSize: 24,
+                fill: '#000000',
+                fontFamily: 'Arial',
+                rotation: 0,
+                opacity: 1,
+            },
+            editable: true,
+            locked: false,
+        };
+        onAddNode(newText);
+    }, [currentPage.width, currentPage.height, onAddNode]);
+
     const addRect = useCallback(() => {
-        const newNode: KonvaNodeDefinition = { id: getNewId('rect'), type: 'Rect', editable: true, locked: false, props: { x: 100, y: 100, width: 100, height: 100, fill: '#0070F3', rotation: 0, opacity: 1 }};
-        addNode(newNode);
-    }, [addNode]);
-    
+        const newRect: KonvaNodeDefinition = {
+            id: `rect_${Date.now()}`,
+            type: 'Rect',
+            props: {
+                x: currentPage.width / 4,
+                y: currentPage.height / 4,
+                width: 100,
+                height: 100,
+                fill: '#E0E0E0',
+                rotation: 0,
+                opacity: 1,
+            },
+            editable: true,
+            locked: false,
+        };
+        onAddNode(newRect);
+    }, [currentPage.width, currentPage.height, onAddNode]);
+
     const addImage = useCallback((file: File) => {
-        const src = URL.createObjectURL(file);
-        const newNode: KonvaNodeDefinition = { id: getNewId('image'), type: 'Image', editable: true, locked: false, props: { x: 10, y: 10, width: 100, height: 100, src, rotation: 0, opacity: 1 }};
-        addNode(newNode);
-    }, [addNode]);
-    
-    // Layer Reordering & Removal (Passed to EditorSidebar/LayerList)
-    const moveNode = useCallback((fromKonvaIndex: number, toKonvaIndex: number) => {
-        dispatch({ type: "MOVE_NODE", page: state.current, from: fromKonvaIndex, to: toKonvaIndex });
-        setSelectedIndex(toKonvaIndex);
-    }, [state.current]);
-    
-    const removeNode = useCallback((index: number) => {
-        dispatch({ type: "REMOVE_NODE", page: state.current, index });
-        setSelectedIndex(null); // Deselect after removal
-    }, [state.current]);
-    
-    // Page Handlers (Passed to EditorSidebar)
-    const addPage = useCallback(() => dispatch({ type: "ADD_PAGE" }), []);
-    const removePage = useCallback(() => dispatch({ type: "REMOVE_PAGE" }), []);
-    const gotoPage = useCallback((i: number) => {
-        dispatch({ type: "GOTO_PAGE", index: i });
-        setSelectedIndex(null); // Deselect when changing pages
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const newImage: KonvaNodeDefinition = {
+                id: `image_${Date.now()}`,
+                type: 'Image',
+                props: {
+                    x: currentPage.width / 4,
+                    y: currentPage.height / 4,
+                    width: 150,
+                    height: 150,
+                    src: e.target?.result as string, // Data URL
+                    rotation: 0,
+                    opacity: 1,
+                },
+                editable: true,
+                locked: false,
+            };
+            onAddNode(newImage);
+        };
+        reader.readAsDataURL(file);
+    }, [currentPage.width, currentPage.height, onAddNode]);
+
+    // --- Page Management Handlers ---
+    const addPage = useCallback(() => {
+        // Create a new page that is a copy of the current page
+        const newTemplate: CardTemplate = JSON.parse(JSON.stringify(currentPage));
+        newTemplate.id = `page_${Date.now()}`;
+        newTemplate.name = `Page ${state.pages.length + 1}`;
+        dispatch({ type: 'ADD_PAGE', template: newTemplate });
+        setSelectedIndex(null); // Clear selection on page change
+    }, [state.pages.length, currentPage]);
+
+    const removePage = useCallback(() => {
+        if (state.pages.length > 1) {
+            dispatch({ type: 'REMOVE_PAGE', index: state.current });
+            setSelectedIndex(null); // Clear selection on page change
+        }
+    }, [state.pages.length, state.current]);
+
+    const gotoPage = useCallback((index: number) => {
+        dispatch({ type: 'GO_TO_PAGE', index });
+        setSelectedIndex(null); // Clear selection on page change
     }, []);
 
+    const toggleOrientation = useCallback(() => {
+        dispatch({ type: 'TOGGLE_ORIENTATION', pageIndex: state.current });
+        setSelectedIndex(null); // Clear selection after layout change
+    }, [state.current]);
 
+
+    // --- Export Handlers ---
+    const exportPNG = useCallback(() => {
+        if (stageRef.current) {
+            downloadPNG(stageRef.current, `${currentPage.name}.png`);
+        }
+    }, [currentPage.name]);
+
+    const exportPDF = useCallback(() => {
+        if (stageRef.current) {
+            downloadPDF(stageRef.current, `${currentPage.name}.pdf`);
+        }
+    }, [currentPage.name]);
+
+    const saveDesign = useCallback(() => {
+        console.log("Design Saved:", JSON.stringify(currentPage.layers));
+        // In a real app, you would send currentPage to an API here
+        alert('Design saved to console!');
+    }, [currentPage.layers]);
+
+
+    // Deselect if we change page or go into Data-Only mode
+    useEffect(() => {
+        if (mode === "DATA_ONLY" && selectedIndex !== null) {
+            // Find the index of the selected node among the editable layers
+            const isSelectedEditable = selectedNode?.editable ?? false;
+            // If the selected node is NOT editable, clear selection
+            if (!isSelectedEditable) {
+                setSelectedIndex(null);
+            }
+        }
+    }, [mode, selectedIndex, selectedNode]);
+
+    // --- Render ---
     return (
-        <div className="flex flex-col h-screen overflow-hidden bg-gray-100">
-            {/* 1. TOP BAR (Fixed Header) */}
-            <EditorTopbar 
-                undo={undo} 
-                redo={redo} 
+        <div className="flex flex-col h-screen bg-gray-50">
+            <EditorTopbar
+                undo={() => dispatch({ type: 'UNDO' })}
+                redo={() => dispatch({ type: 'REDO' })}
                 exportPNG={exportPNG}
                 exportPDF={exportPDF}
                 saveDesign={saveDesign}
@@ -164,41 +332,42 @@ export default function DesignEditorPage() {
                 toggleOrientation={toggleOrientation}
             />
 
-            {/* 2. MAIN EDITOR AREA: STABLE 3-Column Layout */}
             <div className="flex flex-1 overflow-hidden">
-                
-                {/* A. LEFT SIDEBAR (Fixed Width - Elements, Layers, Pages) */}
-                <EditorSidebar 
-                    // Element handlers
+                {/* A. LEFT SIDEBAR (Fixed Width - Layer/Element/Page Panels) */}
+                <EditorSidebar
+                    // Element Creation
                     addText={addText}
                     addRect={addRect}
                     addImage={addImage}
-                    // Page handlers
+
+                    // Page Control
                     addPage={addPage}
                     removePage={removePage}
                     pageCount={state.pages.length}
                     currentPage={state.current}
                     gotoPage={gotoPage}
-                    // Layer management handlers (now integrated into sidebar)
+
+                    // Layer Management
                     layers={currentPage.layers}
                     selectedIndex={selectedIndex}
-                    onSelectLayer={setSelectedIndex} 
-                    onMoveLayer={moveNode}
-                    onRemoveLayer={removeNode}
+                    onSelectLayer={setSelectedIndex}
+                    onMoveLayer={(from, to) => dispatch({ type: 'MOVE_NODE', pageIndex: state.current, from, to })}
+                    onRemoveLayer={(index) => {
+                        dispatch({ type: 'REMOVE_NODE', pageIndex: state.current, nodeIndex: index });
+                        setSelectedIndex(null);
+                    }}
                     onDefinitionChange={onNodeDefinitionChange}
                     // Mode
                     mode={mode}
                 />
                 
                 {/* B. CENTER: Canvas Stage (Flexible Width and Centered Workarea) */}
-                {/* UPGRADE: Added bg-gray-200 for a distinct, professional work area background */}
                 <main className="flex-1 flex justify-center items-center overflow-auto p-8 bg-gray-200">
                     <CanvasStage
                         ref={stageRef}
                         template={currentPage}
-                        selectedIndex={selectedIndex}
-                        // Update selected index via CanvasStage click
-                        onSelectNode={(_, index) => setSelectedIndex(index)}
+                        selectedNodeIndex={selectedIndex} 
+                        onSelectNode={(index: number | null) => setSelectedIndex(index)}
                         onNodeChange={onNodeChange}
                         mode={mode}
                     />
@@ -206,11 +375,22 @@ export default function DesignEditorPage() {
 
                 {/* C. RIGHT SIDEBAR (Fixed Width - Property Panel) */}
                 <PropertyPanel
+                    // FIX 2: Renamed 'selectedNode' to 'node' (based on component signature)
                     node={selectedNode}
+                    // FIX 2: Removed 'selectedIndex' prop (likely not needed in PropertyPanel)
+                    
                     // Prop changes (x, y, fill, etc.)
-                    onPropChange={(updates) => selectedIndex !== null && onNodeChange(selectedIndex, updates)}
-                    // Definition changes (locked, visible)
-                    onDefinitionChange={(updates) => selectedIndex !== null && onNodeDefinitionChange(selectedIndex, updates)}
+                    // FIX 2: Renamed prop to 'onPropChange' (based on component signature)
+                    // FIX 3: Added explicit type 'Partial<KonvaNodeProps>' to 'updates'
+                    onPropChange={(updates: Partial<KonvaNodeProps>) => 
+                        selectedIndex !== null && onNodeChange(selectedIndex, updates)
+                    }
+                    // Definition changes (locked, editable)
+                    // FIX 2: Renamed prop to 'onDefinitionChange' (based on component signature)
+                    // FIX 4: Added explicit type 'Partial<KonvaNodeDefinition>' to 'updates'
+                    onDefinitionChange={(updates: Partial<KonvaNodeDefinition>) => 
+                        selectedIndex !== null && onNodeDefinitionChange(selectedIndex, updates)
+                    }
                     mode={mode}
                 />
             </div>

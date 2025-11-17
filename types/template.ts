@@ -1,19 +1,13 @@
-// types/template.ts (UPGRADED for Phase 2.1 & 2.3)
+// types/template.ts (MODIFIED - NEW SPECIFIC PROP INTERFACES)
 
-// UPGRADE: Expanded KonvaNodeType for Phase 2.3
-export type KonvaNodeType = 
-  | "Rect" 
-  | "Text" 
-  | "Image"
-  | "Circle"       // NEW
-  | "Ellipse"      // NEW
-  | "Star"         // NEW
-  | "RegularPolygon" // NEW
-  | "Line";        // NEW (Simplified: omitting 'Path' for now as it needs SVG data)
+import { TemplateCategoryKey } from "@/lib/templateCategories";
 
-// Define specific Konva node props with explicit types
-export interface KonvaNodeProps {
-  // Common Transform Props
+// Base Konva Node Types
+export type KonvaNodeType = "Rect" | "Text" | "Image"; 
+export type Orientation = "horizontal" | "vertical"; // Added orientation type
+
+// --- BASE PROPERTIES (Common to ALL Konva Nodes) ---
+interface BaseNodeProps {
   x: number;
   y: number;
   width: number;
@@ -22,55 +16,69 @@ export interface KonvaNodeProps {
   opacity: number;
   visible?: boolean;
 
-  // Shadow Props
+  // Shadow Props (Common to many Konva nodes)
   shadowColor?: string;
   shadowBlur?: number;
   shadowOffsetX?: number;
   shadowOffsetY?: number;
-
-  // Text Specific (Phase 2.1)
-  text?: string;
-  fontSize?: number;
-  fill?: string; // Text/Rect fill color
-  fontFamily?: string;
-  align?: 'left' | 'center' | 'right';
-  lineHeight?: number;
-  letterSpacing?: number;
-  
-  // NEW: Rich Text Controls (Phase 2.1)
-  fontStyle?: 'normal' | 'bold' | 'italic' | 'bold italic'; // For Bold/Italic
-  textDecoration?: 'none' | 'underline' | 'line-through' | 'underline line-through'; // For Underline
-
-  // Rect/Image Specific
-  stroke?: string;
-  strokeWidth?: number;
-  cornerRadius?: number; // Rect only
-  src?: string; // Image only
-
-  // NEW: Shape Specific Properties (Phase 2.3)
-  radius?: number; // Circle/Star
-  innerRadius?: number; // Star
-  outerRadius?: number; // Star
-  numPoints?: number; // Star/RegularPolygon
-  sides?: number; // RegularPolygon
 }
 
+// --- SPECIFIC PROPERTIES ---
+
+export interface TextProps extends BaseNodeProps {
+  text: string;
+  fontSize: number;
+  fill: string; // Text color
+  fontFamily: string;
+  align?: 'left' | 'center' | 'right' | 'justify';
+  lineHeight?: number;
+  letterSpacing?: number;
+  textDecoration?: 'underline' | 'line-through' | '';
+  fontStyle?: string; // e.g., 'bold italic'
+}
+
+export interface RectProps extends BaseNodeProps {
+  fill: string; // Shape fill color
+  stroke?: string;
+  strokeWidth?: number;
+  cornerRadius?: number;
+}
+
+// FIX: Explicitly define ImageProps to include stroke and strokeWidth
+export interface ImageProps extends BaseNodeProps {
+  src: string; 
+  stroke?: string; 
+  strokeWidth?: number; // FIX: Property 'strokeWidth' is now explicitly on ImageProps
+}
+
+// --- UNION TYPE (Used by main state/reducer) ---
+// KonvaNodeProps is the union of all specific prop types
+export type KonvaNodeProps = TextProps | RectProps | ImageProps;
+
+// Existing KonvaNodeDefinition
 export interface KonvaNodeDefinition {
   id: string; // unique node id
   type: KonvaNodeType;
-  props: KonvaNodeProps; // Use the specific props interface
-  editable: boolean; // can user select and edit
-  locked: boolean; // can user move/resize (used in previous step)
+  props: KonvaNodeProps; // This holds the union of props
+  editable: boolean;
+  locked: boolean;
 }
 
-// Card template JSON structure (UPDATED for Orientation/Bleed)
+/**
+ * Card template JSON structure
+ */
 export interface CardTemplate {
   id: string;
   name: string;
   width: number;
   height: number;
+  orientation: Orientation; // Added orientation
   layers: KonvaNodeDefinition[];
-  thumbnail?: string; // optional path to thumbnail image
-  tags?: string[];
-  orientation: 'horizontal' | 'vertical';
+  // Metadata for gallery/display
+  thumbnail: string;
+  preview: string;
+  tags: string[];
+  category: TemplateCategoryKey;
+  colors: string[];
+  features: string[];
 }
