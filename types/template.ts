@@ -134,3 +134,8 @@ export interface CardTemplate {
   colors: string[];
   features: string[];
 }
+
+
+
+
+

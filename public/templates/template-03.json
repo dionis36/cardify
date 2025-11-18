@@ -1,108 +1,90 @@
 {
   "id": "template_03",
-  "name": "Bold Corporate Vertical",
+  "name": "Professional Typography & Vector",
   "width": 600,
-  "height": 1050,
-  "tags": ["bold", "professional", "vertical"],
-  "orientation": "vertical",
-  "category": "professional",
-  "industry": ["finance", "corporate"],
-  "colors": ["#111827", "#D97706"],
-  "preview": {
-    "thumbnail": "/templates/thumb_03.png",
-    "fullPreview": "/templates/preview_03.png"
-  },
-  "features": ["Logo Ready", "Minimalist"],
+  "height": 350,
+  "thumbnail": "/templates/thumb_03.png",
+  "tags": ["professional", "corporate", "vector"],
+  "orientation": "horizontal",
   "layers": [
     {
-      "id": "bg_rect_01",
+      "id": "bg_rect",
       "type": "Rect",
       "props": {
         "x": 0,
         "y": 0,
         "width": 600,
-        "height": 1050,
-        "fill": "#F3F4F6"
+        "height": 350,
+        "fill": "#FFFFFF"
       },
       "editable": false,
       "locked": true
     },
     {
-      "id": "color_bar_01",
-      "type": "Rect",
-      "props": {
-        "x": 0,
-        "y": 0,
-        "width": 600,
-        "height": 150,
-        "fill": "#D97706"
-      },
-      "editable": false,
-      "locked": true
-    },
-    {
-      "id": "text_name",
+      "id": "text_01",
       "type": "Text",
       "props": {
-        "x": 60,
-        "y": 250,
-        "text": "ALEXANDER CHEN",
+        "x": 30,
+        "y": 40,
+        "text": "SENIOR ART DIRECTOR",
+        "fontSize": 14,
+        "fill": "#3B82F6",
+        "fontFamily": "Roboto",
+        "width": 300,
+        "height": 20,
+        "letterSpacing": 3.5,
+        "align": "left"
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "text_02",
+      "type": "Text",
+      "props": {
+        "x": 30,
+        "y": 65,
+        "text": "MICHAEL VANCE",
         "fontSize": 48,
-        "fill": "#111827",
-        "fontFamily": "Inter Bold",
-        "width": 480,
+        "fill": "#000000",
+        "fontFamily": "Roboto",
+        "width": 540,
         "height": 60,
+        "shadowColor": "#A0A0A0",
+        "shadowBlur": 4,
+        "shadowOffsetX": 2,
+        "shadowOffsetY": 2,
         "align": "left"
       },
       "editable": true,
       "locked": false
     },
     {
-      "id": "text_title",
-      "type": "Text",
+      "id": "path_01",
+      "type": "Path",
       "props": {
-        "x": 60,
-        "y": 320,
-        "text": "Chief Financial Officer",
-        "fontSize": 28,
-        "fill": "#6B7280",
-        "fontFamily": "Inter Regular",
-        "width": 480,
-        "height": 40,
-        "align": "left"
+        "x": 500,
+        "y": 0,
+        "width": 100,
+        "height": 100,
+        "fill": "#E5E7EB",
+        "data": "M 0 0 C 50 100, 100 0, 100 0 L 0 0 Z"
       },
-      "editable": true,
-      "locked": false
+      "editable": false,
+      "locked": true
     },
     {
-      "id": "text_phone",
+      "id": "text_contact",
       "type": "Text",
       "props": {
-        "x": 60,
-        "y": 900,
-        "text": "P: +1 (555) 123-4567",
-        "fontSize": 20,
-        "fill": "#111827",
-        "fontFamily": "Inter Regular",
-        "width": 480,
-        "height": 30,
-        "align": "left"
-      },
-      "editable": true,
-      "locked": false
-    },
-    {
-      "id": "text_email",
-      "type": "Text",
-      "props": {
-        "x": 60,
-        "y": 930,
-        "text": "E: alex.chen@corp.com",
-        "fontSize": 20,
-        "fill": "#111827",
-        "fontFamily": "Inter Regular",
-        "width": 480,
-        "height": 30,
+        "x": 30,
+        "y": 280,
+        "text": "hello@company.com | (555) 123-4567\nwww.vancecreative.com",
+        "fontSize": 16,
+        "fill": "#555555",
+        "fontFamily": "Arial",
+        "width": 540,
+        "height": 50,
         "align": "left"
       },
       "editable": true,

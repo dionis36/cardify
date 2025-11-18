@@ -1,37 +1,107 @@
 {
   "id": "template_02",
-  "name": "Modern Vertical",
-  "width": 600,
-  "height": 1050,
+  "name": "Geometric Vertical Card",
+  "width": 350,
+  "height": 600,
   "thumbnail": "/templates/thumb_02.png",
-  "tags": ["modern", "unique"],
+  "tags": ["geometric", "modern", "vertical"],
   "orientation": "vertical",
   "layers": [
+    {
+      "id": "bg_rect",
+      "type": "Rect",
+      "props": {
+        "x": 0,
+        "y": 0,
+        "width": 350,
+        "height": 600,
+        "fill": "#1F2937"
+      },
+      "editable": false,
+      "locked": true
+    },
+    {
+      "id": "poly_01",
+      "type": "RegularPolygon",
+      "props": {
+        "x": 120,
+        "y": 80,
+        "width": 120,
+        "height": 120,
+        "sides": 6,
+        "radius": 60,
+        "fill": "#EF4444",
+        "rotation": 15
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "circle_01",
+      "type": "Circle",
+      "props": {
+        "x": 130,
+        "y": 90,
+        "width": 80,
+        "height": 80,
+        "radius": 40,
+        "fill": "#FCD34D",
+        "rotation": 0,
+        "opacity": 0.9
+      },
+      "editable": true,
+      "locked": false
+    },
     {
       "id": "text_01",
       "type": "Text",
       "props": {
-        "x": 50,
-        "y": 50,
-        "text": "Company Name",
-        "fontSize": 40,
-        "fill": "#111111",
-        "fontFamily": "Helvetica"
+        "x": 40,
+        "y": 280,
+        "text": "SARAH LEE",
+        "fontSize": 24,
+        "fill": "#F8F8F8",
+        "fontFamily": "Inter",
+        "width": 270,
+        "height": 30,
+        "rotation": 0,
+        "align": "center"
       },
-      "editable": true
+      "editable": true,
+      "locked": false
     },
     {
       "id": "text_02",
       "type": "Text",
       "props": {
-        "x": 50,
-        "y": 150,
-        "text": "CEO",
-        "fontSize": 28,
-        "fill": "#333333",
-        "fontFamily": "Helvetica"
+        "x": 40,
+        "y": 320,
+        "text": "UI/UX Specialist",
+        "fontSize": 16,
+        "fill": "#9CA3AF",
+        "fontFamily": "Inter",
+        "width": 270,
+        "height": 20,
+        "rotation": 0,
+        "align": "center"
       },
-      "editable": true
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "arrow_01",
+      "type": "Arrow",
+      "props": {
+        "x": 100,
+        "y": 400,
+        "width": 150,
+        "height": 1,
+        "stroke": "#FFFFFF",
+        "strokeWidth": 3,
+        "points": [0, 0, 150, 0]
+      },
+      "editable": true,
+      "locked": false
     }
   ]
 }
