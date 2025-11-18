@@ -5,10 +5,11 @@
 import React from "react";
 
 interface ColorPickerProps {
-  label: string;
+  label?: string; // This is optional
   color: string;
   onChange: (newColor: string) => void;
   disabled?: boolean;
+  className?: string; // Note: 'className' is not used in the return JSX but is in the interface
 }
 
 /**
@@ -18,7 +19,13 @@ interface ColorPickerProps {
 const ColorPicker: React.FC<ColorPickerProps> = ({ label, color, onChange, disabled }) => {
   return (
     <div className="space-y-1">
-      <label className="block text-sm font-medium text-gray-700">{label}</label>
+      {/* FIX: Conditionally render the label element. 
+        If 'label' is undefined or an empty string, this element will not be rendered.
+      */}
+      {label && (
+        <label className="block text-sm font-medium text-gray-700">{label}</label>
+      )}
+
       <div className={`flex items-center space-x-2 ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}>
         {/* Color Swatch / Native Input */}
         <input
@@ -29,7 +36,7 @@ const ColorPicker: React.FC<ColorPickerProps> = ({ label, color, onChange, disab
           disabled={disabled}
           title="Select Color"
         />
-        {/* Hex Input */}
+        {/* Hex Input - IMPORTANT: Padding changed from p-1 to p-2 for vertical alignment with other inputs */}
         <input
           type="text"
           value={color}
@@ -42,7 +49,7 @@ const ColorPicker: React.FC<ColorPickerProps> = ({ label, color, onChange, disab
                 onChange(e.target.value);
             }
           }}
-          className="flex-1 border p-1 rounded text-sm font-mono focus:ring-blue-500 focus:border-blue-500 bg-white uppercase"
+          className="flex-1 border p-2 rounded text-sm font-mono focus:ring-blue-500 focus:border-blue-500 bg-white uppercase"
           maxLength={7}
           disabled={disabled}
         />
@@ -52,7 +59,3 @@ const ColorPicker: React.FC<ColorPickerProps> = ({ label, color, onChange, disab
 };
 
 export default ColorPicker;
-
-
-
-
