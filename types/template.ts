@@ -2,6 +2,39 @@
 
 import { TemplateCategoryKey } from "@/lib/templateCategories";
 
+// --- FONT DEFINITIONS (UPGRADED) ---
+
+// A rich union of system and popular web fonts for a better user experience.
+export type FontName = 
+  // Sans-Serif (Standard & Popular Web Fonts)
+  | "Arial" 
+  | "Verdana" 
+  | "Helvetica" 
+  | "Inter" 
+  | "Roboto" 
+  | "Open Sans" 
+  | "Lato" 
+  | "Montserrat" 
+  | "Poppins" 
+  | "sans-serif"
+  // Serif (Standard & Popular Web Fonts)
+  | "Times New Roman" 
+  | "Georgia" 
+  | "Palatino" 
+  | "serif"
+  | "Playfair Display"
+  | "Merriweather"
+  // Monospace (Standard)
+  | "Courier New"
+  | "Lucida Console"
+  | "monospace"
+  // Display/Script/Specialty
+  | "Garamond"
+  | "Impact"
+  | "Comic Sans MS"
+  | "Pacifico"
+  | "Bebas Neue";
+
 // --- BASE PROPERTIES (Common to ALL Konva Nodes) ---
 export interface NodeCommonProps {
   id: string; // unique node id (promoted to common props for consistency)
@@ -29,7 +62,7 @@ export interface TextProps extends NodeCommonProps {
   text: string;
   fontSize: number;
   fill: string; // Text color overrides common fill/stroke
-  fontFamily: string;
+  fontFamily: FontName; // <-- NOW USES THE RICH FontName UNION
   align?: 'left' | 'center' | 'right' | 'justify';
   lineHeight?: number;
   letterSpacing?: number;
@@ -134,8 +167,3 @@ export interface CardTemplate {
   colors: string[];
   features: string[];
 }
-
-
-
-
-

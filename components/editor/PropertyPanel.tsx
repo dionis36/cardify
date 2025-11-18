@@ -15,7 +15,9 @@ import {
   RegularPolygonProps,
   LineProps,
   ArrowProps,
-  PathProps
+  PathProps,
+  // NEW: Import the rich FontName type
+  FontName
 } from "@/types/template";
 import React, { useCallback } from "react";
 // Assuming ColorPicker is a sibling component
@@ -26,6 +28,40 @@ import {
   ArrowUp, ArrowDown, ChevronsUp, ChevronsDown, Lock, Unlock, 
   Eye, EyeOff, Edit, Move, RotateCw, Settings, Layout, Layers
 } from "lucide-react";
+
+// --- FONT OPTIONS LIST (Derived from FontName type in template.ts) ---
+// This list MUST match the FontName union type in @/types/template.ts
+const FONT_OPTIONS: FontName[] = [
+    // Sans-Serif
+    "Arial", 
+    "Verdana", 
+    "Helvetica", 
+    "Inter", 
+    "Roboto", 
+    "Open Sans", 
+    "Lato", 
+    "Montserrat", 
+    "Poppins", 
+    "sans-serif",
+    // Serif
+    "Times New Roman", 
+    "Georgia", 
+    "Palatino", 
+    "serif",
+    "Playfair Display",
+    "Merriweather",
+    // Monospace
+    "Courier New",
+    "Lucida Console",
+    "monospace",
+    // Display/Script/Specialty
+    "Garamond",
+    "Impact",
+    "Comic Sans MS",
+    "Pacifico",
+    "Bebas Neue",
+];
+
 
 // --- Custom Components for Enhanced UI ---
 
@@ -260,7 +296,8 @@ export default function PropertyPanel({
       const textProps = node.props as TextProps;
       text = textProps.text ?? text;
       fontSize = textProps.fontSize ?? fontSize;
-      fontFamily = textProps.fontFamily ?? fontFamily;
+      // Cast is safe since the default font is included in FontName
+      fontFamily = (textProps.fontFamily ?? fontFamily) as FontName;
       align = textProps.align ?? align;
       lineHeight = textProps.lineHeight ?? lineHeight;
       letterSpacing = textProps.letterSpacing ?? letterSpacing;
@@ -433,7 +470,7 @@ export default function PropertyPanel({
         </div>
 
         {/* Style Toggles */}
-        <div className="space-y-2 **w-fit mx-auto** bg-gray-50 p-2 rounded-lg border border-gray-200">
+        <div className="space-y-2 w-fit mx-auto bg-gray-50 p-2 rounded-lg border border-gray-200">
           {/* Row 1: Text Styles - Centered */}
           <div className="flex space-x-2 justify-center">
             <StyleButton icon={Bold} title="Bold" active={isBold} onClick={() => toggleFontStyle('bold')} />
@@ -454,7 +491,7 @@ export default function PropertyPanel({
 
         {/* Size and Color - Side by side */}
         {/* Size and Color - Block wrapped with mb-4 for separation */}
-        <div className="flex flex-col space-y-3 **mb-4**"> 
+        <div className="flex flex-col space-y-3 mb-4"> 
           <InputGroup
             label="Size"
             value={fontSize}
@@ -468,13 +505,24 @@ export default function PropertyPanel({
           />
         </div>
 
-        {/* Font Family - Full width */}
-        <InputGroup
-          label="Font Family"
-          type="text"
-          value={fontFamily}
-          onChange={(v) => handlePropChange('fontFamily', v)}
-        />
+        {/* NEW: Font Family Dropdown Component */}
+        <div className="flex flex-col">
+            <label className="text-xs font-semibold text-gray-700 mb-1">Font Family</label>
+            <select
+                value={fontFamily}
+                onChange={(e) => handlePropChange('fontFamily', e.target.value)}
+                className="w-full border border-gray-300 p-2 rounded-md text-sm transition-all focus:ring-blue-500 focus:border-blue-500 bg-white"
+                style={{ fontFamily: fontFamily }} // Apply selected font style to the select element itself for preview
+            >
+                {FONT_OPTIONS.map((font) => (
+                    <option key={font} value={font} style={{ fontFamily: font }}>
+                        {font}
+                    </option>
+                ))}
+            </select>
+        </div>
+        {/* END NEW: Font Family Dropdown Component */}
+
 
         {/* Line Height and Letter Spacing - Side by side */}
         <div className="grid grid-cols-2 gap-3">
