@@ -5,7 +5,8 @@
 import { KonvaNodeDefinition, KonvaNodeProps, TextProps, RectProps, ImageProps } from "@/types/template"; 
 import React, { useCallback } from "react";
 import ColorPicker from "./ColorPicker";
-import { AlignLeft, AlignCenter, AlignRight, AlignJustify, Type, Underline, Bold } from "lucide-react"; 
+// ADDED ICONS for Layer Ordering
+import { AlignLeft, AlignCenter, AlignRight, AlignJustify, Type, Underline, Bold, ArrowUp, ArrowDown, ChevronsUp, ChevronsDown, Lock, Unlock } from "lucide-react"; 
 
 type EditorMode = "FULL_EDIT" | "DATA_ONLY";
 
@@ -32,7 +33,7 @@ const InputGroup: React.FC<InputGroupProps> = ({ label, value, onChange, type = 
       step={step}
       min={min}
       max={max}
-      disabled={disabled}
+      disabled={disabled} 
     />
   </div>
 );
@@ -61,14 +62,27 @@ const StyleButton: React.FC<StyleButtonProps> = ({ icon: Icon, active, onClick, 
 );
 
 
+// --- MAIN COMPONENT INTERFACE ---
 interface PropertyPanelProps {
   node: KonvaNodeDefinition | null;
   onPropChange: (updates: Partial<KonvaNodeProps>) => void;
-  onDefinitionChange: (updates: Partial<KonvaNodeDefinition>) => void; 
+  onDefinitionChange: (updates: Partial<KonvaNodeDefinition>) => void;
   mode: EditorMode;
+  // NEW PROPS for Layer Ordering
+  onMoveToFront: () => void;
+  onMoveToBack: () => void;
+  onMoveUp: () => void;
+  onMoveDown: () => void;
 }
 
-export default function PropertyPanel({ node, onPropChange, onDefinitionChange, mode }: PropertyPanelProps) {
+export default function PropertyPanel({ 
+  node, 
+  onPropChange, 
+  onDefinitionChange, 
+  mode,
+  // DESTRUCTURE NEW PROPS
+  onMoveToFront, onMoveToBack, onMoveUp, onMoveDown
+}: PropertyPanelProps) {
   
   // Custom type to widen the possible keys for the handler
   type AllKonvaPropKeys = keyof TextProps | keyof RectProps | keyof ImageProps; 
@@ -78,15 +92,23 @@ export default function PropertyPanel({ node, onPropChange, onDefinitionChange, 
     onPropChange({ [key as AllKonvaPropKeys]: value } as Partial<KonvaNodeProps>);
   }, [onPropChange]);
   
-  const handleDefinitionChange = useCallback((key: 'locked' | 'editable', value: boolean) => {
-    onDefinitionChange({ [key]: value });
+  const handleDefinitionChange = useCallback((key: 'locked' | 'editable' | 'visible', value: boolean) => {
+    onDefinitionChange({ [key]: value } as Partial<KonvaNodeDefinition>);
   }, [onDefinitionChange]);
+  
+  // Helper to toggle lock state
+  const handleToggleLock = useCallback(() => {
+    handleDefinitionChange('locked', !node?.locked);
+  }, [handleDefinitionChange, node]);
 
 
-  if (!node || !node.editable) return null;
-
-  // Determine if layout controls should be disabled
-  const isLayoutDisabled = mode === "DATA_ONLY";
+  if (!node) {
+    return (
+      <div className="w-80 border-l bg-gray-50 p-4 shrink-0 overflow-y-auto">
+        <p className="text-sm text-gray-500 text-center py-4">Select an element on the canvas to edit its properties.</p>
+      </div>
+    );
+  }
 
   // --- ACCESS COMMON PROPERTIES DIRECTLY (FIX FOR TYPE ERRORS) ---
   // Access common properties from node.props without using destructuring + rest operator
@@ -189,63 +211,41 @@ export default function PropertyPanel({ node, onPropChange, onDefinitionChange, 
       handlePropChange('textDecoration', isSet ? '' : decoration);
   }
 
+  const isLocked = node.locked;
+  const isLayoutDisabled = mode === "DATA_ONLY";
+  const layoutControlsDisabled = isLocked || isLayoutDisabled;
+
 
   return (
-    <div className="w-64 bg-gray-50 border-l p-4 flex flex-col gap-5 overflow-y-auto h-full">
-      <h2 className="font-semibold text-lg mb-2">Properties: {node.type}</h2>
+    <div className="w-80 border-l bg-white p-4 shrink-0 overflow-y-auto space-y-4">
+      <h2 className="text-xl font-bold text-gray-800 border-b pb-2">Properties: {node.type}</h2>
       
-      {/* -------------------- SHARED CONTROLS (Position & Size) -------------------- */}
-      <div className="space-y-3 border-b pb-4">
-        <h3 className="text-sm font-bold text-gray-800">Position & Size</h3>
-        <div className="grid grid-cols-2 gap-2">
-          <InputGroup label="X" type="number" value={Math.round(x)} onChange={(v) => handlePropChange('x', Number(v))} disabled={isLayoutDisabled} />
-          <InputGroup label="Y" type="number" value={Math.round(y)} onChange={(v) => handlePropChange('y', Number(v))} disabled={isLayoutDisabled} />
-          <InputGroup label="W" type="number" value={Math.round(width)} onChange={(v) => handlePropChange('width', Number(v))} disabled={isLayoutDisabled} />
-          <InputGroup label="H" type="number" value={Math.round(height)} onChange={(v) => handlePropChange('height', Number(v))} disabled={isLayoutDisabled} />
-        </div>
-      </div>
-
-      {/* -------------------- TRANSFORM & LOCK -------------------- */}
-      <div className="space-y-3 border-b pb-4">
-        <h3 className="text-sm font-bold text-gray-800">Transform</h3>
-        
-        <InputGroup 
-            label="Rotation (°)" 
-            type="number" 
-            value={Math.round(rotation)} 
-            min={-360} max={360} 
-            onChange={(v) => handlePropChange('rotation', Number(v))} 
-            disabled={isLayoutDisabled} 
-        />
-        
-        <InputGroup 
-          label="Opacity (%)" 
-          type="number" 
-          min={0} max={100} 
-          step={5}
-          value={Math.round(opacity * 100)} 
-          onChange={(v) => handlePropChange('opacity', Number(v) / 100)} 
-        />
-        
-        {/* Lock/Hide/Editable Controls */}
-        <div className="flex justify-between items-center pt-2">
-            <label className="text-sm text-gray-700">Lock Element</label>
-            <input 
-                type="checkbox" 
-                checked={!!node.locked} 
-                onChange={(e) => handleDefinitionChange('locked', e.target.checked)}
-                className={`w-4 h-4 text-blue-600 border-gray-300 rounded ${isLayoutDisabled ? 'bg-gray-400 cursor-not-allowed' : ''}`}
-                disabled={isLayoutDisabled} 
-            />
-        </div>
-        <div className="flex justify-between items-center">
-            <label className="text-sm text-gray-700">Hide Element</label>
-            <input 
-                type="checkbox" 
-                checked={!visible} 
-                onChange={(e) => handlePropChange('visible', !e.target.checked)}
-                className="w-4 h-4 text-blue-600 border-gray-300 rounded"
-            />
+      {/* -------------------- GENERAL CONTROLS: Lock/Visibility -------------------- */}
+      <div className="space-y-3">
+        <h3 className="text-sm font-bold text-gray-800">Element Definition</h3>
+        <div className="flex justify-between items-center space-x-2">
+            
+          {/* Lock/Unlock Toggle */}
+          <button
+              onClick={handleToggleLock}
+              className={`flex-1 p-2 rounded text-sm font-semibold transition-colors flex items-center justify-center gap-1 ${
+                  isLocked ? 'bg-red-100 text-red-700 hover:bg-red-200' : 'bg-green-100 text-green-700 hover:bg-green-200'
+              }`}
+              title={isLocked ? "Unlock Element (Enable editing)" : "Lock Element (Disable layout editing)"}
+          >
+              {isLocked ? <Unlock size={14} /> : <Lock size={14} />} {isLocked ? 'Locked' : 'Unlocked'}
+          </button>
+          
+          {/* Visibility Toggle */}
+          <button
+            onClick={() => handleDefinitionChange('visible', !visible)}
+            className={`flex-1 p-2 rounded text-sm font-semibold transition-colors ${
+                visible ? 'bg-gray-100 text-gray-700 hover:bg-gray-200' : 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200'
+            }`}
+            title={visible ? "Hide Element" : "Show Element"}
+          >
+            {visible ? '👁️ Visible' : '🙈 Hidden'}
+          </button>
         </div>
         <div className="flex justify-between items-center">
             <label className="text-sm text-gray-700">Content Editable</label>
@@ -257,9 +257,61 @@ export default function PropertyPanel({ node, onPropChange, onDefinitionChange, 
             />
         </div>
       </div>
+
+      {/* -------------------- LAYER ORDER CONTROLS (NEW SECTION) -------------------- */}
+      <div className="border-t border-gray-200 pt-4 space-y-3">
+          <h3 className="text-sm font-bold text-gray-800">Layer Order</h3>
+          <div className="flex justify-between space-x-2">
+              <button 
+                  onClick={onMoveToBack}
+                  disabled={isLocked} // Disable only when locked, parent handles index check
+                  className="flex items-center justify-center p-2 rounded bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50 transition-colors flex-1 text-sm"
+                  title="Move to Back (Bottom Layer)"
+              >
+                  <ChevronsDown size={14} className="mr-1" /> Back
+              </button>
+              <button 
+                  onClick={onMoveDown}
+                  disabled={isLocked}
+                  className="flex items-center justify-center p-2 rounded bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50 transition-colors flex-1 text-sm"
+                  title="Move Down One Layer"
+              >
+                  <ArrowDown size={14} className="mr-1" /> Down
+              </button>
+              <button 
+                  onClick={onMoveUp}
+                  disabled={isLocked}
+                  className="flex items-center justify-center p-2 rounded bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50 transition-colors flex-1 text-sm"
+                  title="Move Up One Layer"
+              >
+                  <ArrowUp size={14} className="mr-1" /> Up
+              </button>
+              <button 
+                  onClick={onMoveToFront}
+                  disabled={isLocked}
+                  className="flex items-center justify-center p-2 rounded bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50 transition-colors flex-1 text-sm"
+                  title="Move to Front (Top Layer)"
+              >
+                  <ChevronsUp size={14} className="mr-1" /> Front
+              </button>
+          </div>
+      </div>
+      
+      {/* -------------------- TRANSFORM PROPERTIES -------------------- */}
+      <div className="border-t border-gray-200 pt-4 space-y-3">
+        <h3 className="text-sm font-bold text-gray-800">Position & Size</h3>
+        <div className="grid grid-cols-2 gap-3">
+          <InputGroup label="X (px)" type="number" value={Math.round(x)} step={1} onChange={(v) => handlePropChange('x', Number(v))} disabled={layoutControlsDisabled} />
+          <InputGroup label="Y (px)" type="number" value={Math.round(y)} step={1} onChange={(v) => handlePropChange('y', Number(v))} disabled={layoutControlsDisabled} />
+          <InputGroup label="Width (px)" type="number" value={Math.round(width)} min={10} step={1} onChange={(v) => handlePropChange('width', Number(v))} disabled={layoutControlsDisabled} />
+          <InputGroup label="Height (px)" type="number" value={Math.round(height)} min={10} step={1} onChange={(v) => handlePropChange('height', Number(v))} disabled={layoutControlsDisabled} />
+          <InputGroup label="Rotation (°)" type="number" value={Math.round(rotation)} step={1} onChange={(v) => handlePropChange('rotation', Number(v))} disabled={layoutControlsDisabled} />
+          <InputGroup label="Opacity (%)" type="number" value={Math.round(opacity * 100)} min={0} max={100} onChange={(v) => handlePropChange('opacity', Number(v) / 100)} disabled={layoutControlsDisabled} />
+        </div>
+      </div>
       
       {/* -------------------- SHADOW PROPERTIES -------------------- */}
-      <div className="space-y-3 border-b pb-4">
+      <div className="space-y-3 border-t pt-4">
         <h3 className="text-sm font-bold text-gray-800">Shadow</h3>
         
         <ColorPicker 
@@ -293,9 +345,9 @@ export default function PropertyPanel({ node, onPropChange, onDefinitionChange, 
         </div>
       </div>
 
-      {/* -------------------- TEXT PROPERTIES (Phase 2.1) -------------------- */}
+      {/* -------------------- TEXT PROPERTIES -------------------- */}
       {node.type === "Text" && (
-        <div className="space-y-3 border-b pb-4">
+        <div className="space-y-3 border-t pt-4">
           <h3 className="text-sm font-bold text-gray-800">Text Styling</h3>
           
           <label className="block text-sm font-medium text-gray-700">Text Content</label>
@@ -403,7 +455,7 @@ export default function PropertyPanel({ node, onPropChange, onDefinitionChange, 
 
       {/* -------------------- RECT & IMAGE PROPERTIES -------------------- */}
       {(node.type === "Rect" || node.type === "Image") && (
-        <div className="space-y-3">
+        <div className="space-y-3 border-t pt-4">
           <h3 className="text-sm font-bold text-gray-800">{node.type === "Rect" ? "Shape Styling" : "Border/Image Styling"}</h3>
           
           {node.type === "Rect" && (

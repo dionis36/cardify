@@ -21,8 +21,7 @@ import { downloadPNG, downloadPDF } from "@/lib/pdf";
 // Define the editor modes
 type EditorMode = "FULL_EDIT" | "DATA_ONLY";
 
-// --- Placeholder/Assumption for your State/Reducer logic ---
-// Based on file snippets, this structure manages multi-page state and history.
+// --- State/Reducer logic ---
 type State = {
   pages: CardTemplate[]; 
   current: number; 
@@ -55,7 +54,7 @@ type Action =
   | { type: 'UNDO' }
   | { type: 'REDO' };
 
-// Reducer implementation (simplified for context)
+// Reducer implementation
 function editorReducer(state: State, action: Action): State {
   const newState = produce(state, draft => {
     // Save current state to history before any modification
@@ -162,7 +161,7 @@ export default function DesignPage() {
             nodeIndex: index,
             updates,
         });
-    }, [state.current, mode]);
+    }, [state.current]);
 
     // 2. Update node definition (locked, editable)
     const onNodeDefinitionChange = useCallback((index: number, updates: Partial<KonvaNodeDefinition>) => {
@@ -179,7 +178,7 @@ export default function DesignPage() {
         setSelectedIndex(null);
     }, []);
     
-    // 3. Add a new node (Text, Rect, Image)
+    // 3. Add a new node (Text, Rect, Image, etc.)
     const onAddNode = useCallback((node: KonvaNodeDefinition) => {
         dispatch({
             type: 'ADD_NODE',
@@ -190,58 +189,84 @@ export default function DesignPage() {
         setSelectedIndex(currentPage.layers.length);
     }, [state.current, currentPage.layers.length]);
 
+    // --- LAYER ORDERING LOGIC (NEW) ---
 
+    // Core layer move function: dispatches the array move and updates local selection index
+    const onMoveLayer = useCallback((from: number, to: number) => {
+        if (from === to) return;
 
-    // --- Sidebar Helper Functions ---
+        // 1. Dispatch the move action to the reducer
+        dispatch({
+            type: 'MOVE_NODE',
+            pageIndex: state.current,
+            from,
+            to,
+        });
+        
+        // 2. Update selected index (which is managed by local state)
+        setSelectedIndex(prevIndex => {
+            if (prevIndex === null) return null;
+            if (prevIndex === from) {
+                // The moved element remains selected at the new index
+                return to;
+            }
+            // Handle adjustment for other selected elements only if the selection is not the layer being moved
+            else if (from < prevIndex && to >= prevIndex) {
+                // Layer moved up over the selected index, so selected index shifts down
+                return prevIndex - 1;
+            } else if (from > prevIndex && to <= prevIndex) {
+                // Layer moved down over the selected index, so selected index shifts up
+                return prevIndex + 1;
+            }
+            return prevIndex;
+        });
 
-    const addText = useCallback(() => {
-        const newText: KonvaNodeDefinition = {
-            id: `text_${Date.now()}`,
-            type: 'Text',
-            props: {
-                x: currentPage.width / 4,
-                y: currentPage.height / 4,
-                width: 200,
-                height: 40,
-                text: "New Text",
-                fontSize: 24,
-                fill: '#000000',
-                fontFamily: 'Arial',
-                rotation: 0,
-                opacity: 1,
-            },
-            editable: true,
-            locked: false,
-        };
-        onAddNode(newText);
-    }, [currentPage.width, currentPage.height, onAddNode]);
+    }, [dispatch, state.current]); 
 
-    const addRect = useCallback(() => {
-        const newRect: KonvaNodeDefinition = {
-            id: `rect_${Date.now()}`,
-            type: 'Rect',
-            props: {
-                x: currentPage.width / 4,
-                y: currentPage.height / 4,
-                width: 100,
-                height: 100,
-                fill: '#E0E0E0',
-                rotation: 0,
-                opacity: 1,
-            },
-            editable: true,
-            locked: false,
-        };
-        onAddNode(newRect);
-    }, [currentPage.width, currentPage.height, onAddNode]);
+    // Helper function used by all explicit move actions
+    const moveSelectedLayer = useCallback((newIndex: number) => {
+        // Check for locked status on the currently selected node
+        if (selectedIndex === null || selectedNode?.locked) return;
+        onMoveLayer(selectedIndex, newIndex);
+    }, [selectedIndex, selectedNode, onMoveLayer]);
 
-    const addImage = useCallback((file: File) => {
+    const moveLayerToFront = useCallback(() => {
+        // layers.length - 1 is the front (highest index)
+        const newIndex = currentPage.layers.length - 1; 
+        moveSelectedLayer(newIndex);
+    }, [currentPage.layers.length, moveSelectedLayer]);
+
+    const moveLayerToBack = useCallback(() => {
+        // 0 is the back (lowest index)
+        moveSelectedLayer(0);
+    }, [moveSelectedLayer]);
+
+    const moveLayerUp = useCallback(() => {
+        if (selectedIndex === null) return;
+        const newIndex = Math.min(selectedIndex + 1, currentPage.layers.length - 1);
+        moveSelectedLayer(newIndex);
+    }, [selectedIndex, currentPage.layers.length, moveSelectedLayer]);
+
+    const moveLayerDown = useCallback(() => {
+        if (selectedIndex === null) return;
+        const newIndex = Math.max(selectedIndex - 1, 0);
+        moveSelectedLayer(newIndex);
+    }, [selectedIndex, moveSelectedLayer]);
+
+    // --- Sidebar Helper Functions (Element Creation) ---
+    
+    // REMOVED: addText and addRect
+
+    // ADDED: Replaced legacy addImage function to align with the new sidebar prop name
+    const onAddImage = useCallback((file: File) => { 
         const reader = new FileReader();
         reader.onload = (e) => {
+            const id = `image_${Date.now()}`; // declare id variable
             const newImage: KonvaNodeDefinition = {
-                id: `image_${Date.now()}`,
+                id,
                 type: 'Image',
                 props: {
+                    id,
                     x: currentPage.width / 4,
                     y: currentPage.height / 4,
                     width: 150,
@@ -301,17 +326,24 @@ export default function DesignPage() {
 
     const saveDesign = useCallback(() => {
         console.log("Design Saved:", JSON.stringify(currentPage.layers));
-        // In a real app, you would send currentPage to an API here
         alert('Design saved to console!');
     }, [currentPage.layers]);
 
+    const removeLayer = useCallback((index: number) => {
+        dispatch({ type: 'REMOVE_NODE', pageIndex: state.current, nodeIndex: index });
+        // After removal, clear selection if the removed element was selected
+        if (selectedIndex === index) {
+            setSelectedIndex(null);
+        } else if (selectedIndex !== null && index < selectedIndex) {
+            // Adjust index if an element before the selected one was removed
+            setSelectedIndex(selectedIndex - 1);
+        }
+    }, [state.current, selectedIndex]);
 
     // Deselect if we change page or go into Data-Only mode
     useEffect(() => {
         if (mode === "DATA_ONLY" && selectedIndex !== null) {
-            // Find the index of the selected node among the editable layers
             const isSelectedEditable = selectedNode?.editable ?? false;
-            // If the selected node is NOT editable, clear selection
             if (!isSelectedEditable) {
                 setSelectedIndex(null);
             }
@@ -335,10 +367,9 @@ export default function DesignPage() {
             <div className="flex flex-1 overflow-hidden">
                 {/* A. LEFT SIDEBAR (Fixed Width - Layer/Element/Page Panels) */}
                 <EditorSidebar
-                    // Element Creation
-                    addText={addText}
-                    addRect={addRect}
-                    addImage={addImage}
+                    // NEW SIMPLIFIED PROP INTERFACE for Element Creation
+                    onAddNode={onAddNode} 
+                    onAddImage={onAddImage} // Used by the Asset/Upload panel
 
                     // Page Control
                     addPage={addPage}
@@ -351,11 +382,8 @@ export default function DesignPage() {
                     layers={currentPage.layers}
                     selectedIndex={selectedIndex}
                     onSelectLayer={setSelectedIndex}
-                    onMoveLayer={(from, to) => dispatch({ type: 'MOVE_NODE', pageIndex: state.current, from, to })}
-                    onRemoveLayer={(index) => {
-                        dispatch({ type: 'REMOVE_NODE', pageIndex: state.current, nodeIndex: index });
-                        setSelectedIndex(null);
-                    }}
+                    onMoveLayer={onMoveLayer} // Pass the core logic to update local selection
+                    onRemoveLayer={removeLayer} // Pass the updated remove layer logic
                     onDefinitionChange={onNodeDefinitionChange}
                     // Mode
                     mode={mode}
@@ -368,6 +396,7 @@ export default function DesignPage() {
                         template={currentPage}
                         selectedNodeIndex={selectedIndex} 
                         onSelectNode={(index: number | null) => setSelectedIndex(index)}
+                        onDeselectNode={() => setSelectedIndex(null)} 
                         onNodeChange={onNodeChange}
                         mode={mode}
                     />
@@ -375,23 +404,21 @@ export default function DesignPage() {
 
                 {/* C. RIGHT SIDEBAR (Fixed Width - Property Panel) */}
                 <PropertyPanel
-                    // FIX 2: Renamed 'selectedNode' to 'node' (based on component signature)
                     node={selectedNode}
-                    // FIX 2: Removed 'selectedIndex' prop (likely not needed in PropertyPanel)
                     
-                    // Prop changes (x, y, fill, etc.)
-                    // FIX 2: Renamed prop to 'onPropChange' (based on component signature)
-                    // FIX 3: Added explicit type 'Partial<KonvaNodeProps>' to 'updates'
                     onPropChange={(updates: Partial<KonvaNodeProps>) => 
                         selectedIndex !== null && onNodeChange(selectedIndex, updates)
                     }
-                    // Definition changes (locked, editable)
-                    // FIX 2: Renamed prop to 'onDefinitionChange' (based on component signature)
-                    // FIX 4: Added explicit type 'Partial<KonvaNodeDefinition>' to 'updates'
                     onDefinitionChange={(updates: Partial<KonvaNodeDefinition>) => 
                         selectedIndex !== null && onNodeDefinitionChange(selectedIndex, updates)
                     }
                     mode={mode}
+
+                    // NEW PROPS for Layer Ordering
+                    onMoveToFront={moveLayerToFront}
+                    onMoveToBack={moveLayerToBack}
+                    onMoveUp={moveLayerUp}
+                    onMoveDown={moveLayerDown}
                 />
             </div>
         </div>

@@ -1,19 +1,19 @@
-// components/editor/EditorSidebar.tsx (REVISED for Integrated Tabs)
+// components/editor/EditorSidebar.tsx (COMPLETE AND CORRECTED)
 
 "use client";
 
 import { useState } from "react";
 import LayerList from "./LayerList"; // IMPORT LayerList
+import { ShapeLibrary } from "./ShapeLibrary"; // IMPORT ShapeLibrary
 import { KonvaNodeDefinition } from "@/types/template";
-import { Move, Layers, Settings, Text, Square, Image, Trash2, ChevronLeft, ChevronRight, Plus } from "lucide-react"; // Using icons for professionalism
+import { Move, Layers, Settings, Image, Trash2, ChevronLeft, ChevronRight, Plus } from "lucide-react"; // Updated icons
 
 type EditorMode = "FULL_EDIT" | "DATA_ONLY"; 
 
 interface EditorSidebarProps {
-  // Element Creation Props
-  addText: () => void;
-  addRect: () => void;
-  addImage: (file: File) => void;
+  // NEW SIMPLIFIED ELEMENT CREATION PROPS
+  onAddNode: (node: KonvaNodeDefinition) => void;
+  onAddImage: (file: File) => void; // Used for asset uploads
   
   // Page Control Props
   addPage: () => void;
@@ -34,7 +34,9 @@ interface EditorSidebarProps {
 }
 
 export default function EditorSidebar({
-  addText, addRect, addImage,
+  // New props replacing addText and addRect
+  onAddNode, onAddImage,
+  // Remaining props
   addPage, removePage, pageCount, currentPage, gotoPage,
   layers, selectedIndex, onSelectLayer, onMoveLayer, onRemoveLayer, onDefinitionChange,
   mode,
@@ -57,7 +59,8 @@ export default function EditorSidebar({
           if (isDataOnlyMode) return <p className="p-4 text-center text-gray-500 text-sm">Layers management is locked in Data Edit Mode.</p>;
 
           return (
-              <div className="flex flex-col gap-2 h-full overflow-y-auto">
+              // LayerList assumes its own scrolling/layout management for full height
+              <div className="flex flex-col gap-2 h-full overflow-y-auto p-4"> 
                   <LayerList
                       layers={layers}
                       selectedIndex={selectedIndex}
@@ -65,36 +68,30 @@ export default function EditorSidebar({
                       onMoveLayer={onMoveLayer}
                       onRemoveLayer={onRemoveLayer}
                       onDefinitionChange={onDefinitionChange}
+                      // Assuming LayerList can handle the mode prop
+                      mode={mode}
                   />
               </div>
           );
       }
       
-      // 2. ELEMENTS TAB
+      // 2. ELEMENTS TAB (Now incorporates ShapeLibrary and Image Upload)
       if (activeTab === "elements") {
         if (isDataOnlyMode) return <p className="p-4 text-center text-gray-500 text-sm">Element creation is locked in Data Edit Mode.</p>;
 
         return (
-          <div className="flex flex-col gap-3 pt-4 h-full overflow-y-auto">
-            <h3 className="text-sm font-bold text-gray-800 border-b pb-2">Element Tools</h3>
-            <div className="border p-3 rounded bg-white space-y-3 shadow-sm">
-              
-              <button
-                onClick={addText}
-                className="w-full py-2 rounded text-sm font-semibold transition-colors flex items-center justify-center gap-2 bg-blue-600 text-white hover:bg-blue-700"
-              >
-                <Text size={16} /> Add Text Layer
-              </button>
-              
-              <button
-                onClick={addRect}
-                className="w-full py-2 rounded text-sm font-semibold transition-colors flex items-center justify-center gap-2 bg-teal-600 text-white hover:bg-teal-700"
-              >
-                <Square size={16} /> Add Shape
-              </button>
+          // ShapeLibrary already applies p-4 internally, we use the flex-col for structure
+          <div className="flex flex-col gap-3 h-full overflow-y-auto">
+            {/* A. Shape Library (Uses onAddNode) */}
+            <ShapeLibrary onAddNode={onAddNode} />
 
-              <div className="pt-3 border-t">
-                <label className="block text-xs font-medium text-gray-700 mb-1">Upload Image</label>
+            {/* B. Image Upload Section (Uses onAddImage) */}
+            {/* Applying padding here and a top border to visually separate from the shapes */}
+            <div className="p-4 border-t border-gray-100 bg-white space-y-3 shadow-t-md">
+              <h3 className="text-sm font-bold text-gray-800 border-b pb-2">Asset Upload</h3>
+              
+              <div className="border p-3 rounded bg-white space-y-3 shadow-sm">
+                <label className="block text-xs font-medium text-gray-700 mb-1">Upload Image File</label>
                 <input
                   type="file"
                   accept="image/*"
@@ -104,7 +101,7 @@ export default function EditorSidebar({
                 <button
                   onClick={() => {
                     if (file) {
-                      addImage(file);
+                      onAddImage(file); // Updated to use onAddImage
                       setFile(null); 
                     }
                   }}
@@ -113,7 +110,7 @@ export default function EditorSidebar({
                     !file ? "bg-gray-200 text-gray-500 cursor-not-allowed" : "bg-green-600 text-white hover:bg-green-700"
                   }`}
                 >
-                  <Image size={16} /> Add to Canvas
+                  <Image size={16} /> Add Image to Canvas
                 </button>
               </div>
             </div>
@@ -124,7 +121,7 @@ export default function EditorSidebar({
       // 3. PAGES TAB
       if (activeTab === "pages") {
           return (
-              <div className="flex flex-col gap-3 pt-4 h-full overflow-y-auto">
+              <div className="flex flex-col gap-3 pt-4 h-full overflow-y-auto p-4">
                   <h3 className="text-sm font-bold text-gray-800 border-b pb-2">Page Management</h3>
                   
                   {/* Page Navigation/Display */}
@@ -207,7 +204,7 @@ export default function EditorSidebar({
         </div>
         
         {/* Tab Content */}
-        <div className="flex-1 overflow-y-auto p-4">
+        <div className="flex-1 overflow-y-auto">
             {renderTabContent()}
         </div>
       </div>

@@ -65,6 +65,7 @@ interface CanvasStageProps {
     selectedNodeIndex: number | null;
     onNodeChange: (index: number, updates: Partial<KonvaNodeProps>) => void;
     onSelectNode: (index: number | null) => void;  // Changed: removed event parameter
+    onDeselectNode: () => void; // Added for clarity
     mode: EditorMode;
 }
 
@@ -75,6 +76,7 @@ const CanvasStage = forwardRef<StageRef, CanvasStageProps>((({
     selectedNodeIndex,
     onNodeChange,
     onSelectNode,
+    onDeselectNode, // Use the new prop
     mode,
 }, ref) => {
     const transformerRef = useRef<Konva.Transformer>(null);
@@ -261,10 +263,12 @@ const CanvasStage = forwardRef<StageRef, CanvasStageProps>((({
                 height={template.height}
                 // Handle deselecting on click outside of a node
                 onClick={(e) => {
-                    // Clicks on the stage itself (not a node) should deselect
+                    // FIX: Always clear editing state on ANY click that bubbles up to the stage
+                    setEditingNode(null);
+
+                    // Only deselect everything if the click hit the stage background
                     if (e.target === e.target.getStage()) {
-                        onSelectNode(null);
-                        setEditingNode(null);
+                        onDeselectNode(); // Use the dedicated deselect handler
                     }
                 }}
             >
@@ -311,7 +315,9 @@ const CanvasStage = forwardRef<StageRef, CanvasStageProps>((({
                                     node={nodeDef}
                                     index={index}
                                     isSelected={selectedNodeIndex === index}
-                                    onSelect={(indexValue) => onSelectNode(indexValue)}
+                                    onSelect={(indexValue) => { 
+                                    onSelectNode(indexValue)
+                                    }}
                                     onNodeChange={(indexValue, updates) => onNodeChange(indexValue, updates)}
                                     isLocked={nodeDef.locked}
                                     isLayoutDisabled={isLayoutDisabled}

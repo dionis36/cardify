@@ -8,11 +8,12 @@ import React, { useState } from "react";
 interface LayerListProps {
   layers: KonvaNodeDefinition[];
   selectedIndex: number | null;
-  onSelectLayer: (index: number) => void;
+  onSelectLayer: (index: number | null) => void;
   onMoveLayer: (from: number, to: number) => void;
   // NEW PROPS: Added to fix TypeScript errors and implement new features
   onRemoveLayer: (index: number) => void; // FIX 1 & 2: Explicitly typed 'index' as number
   onDefinitionChange: (index: number, updates: Partial<KonvaNodeDefinition>) => void;
+  mode: "FULL_EDIT" | "DATA_ONLY"; // Add this
 }
 
 export default function LayerList({
@@ -22,6 +23,7 @@ export default function LayerList({
   onMoveLayer,
   onRemoveLayer, // Destructure new props
   onDefinitionChange, // Destructure new props
+  mode,
 }: LayerListProps) {
   // We track the index of the item being dragged in the REVERSED list (0 = front, N = back).
   const [draggedListIndex, setDraggedListIndex] = useState<number | null>(null);
@@ -76,7 +78,9 @@ export default function LayerList({
       const layer = reversedLayers[listIndex];
       // Toggles the 'visible' prop inside the node's properties
       const currentVisibility = layer.props.visible ?? true;
-      onDefinitionChange(konvaIndex, { props: { ...layer.props, visible: !currentVisibility } });
+      onDefinitionChange(konvaIndex, { 
+          props: { ...layer.props, visible: !currentVisibility } 
+      } as Partial<KonvaNodeDefinition>);
   }
 
   return (
@@ -111,7 +115,11 @@ export default function LayerList({
                 
                 {/* Layer Name/Info */}
                 <span className={`font-medium truncate flex-1 ${isLocked ? 'italic text-gray-500' : 'text-gray-700'}`}>
-                  {layer.type}: {layer.props.text || layer.props.src?.substring(0, 10) || layer.id.substring(0, 5)}...
+                  {layer.type}: {
+                    layer.type === 'Text' ? (layer.props as any).text :
+                    layer.type === 'Image' ? (layer.props as any).src?.substring(0, 10) :
+                    layer.id.substring(0, 5)
+                  }...
                 </span>
                 
                 {/* Control Buttons */}
