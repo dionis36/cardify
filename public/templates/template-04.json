@@ -1,0 +1,179 @@
+{
+  "id": "template_04",
+  "name": "Corporate Flow with Image",
+  "width": 600,
+  "height": 350,
+  "thumbnail": "/templates/thumb_04.png",
+  "tags": ["corporate", "image", "flow", "professional"],
+  "orientation": "horizontal",
+  "layers": [
+    {
+      "id": "bg_rect",
+      "type": "Rect",
+      "props": {
+        "x": 0,
+        "y": 0,
+        "width": 600,
+        "height": 350,
+        "fill": "#FFFFFF"
+      },
+      "editable": false,
+      "locked": true
+    },
+    {
+      "id": "background_image",
+      "type": "Image",
+      "props": {
+        "x": 300,
+        "y": 0,
+        "width": 300,
+        "height": 350,
+        "imageSource": "https://example.com/images/city-blur.jpg",
+        "crop": {
+          "x": 0,
+          "y": 0,
+          "width": 300,
+          "height": 350
+        },
+        "opacity": 0.4
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "path_flow",
+      "type": "Path",
+      "props": {
+        "x": 0,
+        "y": 0,
+        "width": 600,
+        "height": 350,
+        "fill": "#0F52BA",
+        "data": "M0 0 H200 V350 L0 350 Z",
+        "opacity": 0.8
+      },
+      "editable": true,
+      "locked": true
+    },
+    {
+      "id": "logo_text",
+      "type": "Text",
+      "props": {
+        "x": 20,
+        "y": 20,
+        "text": "FLOW.",
+        "fontSize": 36,
+        "fill": "#FFFFFF",
+        "fontFamily": "Georgia",
+        "width": 160,
+        "height": 40,
+        "align": "left"
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "name_text",
+      "type": "Text",
+      "props": {
+        "x": 220,
+        "y": 80,
+        "text": "EVELYN REID",
+        "fontSize": 32,
+        "fill": "#0F52BA",
+        "fontFamily": "Arial Black",
+        "width": 350,
+        "height": 40,
+        "align": "left"
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "title_text",
+      "type": "Text",
+      "props": {
+        "x": 220,
+        "y": 120,
+        "text": "Vice President of Strategy",
+        "fontSize": 18,
+        "fill": "#333333",
+        "fontFamily": "Arial",
+        "width": 350,
+        "height": 25,
+        "align": "left",
+        "fontStyle": "italic"
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "contact_label_phone",
+      "type": "Text",
+      "props": {
+        "x": 220,
+        "y": 200,
+        "text": "Phone:",
+        "fontSize": 12,
+        "fill": "#A0A0A0",
+        "fontFamily": "Arial",
+        "width": 60,
+        "height": 15,
+        "align": "left"
+      },
+      "editable": false,
+      "locked": true
+    },
+    {
+      "id": "contact_phone",
+      "type": "Text",
+      "props": {
+        "x": 220,
+        "y": 215,
+        "text": "+1 (555) 123-4567",
+        "fontSize": 14,
+        "fill": "#666666",
+        "fontFamily": "Arial",
+        "width": 200,
+        "height": 20,
+        "align": "left"
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "contact_label_email",
+      "type": "Text",
+      "props": {
+        "x": 220,
+        "y": 245,
+        "text": "Email:",
+        "fontSize": 12,
+        "fill": "#A0A0A0",
+        "fontFamily": "Arial",
+        "width": 60,
+        "height": 15,
+        "align": "left"
+      },
+      "editable": false,
+      "locked": true
+    },
+    {
+      "id": "contact_email",
+      "type": "Text",
+      "props": {
+        "x": 220,
+        "y": 260,
+        "text": "evelyn.reid@flowcorp.com",
+        "fontSize": 14,
+        "fill": "#666666",
+        "fontFamily": "Arial",
+        "width": 300,
+        "height": 20,
+        "align": "left"
+      },
+      "editable": true,
+      "locked": false
+    }
+  ]
+}

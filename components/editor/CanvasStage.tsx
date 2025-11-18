@@ -66,8 +66,8 @@ interface CanvasStageProps {
     selectedNodeIndex: number | null;
     onNodeChange: (index: number, updates: Partial<KonvaNodeProps>) => void;
     onSelectNode: (index: number | null) => void; 
-    onDeselectNode: () => void; 
     mode: EditorMode;
+    onDeselectNode?: () => void
 }
 
 type StageRef = KonvaStageType | null;
@@ -77,7 +77,6 @@ const CanvasStage = forwardRef<StageRef, CanvasStageProps>((({
     selectedNodeIndex,
     onNodeChange,
     onSelectNode,
-    onDeselectNode, 
     mode,
 }, ref) => {
     const transformerRef = useRef<Konva.Transformer>(null);
@@ -336,7 +335,7 @@ const CanvasStage = forwardRef<StageRef, CanvasStageProps>((({
                 />
             )}
 
-            <Stage 
+                <Stage 
                 ref={stageRef}
                 width={template.width} 
                 height={template.height}
@@ -347,7 +346,7 @@ const CanvasStage = forwardRef<StageRef, CanvasStageProps>((({
 
                     // Only deselect everything if the click hit the stage background
                     if (e.target === e.target.getStage()) {
-                        onDeselectNode(); 
+                        onSelectNode(null);
                     }
                 }}
             >
@@ -387,28 +386,26 @@ const CanvasStage = forwardRef<StageRef, CanvasStageProps>((({
                         {template.layers.map((nodeDef, index) => {
                             const isBeingEdited = editingNode?.index === index;
                             
-                            return (
-                                <KonvaNodeRenderer 
-                                    key={nodeDef.id}
-                                    node={nodeDef}
-                                    index={index}
-                                    isSelected={selectedNodeIndex === index}
-                                    onSelect={(indexValue) => { 
-                                    onSelectNode(indexValue)
-                                    }}
-                                    onNodeChange={(indexValue, updates) => onNodeChange(indexValue, updates)}
-                                    isLocked={nodeDef.locked}
-                                    isLayoutDisabled={isLayoutDisabled}
-                                    onStartEditing={handleStartTextEditing}
-                                    isVisible={!isBeingEdited}
-                                    onDragStart={handleDragStart}
-                                    onDragMove={handleDragMove}
-                                    // Pass the simplified handler: onNodeDragEnd now expects only the Konva event object
-                                    onDragEnd={onNodeDragEnd} 
-                                    // Pass the transform end handler (which still needs the index)
-                                    onTransformEnd={(e) => onNodeTransformEnd(e, index)} 
-                                />
-                            );
+                                return (
+                                    <KonvaNodeRenderer 
+                                        key={nodeDef.id}
+                                        node={nodeDef}
+                                        index={index}
+                                        isSelected={selectedNodeIndex === index}
+                                        onSelect={(indexValue) => { 
+                                            onSelectNode(indexValue);
+                                        }}
+                                        onNodeChange={(indexValue, updates) => onNodeChange(indexValue, updates)}
+                                        isLocked={nodeDef.locked}
+                                        isLayoutDisabled={isLayoutDisabled}
+                                        onStartEditing={handleStartTextEditing}
+                                        isVisible={!isBeingEdited}
+                                        onDragStart={handleDragStart}
+                                        onDragMove={handleDragMove}
+                                        onDragEnd={onNodeDragEnd}
+                                        // onTransformEnd={onNodeTransformEnd} // <-- added: satisfy KonvaNodeRendererProps
+                                    />
+                                );
                         })}
                     </Group>
 

@@ -36,7 +36,7 @@ interface KonvaNodeRendererProps {
   onDragMove: (e: Konva.KonvaEventObject<DragEvent>) => void;
   onDragEnd: (e: Konva.KonvaEventObject<DragEvent>) => void;
   // NEW PROP ADDED FOR TRANSFORM LISTENING
-  onTransformEnd: (e: Konva.KonvaEventObject<Event>) => void; 
+  // onTransformEnd: (e: Konva.KonvaEventObject<Event>) => void; 
   isVisible: boolean;
 }
 
@@ -52,7 +52,7 @@ const KonvaNodeRenderer: React.FC<KonvaNodeRendererProps> = memo(({
   onDragStart,
   onDragMove,
   onDragEnd,
-  onTransformEnd, // DESTRUCTURE NEW PROP
+  // onTransformEnd,
   isVisible,
 }) => {
   
@@ -95,7 +95,7 @@ const KonvaNodeRenderer: React.FC<KonvaNodeRendererProps> = memo(({
     // Pass the main onDragEnd handler for Konva events
     onDragEnd: onDragEnd, 
     // ADD THE TRANSFORM HANDLER
-    onTransformEnd: onTransformEnd,
+    // onTransformEnd: onTransformEnd,
     
     ...node.props, // Spread all properties
   };
