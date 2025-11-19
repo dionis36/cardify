@@ -1,5 +1,3 @@
-// app/(editor)/design/[templateId]/page.tsx (COMPLETE AND CORRECTED)
-
 "use client";
 
 import { useCallback, useEffect, useRef, useReducer, useState } from "react";
@@ -14,12 +12,35 @@ import EditorTopbar from "@/components/editor/EditorTopbar";
 import PropertyPanel from "@/components/editor/PropertyPanel";
 
 // Types/Libs
-import { CardTemplate, KonvaNodeDefinition, KonvaNodeProps } from "@/types/template";
+import { CardTemplate, KonvaNodeDefinition, KonvaNodeProps, BackgroundPattern, BackgroundType } from "@/types/template";
 import { loadTemplate } from "@/lib/templates";
 import { downloadPNG, downloadPDF } from "@/lib/pdf"; 
 
 // Define the editor modes
 type EditorMode = "FULL_EDIT" | "DATA_ONLY";
+
+// --- BACKGROUND DEFINITION (Temporary placeholder until types are consistently linked) ---
+// We assume this type exists in '@/types/template'
+// type BackgroundType = 'solid' | 'gradient' | 'pattern';
+// interface BackgroundPattern {
+//     type: BackgroundType;
+//     color1: string; // Primary color or gradient start
+//     color2: string; // Secondary color or gradient end
+//     opacity: number;
+//     rotation: number;
+//     scale: number;
+//     patternImageURL?: string; // Only for pattern type
+// }
+
+const DEFAULT_BACKGROUND: BackgroundPattern = {
+    type: 'solid',
+    color1: '#F3F4F6', // A light gray default
+    color2: '#000000', 
+    opacity: 1,
+    rotation: 0,
+    scale: 1,
+    patternImageURL: '',
+};
 
 // --- State/Reducer logic ---
 type State = {
@@ -31,8 +52,15 @@ type State = {
 
 // Initial state function using the loaded template
 function getInitialState(template: CardTemplate): State {
+    // Initialize the background state if the template doesn't provide one
+    const initialTemplate: CardTemplate = {
+        ...template,
+        // Ensure background is initialized with default if missing
+        background: template.background || DEFAULT_BACKGROUND, 
+    };
+
     return {
-        pages: [template],
+        pages: [initialTemplate],
         current: 0,
         history: [],
         future: [],
@@ -42,362 +70,378 @@ function getInitialState(template: CardTemplate): State {
 // Reducer actions
 type Action = 
   | { type: 'SET_PAGES', pages: CardTemplate[] }
-  | { type: 'GO_TO_PAGE', index: number }
+  | { type: 'CHANGE_NODE', index: number, updates: Partial<KonvaNodeProps> }
+  | { type: 'CHANGE_NODE_DEFINITION', index: number, updates: Partial<KonvaNodeDefinition> }
+  | { type: 'SET_SELECTED_INDEX', index: number | null }
+  | { type: 'ADD_NODE', node: KonvaNodeDefinition }
+  | { type: 'REMOVE_NODE', index: number }
+  | { type: 'MOVE_NODE', from: number, to: number }
+  | { type: 'CHANGE_MODE', mode: EditorMode }
   | { type: 'ADD_PAGE', template: CardTemplate }
   | { type: 'REMOVE_PAGE', index: number }
-  | { type: 'UPDATE_NODE_PROPS', pageIndex: number, nodeIndex: number, updates: Partial<KonvaNodeProps> }
-  | { type: 'UPDATE_NODE_DEFINITION', pageIndex: number, nodeIndex: number, updates: Partial<KonvaNodeDefinition> }
-  | { type: 'ADD_NODE', pageIndex: number, node: KonvaNodeDefinition }
-  | { type: 'REMOVE_NODE', pageIndex: number, nodeIndex: number }
-  | { type: 'MOVE_NODE', pageIndex: number, from: number, to: number }
-  | { type: 'TOGGLE_ORIENTATION', pageIndex: number }
+  | { type: 'GOTO_PAGE', index: number }
   | { type: 'UNDO' }
-  | { type: 'REDO' };
+  | { type: 'REDO' }
+  // NEW ACTION: Update Background
+  | { type: 'CHANGE_BACKGROUND', updates: Partial<BackgroundPattern> }; 
 
-// Reducer implementation
-function editorReducer(state: State, action: Action): State {
-  const newState = produce(state, draft => {
-    // Save current state to history before any modification
-    if (action.type !== 'UNDO' && action.type !== 'REDO') {
-      draft.history.push({ ...state, history: [], future: [] }); // Push clean state
-      draft.future = []; // Clear redo stack on new action
-    }
+// The core reducer logic
+function reducer(state: State, action: Action): State {
+    const pages = state.pages;
+    const current = state.current;
+    
+    const newPages = produce(pages, (draft) => {
+        const currentPage = draft[current];
+        if (!currentPage) return; // Should not happen
 
+        switch (action.type) {
+            case 'SET_PAGES':
+                return action.pages;
+
+            case 'CHANGE_NODE':
+                const nodeToUpdate = currentPage.layers[action.index];
+                if (nodeToUpdate) {
+                    nodeToUpdate.props = { ...nodeToUpdate.props, ...action.updates } as KonvaNodeProps;
+                }
+                break;
+            
+            case 'CHANGE_NODE_DEFINITION':
+                const defToUpdate = currentPage.layers[action.index];
+                if (defToUpdate) {
+                    Object.assign(defToUpdate, action.updates);
+                }
+                break;
+
+            case 'ADD_NODE':
+                currentPage.layers.push(action.node);
+                break;
+            
+            case 'REMOVE_NODE':
+                currentPage.layers.splice(action.index, 1);
+                break;
+                
+            case 'MOVE_NODE':
+                const [removed] = currentPage.layers.splice(action.from, 1);
+                currentPage.layers.splice(action.to, 0, removed);
+                break;
+
+            case 'ADD_PAGE':
+                draft.push(action.template);
+                state.current = draft.length - 1; // Auto-switch to new page
+                break;
+
+            case 'REMOVE_PAGE':
+                if (draft.length > 1) {
+                    draft.splice(action.index, 1);
+                    if (state.current >= draft.length) {
+                        state.current = draft.length - 1;
+                    }
+                }
+                break;
+
+            // NEW: Background Change Handler
+            case 'CHANGE_BACKGROUND':
+                currentPage.background = { 
+                    ...currentPage.background, 
+                    ...action.updates 
+                };
+                break;
+            
+            // Other cases that don't change pages or are handled separately (like SET_SELECTED_INDEX)
+            case 'SET_SELECTED_INDEX':
+            case 'CHANGE_MODE':
+            case 'GOTO_PAGE':
+                // Do not produce a new state in immer for these, they are handled outside
+                return; 
+        }
+    });
+
+    // Handle history, current page index, and mode changes outside the immer producer
     switch (action.type) {
-      case 'SET_PAGES':
-        draft.pages = action.pages;
-        draft.current = Math.min(draft.current, action.pages.length - 1);
-        break;
-      case 'GO_TO_PAGE':
-        draft.current = action.index;
-        break;
-      case 'ADD_PAGE':
-        draft.pages.push(action.template);
-        draft.current = draft.pages.length - 1;
-        break;
-      case 'REMOVE_PAGE':
-        if (draft.pages.length > 1) {
-          draft.pages.splice(action.index, 1);
-          draft.current = Math.min(draft.current, draft.pages.length - 1);
-        }
-        break;
-      case 'UPDATE_NODE_PROPS': {
-        const node = draft.pages[action.pageIndex].layers[action.nodeIndex];
-        node.props = { ...node.props, ...action.updates };
-        break;
-      }
-      case 'UPDATE_NODE_DEFINITION': {
-        const node = draft.pages[action.pageIndex].layers[action.nodeIndex];
-        Object.assign(node, action.updates);
-        break;
-      }
-      case 'ADD_NODE':
-        draft.pages[action.pageIndex].layers.push(action.node);
-        break;
-      case 'REMOVE_NODE':
-        draft.pages[action.pageIndex].layers.splice(action.nodeIndex, 1);
-        break;
-      case 'MOVE_NODE':
-        const [removed] = draft.pages[action.pageIndex].layers.splice(action.from, 1);
-        draft.pages[action.pageIndex].layers.splice(action.to, 0, removed);
-        break;
-      case 'TOGGLE_ORIENTATION': {
-        const page = draft.pages[action.pageIndex];
-        // Simple swap of width/height
-        [page.width, page.height] = [page.height, page.width];
-        // Move all nodes to ensure they are on canvas (simple re-center might be better for complex layouts)
-        page.layers.forEach(layer => {
-            // Very simple shift logic (might need to be smarter)
-            layer.props.x = (page.width / 2) - (layer.props.width / 2);
-            layer.props.y = (page.height / 2) - (layer.props.height / 2);
-        });
-        break;
-      }
-      case 'UNDO':
-        if (draft.history.length > 0) {
-          const previousState = draft.history.pop()!;
-          draft.future.unshift({ ...state, history: [], future: [] });
-          Object.assign(draft, previousState); // Restore everything except history/future
-        }
-        break;
-      case 'REDO':
-        if (draft.future.length > 0) {
-          const nextState = draft.future.shift()!;
-          draft.history.push({ ...state, history: [], future: [] });
-          Object.assign(draft, nextState); // Restore everything except history/future
-        }
-        break;
-      default:
-        return state;
+        case 'SET_SELECTED_INDEX':
+            return { ...state }; // selectedIndex logic moved to component state
+        case 'CHANGE_MODE':
+            return { ...state }; // mode logic moved to component state
+        case 'GOTO_PAGE':
+            return { ...state, current: action.index };
+        case 'UNDO':
+            if (state.history.length === 0) return state;
+            const previous = state.history[state.history.length - 1];
+            const newHistory = state.history.slice(0, -1);
+            return {
+                ...previous,
+                history: newHistory,
+                future: [state, ...state.future],
+            };
+        case 'REDO':
+            if (state.future.length === 0) return state;
+            const next = state.future[0];
+            const newFuture = state.future.slice(1);
+            return {
+                ...next,
+                history: [...state.history, state],
+                future: newFuture,
+            };
+        default:
+            // For actions that changed pages (like CHANGE_NODE, ADD_NODE, CHANGE_BACKGROUND, etc.)
+            if (newPages !== pages) {
+                return {
+                    pages: newPages,
+                    current: state.current,
+                    history: [...state.history, { ...state, pages: pages }], // Save current pages before update
+                    future: [], // Clear future on new action
+                };
+            }
+            return state;
     }
-  });
-
-  return newState;
 }
 
-// --- Main Page Component ---
 
-export default function DesignPage() {
-    const params = useParams<{ templateId: string }>();
-    const stageRef = useRef<Konva.Stage>(null);
+export default function Editor() {
+    const params = useParams();
+    const templateId = Array.isArray(params.templateId) ? params.templateId[0] : params.templateId;
+    const stageRef = useRef<Konva.Stage | null>(null);
+    const mainRef = useRef<HTMLElement>(null);
+
+    // Hardcode mode for now
+    const mode: EditorMode = "FULL_EDIT";
+
+    // --- State Management ---
+    const [state, dispatch] = useReducer(reducer, null, () => getInitialState(loadTemplate(templateId)));
     const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
-    const [mode, setMode] = useState<EditorMode>("FULL_EDIT");
-
-    // Load initial state based on templateId
-    const initialTemplate = loadTemplate(params.templateId);
-    const [state, dispatch] = useReducer(editorReducer, initialTemplate, getInitialState);
-
-    // Current page and selected node
     const currentPage = state.pages[state.current];
+
     const selectedNode = selectedIndex !== null ? currentPage.layers[selectedIndex] : null;
 
-    // --- Core Action Handlers ---
+    // --- CORE HANDLERS ---
 
-    // 1. Update node properties (x, y, fill, text)
     const onNodeChange = useCallback((index: number, updates: Partial<KonvaNodeProps>) => {
-        dispatch({
-            type: 'UPDATE_NODE_PROPS',
-            pageIndex: state.current,
-            nodeIndex: index,
-            updates,
-        });
-    }, [state.current]);
+        dispatch({ type: 'CHANGE_NODE', index, updates });
+    }, [dispatch]);
 
-    // 2. Update node definition (locked, editable)
     const onNodeDefinitionChange = useCallback((index: number, updates: Partial<KonvaNodeDefinition>) => {
-        dispatch({
-            type: 'UPDATE_NODE_DEFINITION',
-            pageIndex: state.current,
-            nodeIndex: index,
-            updates,
-        });
-    }, [state.current]);
+        dispatch({ type: 'CHANGE_NODE_DEFINITION', index, updates });
+    }, [dispatch]);
     
-    // Handler to clear any selection (sent to CanvasStage as a prop)
-    const onDeselectNode = useCallback(() => {
-        setSelectedIndex(null);
-    }, []);
-    
-    // 3. Add a new node (Text, Rect, Image, etc.)
-    const onAddNode = useCallback((node: KonvaNodeDefinition) => {
-        dispatch({
-            type: 'ADD_NODE',
-            pageIndex: state.current,
-            node,
-        });
-        // Select the new node
-        setSelectedIndex(currentPage.layers.length);
-    }, [state.current, currentPage.layers.length]);
+    // NEW HANDLER: Background Change
+    const onBackgroundChange = useCallback((updates: Partial<BackgroundPattern>) => {
+        dispatch({ type: 'CHANGE_BACKGROUND', updates });
+    }, [dispatch]);
 
-    // --- LAYER ORDERING LOGIC (NEW) ---
+    // --- LAYER ORDERING HANDLERS ---
 
-    // Core layer move function: dispatches the array move and updates local selection index
-    const onMoveLayer = useCallback((from: number, to: number) => {
-        if (from === to) return;
-
-        // 1. Dispatch the move action to the reducer
-        dispatch({
-            type: 'MOVE_NODE',
-            pageIndex: state.current,
-            from,
-            to,
-        });
-        
-        // 2. Update selected index (which is managed by local state)
-        setSelectedIndex(prevIndex => {
-            if (prevIndex === null) return null;
-            if (prevIndex === from) {
-                // The moved element remains selected at the new index
-                return to;
-            }
-            // Handle adjustment for other selected elements only if the selection is not the layer being moved
-            else if (from < prevIndex && to >= prevIndex) {
-                // Layer moved up over the selected index, so selected index shifts down
-                return prevIndex - 1;
-            } else if (from > prevIndex && to <= prevIndex) {
-                // Layer moved down over the selected index, so selected index shifts up
-                return prevIndex + 1;
-            }
-            return prevIndex;
-        });
-
-    }, [dispatch, state.current]); 
-
-    // Helper function used by all explicit move actions
-    const moveSelectedLayer = useCallback((newIndex: number) => {
-        // Check for locked status on the currently selected node
-        if (selectedIndex === null || selectedNode?.locked) return;
-        onMoveLayer(selectedIndex, newIndex);
-    }, [selectedIndex, selectedNode, onMoveLayer]);
-
-    const moveLayerToFront = useCallback(() => {
-        // layers.length - 1 is the front (highest index)
-        const newIndex = currentPage.layers.length - 1; 
-        moveSelectedLayer(newIndex);
-    }, [currentPage.layers.length, moveSelectedLayer]);
-
-    const moveLayerToBack = useCallback(() => {
-        // 0 is the back (lowest index)
-        moveSelectedLayer(0);
-    }, [moveSelectedLayer]);
+    const moveLayer = useCallback((from: number, to: number) => {
+        dispatch({ type: 'MOVE_NODE', from, to });
+        setSelectedIndex(to); // Keep the item selected
+    }, [dispatch]);
 
     const moveLayerUp = useCallback(() => {
-        if (selectedIndex === null) return;
-        const newIndex = Math.min(selectedIndex + 1, currentPage.layers.length - 1);
-        moveSelectedLayer(newIndex);
-    }, [selectedIndex, currentPage.layers.length, moveSelectedLayer]);
+        if (selectedIndex === null || selectedIndex === currentPage.layers.length - 1) return;
+        moveLayer(selectedIndex, selectedIndex + 1);
+    }, [selectedIndex, currentPage.layers.length, moveLayer]);
 
     const moveLayerDown = useCallback(() => {
+        if (selectedIndex === null || selectedIndex === 0) return;
+        moveLayer(selectedIndex, selectedIndex - 1);
+    }, [selectedIndex, moveLayer]);
+
+    const moveLayerToFront = useCallback(() => {
+        if (selectedIndex === null || selectedIndex === currentPage.layers.length - 1) return;
+        moveLayer(selectedIndex, currentPage.layers.length - 1);
+    }, [selectedIndex, currentPage.layers.length, moveLayer]);
+
+    const moveLayerToBack = useCallback(() => {
+        if (selectedIndex === null || selectedIndex === 0) return;
+        moveLayer(selectedIndex, 0);
+    }, [selectedIndex, moveLayer]);
+
+    const onRemoveLayer = useCallback(() => {
         if (selectedIndex === null) return;
-        const newIndex = Math.max(selectedIndex - 1, 0);
-        moveSelectedLayer(newIndex);
-    }, [selectedIndex, moveSelectedLayer]);
+        dispatch({ type: 'REMOVE_NODE', index: selectedIndex });
+        setSelectedIndex(null);
+    }, [selectedIndex, dispatch]);
 
-    // --- Sidebar Helper Functions (Element Creation) ---
-    
-    // REMOVED: addText and addRect
+    const onSelectLayer = useCallback((index: number | null) => {
+        setSelectedIndex(index);
+    }, []);
 
-    // ADDED: Replaced legacy addImage function to align with the new sidebar prop name
-    const onAddImage = useCallback((file: File) => { 
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            const id = `image_${Date.now()}`; // declare id variable
-            const newImage: KonvaNodeDefinition = {
-                id,
-                type: 'Image',
-                props: {
-                    id,
-                    x: currentPage.width / 4,
-                    y: currentPage.height / 4,
-                    width: 150,
-                    height: 150,
-                    src: e.target?.result as string, // Data URL
-                    rotation: 0,
-                    opacity: 1,
-                },
-                editable: true,
-                locked: false,
-            };
-            onAddNode(newImage);
-        };
-        reader.readAsDataURL(file);
-    }, [currentPage.width, currentPage.height, onAddNode]);
+    // --- PAGE CONTROLS ---
 
-    // --- Page Management Handlers ---
     const addPage = useCallback(() => {
-        // Create a new page that is a copy of the current page
-        const newTemplate: CardTemplate = JSON.parse(JSON.stringify(currentPage));
-        newTemplate.id = `page_${Date.now()}`;
-        newTemplate.name = `Page ${state.pages.length + 1}`;
-        dispatch({ type: 'ADD_PAGE', template: newTemplate });
-        setSelectedIndex(null); // Clear selection on page change
-    }, [state.pages.length, currentPage]);
+        const newPage: CardTemplate = {
+            ...loadTemplate(templateId),
+            name: `Page ${state.pages.length + 1}`,
+            layers: [], // Start with an empty layer list
+            background: DEFAULT_BACKGROUND, // Ensure new page gets a default background
+        };
+        dispatch({ type: 'ADD_PAGE', template: newPage });
+        setSelectedIndex(null);
+    }, [dispatch, state.pages.length, templateId]);
 
     const removePage = useCallback(() => {
         if (state.pages.length > 1) {
             dispatch({ type: 'REMOVE_PAGE', index: state.current });
-            setSelectedIndex(null); // Clear selection on page change
+            setSelectedIndex(null);
         }
-    }, [state.pages.length, state.current]);
+    }, [dispatch, state.pages.length, state.current]);
 
     const gotoPage = useCallback((index: number) => {
-        dispatch({ type: 'GO_TO_PAGE', index });
-        setSelectedIndex(null); // Clear selection on page change
+        dispatch({ type: 'GOTO_PAGE', index });
+        setSelectedIndex(null);
+    }, [dispatch]);
+
+
+    // --- ASSET & NODE ADDITION HANDLERS ---
+    
+    const onAddNode = useCallback((node: KonvaNodeDefinition) => {
+        dispatch({ type: 'ADD_NODE', node });
+        setSelectedIndex(currentPage.layers.length); // Select the new node
+    }, [dispatch, currentPage.layers.length]);
+
+    // Placeholder for image upload
+    const onAddImage = useCallback((file: File) => {
+        // Implementation for converting File to Base64/URL and adding an Image node
+        console.log("Image upload simulated for file:", file.name);
+        // For now, let's add a placeholder image node
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const timestamp = Date.now();
+            const id = `image_${timestamp}`;
+            const newImageLayer: KonvaNodeDefinition = {
+                id,
+                type: 'Image',
+                props: {
+                    id,
+                    x: 50, y: 50,
+                    width: 150, height: 100,
+                    rotation: 0, opacity: 1,
+                    src: e.target?.result as string, // Base64 data URL
+                    category: 'Image',
+                },
+                editable: true,
+                locked: false,
+            };
+            onAddNode(newImageLayer);
+        };
+        reader.readAsDataURL(file);
+
+    }, [onAddNode]);
+
+
+    // --- SIDE EFFECTS ---
+
+    // Select the transformer on selection change
+    useEffect(() => {
+        const transformer = stageRef.current?.findOne('Transformer') as Konva.Transformer;
+        if (transformer) {
+            if (selectedNode) {
+                const node = stageRef.current?.findOne(`#${selectedNode.id}`);
+                if (node) {
+                    transformer.nodes([node]);
+                }
+            } else {
+                transformer.nodes([]);
+            }
+            transformer.getLayer()?.batchDraw();
+        }
+    }, [selectedNode, stageRef]);
+
+    // Cleanup selection on page change
+    useEffect(() => {
+        setSelectedIndex(null);
+    }, [currentPage]);
+    
+    
+    // Functionality for TextNode to communicate it wants to be edited (double click)
+    const onStartEditing = useCallback((konvaNode: Konva.Text) => {
+        // This is where we would typically show a custom TextEditor overlay.
+        // For now, just log the intent.
+        console.log("Start editing text node:", konvaNode.id());
     }, []);
 
-    const toggleOrientation = useCallback(() => {
-        dispatch({ type: 'TOGGLE_ORIENTATION', pageIndex: state.current });
-        setSelectedIndex(null); // Clear selection after layout change
-    }, [state.current]);
 
+    // --- OUTPUT / EXPORT HANDLERS ---
 
-    // --- Export Handlers ---
-    const exportPNG = useCallback(() => {
-        if (stageRef.current) {
-            downloadPNG(stageRef.current, `${currentPage.name}.png`);
-        }
-    }, [currentPage.name]);
+    const handleDownload = useCallback((format: 'PNG' | 'PDF') => {
+        if (!stageRef.current) return;
+        const stage = stageRef.current;
+        
+        // Hide Transformer before export
+        const transformer = stage.findOne('Transformer');
+        transformer?.visible(false);
 
-    const exportPDF = useCallback(() => {
-        if (stageRef.current) {
-            downloadPDF(stageRef.current, `${currentPage.name}.pdf`);
-        }
-    }, [currentPage.name]);
-
-    const saveDesign = useCallback(() => {
-        console.log("Design Saved:", JSON.stringify(currentPage.layers));
-        alert('Design saved to console!');
-    }, [currentPage.layers]);
-
-    const removeLayer = useCallback((index: number) => {
-        dispatch({ type: 'REMOVE_NODE', pageIndex: state.current, nodeIndex: index });
-        // After removal, clear selection if the removed element was selected
-        if (selectedIndex === index) {
-            setSelectedIndex(null);
-        } else if (selectedIndex !== null && index < selectedIndex) {
-            // Adjust index if an element before the selected one was removed
-            setSelectedIndex(selectedIndex - 1);
-        }
-    }, [state.current, selectedIndex]);
-
-    // Deselect if we change page or go into Data-Only mode
-    useEffect(() => {
-        if (mode === "DATA_ONLY" && selectedIndex !== null) {
-            const isSelectedEditable = selectedNode?.editable ?? false;
-            if (!isSelectedEditable) {
-                setSelectedIndex(null);
+        try {
+            if (format === 'PNG') {
+                downloadPNG(stage, currentPage.name);
+            } else if (format === 'PDF') {
+                downloadPDF(stage as any, currentPage as any);
             }
+        } catch (error) {
+            console.error(`Error during ${format} export:`, error);
+        } finally {
+            // Restore visibility
+            transformer?.visible(true);
+            stage.batchDraw();
         }
-    }, [mode, selectedIndex, selectedNode]);
+    }, [currentPage]);
 
-    // --- Render ---
+    // --- RENDER ---
     return (
-        <div className="flex flex-col h-screen bg-gray-50">
-            <EditorTopbar
-                undo={() => dispatch({ type: 'UNDO' })}
-                redo={() => dispatch({ type: 'REDO' })}
-                exportPNG={exportPNG}
-                exportPDF={exportPDF}
-                saveDesign={saveDesign}
-                mode={mode}
-                setMode={setMode}
-                toggleOrientation={toggleOrientation}
+        <div className="flex h-screen w-screen bg-gray-900 overflow-hidden">
+            <EditorTopbar 
+                templateName={currentPage.name} 
+                onDownload={handleDownload}
+                onUndo={() => dispatch({ type: 'UNDO' })}
+                onRedo={() => dispatch({ type: 'REDO' })}
+                canUndo={state.history.length > 0}
+                canRedo={state.future.length > 0}
+                saving={false}
+                onSave={() => {}}
+                onBack={() => {}}
             />
 
-            <div className="flex flex-1 overflow-hidden">
-                {/* A. LEFT SIDEBAR (Fixed Width - Layer/Element/Page Panels) */}
+            <div className="flex flex-1 pt-14 overflow-hidden">
+                {/* A. LEFT SIDEBAR (Fixed Width - Layer/Element/Data/Page Controls) */}
                 <EditorSidebar
-                    // NEW SIMPLIFIED PROP INTERFACE for Element Creation
-                    onAddNode={onAddNode} 
-                    onAddImage={onAddImage} // Used by the Asset/Upload panel
-
-                    // Page Control
+                    // Element/Layer Management
+                    layers={currentPage.layers}
+                    selectedIndex={selectedIndex}
+                    onSelectLayer={onSelectLayer}
+                    onMoveLayer={moveLayer}
+                    onRemoveLayer={onRemoveLayer}
+                    onDefinitionChange={onNodeDefinitionChange}
+                    onAddNode={onAddNode}
+                    onAddImage={onAddImage}
+                    
+                    // Page Controls
                     addPage={addPage}
                     removePage={removePage}
                     pageCount={state.pages.length}
                     currentPage={state.current}
                     gotoPage={gotoPage}
 
-                    // Layer Management
-                    layers={currentPage.layers}
-                    selectedIndex={selectedIndex}
-                    onSelectLayer={setSelectedIndex}
-                    onMoveLayer={onMoveLayer} // Pass the core logic to update local selection
-                    onRemoveLayer={removeLayer} // Pass the updated remove layer logic
-                    onDefinitionChange={onNodeDefinitionChange}
                     // Mode
                     mode={mode}
+
+                    // NEW PROPS FOR BACKGROUND
+                    currentBackground={currentPage.background}
+                    onBackgroundChange={onBackgroundChange}
                 />
-                
-                {/* B. CENTER: Canvas Stage (Flexible Width and Centered Workarea) */}
-                <main className="flex-1 flex justify-center items-center overflow-auto p-8 bg-gray-200">
+
+                {/* B. CANVAS AREA (Flex Grow) */}
+                <main 
+                    ref={mainRef}
+                    className="flex-1 flex justify-center items-center overflow-auto p-8 bg-gray-200"
+                >
                     <CanvasStage
                         ref={stageRef}
+                        parentRef={mainRef}
                         template={currentPage}
                         selectedNodeIndex={selectedIndex} 
                         onSelectNode={(index: number | null) => setSelectedIndex(index)}
                         onDeselectNode={() => setSelectedIndex(null)} 
                         onNodeChange={onNodeChange}
+                        onStartEditing={onStartEditing}
                         mode={mode}
                     />
                 </main>
@@ -424,3 +468,7 @@ export default function DesignPage() {
         </div>
     );
 }
+
+
+
+

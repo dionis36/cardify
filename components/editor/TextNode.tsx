@@ -9,6 +9,7 @@ import { TextProps, KonvaNodeDefinition } from "@/types/template";
 
 interface TextNodeProps {
   node: KonvaNodeDefinition & { type: "Text"; props: TextProps };
+  nodeRef?: React.RefObject<Konva.Text>; // Added prop
   isSelected: boolean;
   onSelect: () => void; 
   onDeselect: () => void; 
@@ -22,10 +23,12 @@ interface TextNodeProps {
   onDragStart?: (e: Konva.KonvaEventObject<DragEvent>) => void;
   onDragMove?: (e: Konva.KonvaEventObject<DragEvent>) => void;
   onDragEnd?: (e: Konva.KonvaEventObject<DragEvent>) => void;
+  onTransformEnd?: (e: Konva.KonvaEventObject<Event>) => void;
 }
 
 const TextNode: React.FC<TextNodeProps> = memo((({
   node,
+  nodeRef, // Destructure
   isSelected,
   onSelect,
   onDeselect, 
@@ -37,8 +40,10 @@ const TextNode: React.FC<TextNodeProps> = memo((({
   onDragStart,
   onDragMove,
   onDragEnd,
+  onTransformEnd,
 }) => {
-  const konvaNodeRef = useRef<Konva.Text>(null);
+  const internalRef = useRef<Konva.Text>(null);
+  const konvaNodeRef = nodeRef || internalRef;
 
   // Destructure Konva properties and safely handle optional props
   const {

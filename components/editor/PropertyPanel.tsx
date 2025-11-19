@@ -241,7 +241,8 @@ export default function PropertyPanel({
 
   if (!node) {
     return (
-      <div className="w-80 border-l bg-white p-6 shrink-0 overflow-y-auto space-y-6">
+      // CHANGE: w-80 changed to w-72
+      <div className="w-72 border-l bg-white p-6 shrink-0 overflow-y-auto space-y-6">
         <div className="text-center p-8 border border-dashed border-gray-300 rounded-lg">
             <Settings size={24} className="mx-auto mb-3 text-gray-400" />
             <p className="text-sm font-medium text-gray-600">
@@ -646,7 +647,8 @@ export default function PropertyPanel({
   );
 
   return (
-    <div className="w-80 border-l bg-white p-6 shrink-0 overflow-y-auto space-y-6">
+    // CHANGE: w-80 changed to w-72
+    <div className="w-72 border-l bg-white p-6 shrink-0 overflow-y-auto space-y-6">
       <h2 className="text-2xl font-extrabold text-gray-900 border-b border-gray-200 pb-3">
         {node.type} Properties 🎨
       </h2>
@@ -655,3 +657,7 @@ export default function PropertyPanel({
     </div>
   );
 }
+
+
+
+

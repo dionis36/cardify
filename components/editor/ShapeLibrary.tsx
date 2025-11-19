@@ -1,4 +1,4 @@
-// components/editor/ShapeLibrary.tsx (Updated for Professional UX)
+// components/editor/ShapeLibrary.tsx (Updated for Phase 3 Content)
 
 'use client';
 
@@ -7,17 +7,18 @@ import {
   Square, Circle, Minus, Star, 
   HardHat, Pentagon, 
   Feather, ArrowRight, Text, UploadCloud, CornerUpRight
-} from 'lucide-react'; // Using Lucide for icon integration
+} from 'lucide-react'; 
 
-// Assuming type definitions are imported
+// Import definitions from our new libraries
 import { KonvaNodeDefinition, KonvaNodeType } from '@/types/template';
+import { COMPLEX_SHAPE_DEFINITIONS } from '@/lib/complex-shapes';
 
 // --- Types and Constants ---
 interface ShapeButton {
   type: KonvaNodeType;
   icon: React.FC<any>;
   name: string;
-  group: 'Text' | 'Basic' | 'Vector'; // NEW: Separate 'Text' group
+  group: 'Text' | 'Basic' | 'Vector'; 
   defaultProps: Partial<KonvaNodeDefinition['props']>;
 }
 
@@ -27,7 +28,6 @@ const START_POS = 50;
 const defineShape = (type: KonvaNodeType, icon: React.FC<any>, name: string, group: ShapeButton['group'], defaultProps: any): ShapeButton => ({
     type, icon, name, group, defaultProps
 });
-
 
 const SHAPE_DEFINITIONS: ShapeButton[] = [
   // 1. TEXT INPUT (Dedicated Group)
@@ -47,7 +47,15 @@ const SHAPE_DEFINITIONS: ShapeButton[] = [
     width: 100, 
     height: 100, 
     fill: '#333333', 
-    cornerRadius: 4,
+    cornerRadius: 0,
+    rotation: 0, 
+    opacity: 1 
+  }),
+  defineShape('Rect', Square, 'Rounded Rect', 'Basic', { 
+    width: 100, 
+    height: 100, 
+    fill: '#333333', 
+    cornerRadius: 20,
     rotation: 0, 
     opacity: 1 
   }),
@@ -88,7 +96,7 @@ const SHAPE_DEFINITIONS: ShapeButton[] = [
     opacity: 1 
   }),
 
-  // 3. VECTOR AND LINE TOOLS
+  // 3. STANDARD VECTOR TOOLS
   defineShape('Line', Minus, 'Line', 'Vector', { 
     width: 100, 
     height: 1, 
@@ -107,10 +115,11 @@ const SHAPE_DEFINITIONS: ShapeButton[] = [
     rotation: 0, 
     opacity: 1 
   }),
-  defineShape('Path', Feather, 'Path (Vector)', 'Vector', { 
+  defineShape('Path', Feather, 'Custom Path', 'Vector', { 
     width: 80, 
     height: 80, 
     fill: '#F59E0B', 
+    // A simple feather-like path placeholder
     data: 'M 50 0 L 100 86 L 0 86 Z',
     rotation: 0, 
     opacity: 1 
@@ -140,14 +149,14 @@ export function ShapeLibrary({ onAddNode }: ShapeLibraryProps) {
       id,
       type: shape.type,
       props: {
-        id, // Konva Node props must contain id
+        id, 
         x: START_POS,
         y: START_POS,
         // Spread the specific shape properties
         ...shape.defaultProps,
-      } as KonvaNodeDefinition['props'], // Type assertion for complex union
+      } as KonvaNodeDefinition['props'], 
       editable: true,
-      locked: false, // Default new shapes to unlocked
+      locked: false, 
     } as KonvaNodeDefinition;
 
     onAddNode(newNode);
@@ -166,16 +175,15 @@ export function ShapeLibrary({ onAddNode }: ShapeLibraryProps) {
         <div key={groupName} className="space-y-3">
             <h4 className="font-semibold text-xs text-gray-400 uppercase tracking-wider">{groupName}</h4>
             <div className={`grid ${gridClass} gap-2`}>
-                {shapes.map(shape => (
+                {shapes.map((shape, idx) => (
                     <button
-                        key={shape.type}
+                        key={`${shape.name}-${idx}`}
                         onClick={() => handleAddShape(shape)}
                         title={`Add ${shape.name}`}
-                        // Refined styling for a cleaner, modern look
-                        className="flex flex-col items-center justify-center p-2 border border-gray-600 bg-gray-800 hover:bg-gray-700 rounded transition-colors text-sm h-16 w-full shadow-md"
+                        className="flex flex-col items-center justify-center p-2 border border-gray-600 bg-gray-800 hover:bg-gray-700 rounded transition-colors text-sm h-16 w-full shadow-md group"
                     >
-                        <shape.icon size={20} className="text-gray-200" />
-                        <span className="text-xs text-center text-gray-300 mt-1">{shape.name.split('(')[0].trim()}</span>
+                        <shape.icon size={20} className="text-gray-200 group-hover:text-white transition-colors" />
+                        <span className="text-xs text-center text-gray-300 mt-1 truncate w-full px-1 group-hover:text-white">{shape.name.split('(')[0].trim()}</span>
                     </button>
                 ))}
             </div>
@@ -183,33 +191,51 @@ export function ShapeLibrary({ onAddNode }: ShapeLibraryProps) {
     );
   }
 
+  // --- DATA PREPARATION ---
+
+  // 1. Separate Standard Shapes
   const textNode = SHAPE_DEFINITIONS.filter(s => s.group === 'Text');
   const basicShapes = SHAPE_DEFINITIONS.filter(s => s.group === 'Basic');
-  const vectorShapes = SHAPE_DEFINITIONS.filter(s => s.group === 'Vector');
+  const standardVectors = SHAPE_DEFINITIONS.filter(s => s.group === 'Vector');
+
+  // 2. Map Complex Shapes to Buttons
+  // These come from lib/complex-shapes.ts and need to be formatted for the UI
+  const complexShapeButtons: ShapeButton[] = COMPLEX_SHAPE_DEFINITIONS.map(s => ({
+    type: 'Path', // Complex shapes are almost always Paths
+    icon: s.icon,
+    name: s.name,
+    group: 'Vector',
+    defaultProps: s.defaultProps,
+  }));
+
+  // 3. Merge Vectors & Complex Shapes
+  const allVectorShapes = [...standardVectors, ...complexShapeButtons];
 
 
   return (
-    <div className="p-4 space-y-6">
+    <div className="p-4 space-y-6 overflow-y-auto custom-scrollbar h-full pb-20">
       
-      {/* 1. DEDICATED TEXT SECTION (1-column layout) */}
+      {/* 1. DEDICATED TEXT SECTION */}
       {renderShapeGroup('Text', textNode, 1)}
       
       <div className="border-t border-gray-700 pt-3"></div>
 
-      {/* 2. BASIC SHAPES (4-column layout) */}
+      {/* 2. BASIC SHAPES */}
       {renderShapeGroup('Basic Shapes', basicShapes, 4)}
 
-      {/* 3. VECTOR AND LINE TOOLS (4-column layout) */}
-      {renderShapeGroup('Vector & Line Tools', vectorShapes, 4)}
+      <div className="border-t border-gray-700 pt-3"></div>
+
+      {/* 3. VECTOR & COMPLEX SHAPES */}
+      {renderShapeGroup('Vector & Complex Shapes', allVectorShapes, 4)}
 
       {/* 4. WIP Tools Section */}
       <div className="border-t border-gray-700 pt-4 space-y-3">
         <h3 className="font-semibold text-sm text-default text-gray-400 uppercase tracking-wider">WIP Tools</h3>
-        <button disabled className="flex items-center w-full p-2 rounded text-left bg-gray-700/50 text-gray-500 text-sm opacity-60">
+        <button disabled className="flex items-center w-full p-2 rounded text-left bg-gray-700/50 text-gray-500 text-sm opacity-60 cursor-not-allowed">
           <UploadCloud size={18} className="mr-2" />
           Image/Logo Upload (Assets Tab)
         </button>
-        <button disabled className="flex items-center w-full p-2 rounded text-left bg-gray-700/50 text-gray-500 text-sm opacity-60">
+        <button disabled className="flex items-center w-full p-2 rounded text-left bg-gray-700/50 text-gray-500 text-sm opacity-60 cursor-not-allowed">
           <CornerUpRight size={18} className="mr-2" />
           QR/Barcode Generator
         </button>

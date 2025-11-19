@@ -46,6 +46,7 @@ function useCachedImage(src?: string | null): HTMLImageElement | undefined {
 interface ImageNodeProps {
   // Use a narrowed type for strict type-checking
   node: KonvaNodeDefinition & { type: "Image"; props: ImageProps }; 
+  nodeRef?: React.RefObject<Konva.Image>; // Added prop
   isSelected: boolean;
   onSelect: () => void;
   onNodeChange: (updates: Partial<ImageProps>) => void; // ImageProps here
@@ -54,10 +55,12 @@ interface ImageNodeProps {
   onDragStart?: (e: Konva.KonvaEventObject<DragEvent>) => void;
   onDragMove?: (e: Konva.KonvaEventObject<DragEvent>) => void;
   onDragEnd?: (e: Konva.KonvaEventObject<DragEvent>) => void;
+  onTransformEnd?: (e: Konva.KonvaEventObject<Event>) => void;
 }
 
 const ImageNode: React.FC<ImageNodeProps> = memo(({
   node,
+  nodeRef, // Destructure
   isSelected,
   onSelect,
   onNodeChange,
@@ -66,8 +69,10 @@ const ImageNode: React.FC<ImageNodeProps> = memo(({
   onDragStart,
   onDragMove,
   onDragEnd,
+  onTransformEnd,
 }) => {
-  const konvaNodeRef = useRef<Konva.Image>(null);
+  const internalRef = useRef<Konva.Image>(null);
+  const konvaNodeRef = nodeRef || internalRef;
   
   // FIX APPLIED: strokeWidth is now safe to destructure from node.props because ImageProps extends BaseNodeProps and explicitly includes strokeWidth
   const { x, y, width, height, rotation, opacity, visible, src, stroke, strokeWidth } = node.props; 
