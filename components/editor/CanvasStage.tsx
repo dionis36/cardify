@@ -172,38 +172,67 @@ const CanvasStage = forwardRef<KonvaStageType, CanvasStageProps>(
             const container = parentRef.current;
             if (!container) return;
 
+            let rafId: number | null = null;
+            let timeoutId: number | null = null;
+
             const updateScale = () => {
-                // Get the current dimensions of the <main> container
-                const parentWidth = container.offsetWidth;
-                const parentHeight = container.offsetHeight;
+                // Cancel any pending animation frame
+                if (rafId !== null) {
+                    cancelAnimationFrame(rafId);
+                }
 
-                // Calculate maximum possible scale factor
-                // Formula: scale = min( (parentWidth - padding) / templateWidth, (parentHeight - padding) / templateHeight )
-                const scaleX = (parentWidth - STAGE_PADDING) / templateWidth;
-                const scaleY = (parentHeight - STAGE_PADDING) / templateHeight;
+                // Use requestAnimationFrame for smooth updates
+                rafId = requestAnimationFrame(() => {
+                    // Get the current dimensions of the <main> container
+                    const parentWidth = container.offsetWidth;
+                    const parentHeight = container.offsetHeight;
 
-                const newScale = Math.min(scaleX, scaleY);
-                // Ensure a minimum scale for visibility
-                const finalScale = Math.max(0.1, newScale);
+                    // Calculate maximum possible scale factor
+                    // Formula: scale = min( (parentWidth - padding) / templateWidth, (parentHeight - padding) / templateHeight )
+                    const scaleX = (parentWidth - STAGE_PADDING) / templateWidth;
+                    const scaleY = (parentHeight - STAGE_PADDING) / templateHeight;
 
-                setStageSize({
-                    // The Konva stage size is the template size scaled up/down by the factor
-                    width: templateWidth,
-                    height: templateHeight,
-                    scale: finalScale,
+                    const newScale = Math.min(scaleX, scaleY);
+                    // Ensure a minimum scale for visibility
+                    const finalScale = Math.max(0.1, newScale);
+
+                    setStageSize({
+                        // The Konva stage size is the template size scaled up/down by the factor
+                        width: templateWidth,
+                        height: templateHeight,
+                        scale: finalScale,
+                    });
                 });
+            };
+
+            const debouncedUpdate = () => {
+                updateScale();
+                // Also trigger after sidebar transition completes (500ms + 50ms buffer)
+                if (timeoutId !== null) {
+                    clearTimeout(timeoutId);
+                }
+                timeoutId = window.setTimeout(updateScale, 550);
             };
 
             // Initial run
             updateScale();
 
             // Setup ResizeObserver to run when parent container size changes (window resize, sidebar toggle)
-            const observer = new ResizeObserver(updateScale);
+            const observer = new ResizeObserver(debouncedUpdate);
             observer.observe(container);
 
             // Cleanup
-            return () => observer.unobserve(container);
+            return () => {
+                if (rafId !== null) {
+                    cancelAnimationFrame(rafId);
+                }
+                if (timeoutId !== null) {
+                    clearTimeout(timeoutId);
+                }
+                observer.unobserve(container);
+            };
         }, [templateWidth, templateHeight, parentRef]);
+
 
 
         // Transformer Reference
@@ -424,7 +453,7 @@ const CanvasStage = forwardRef<KonvaStageType, CanvasStageProps>(
                     // Optional: add a subtle shadow for a card-like effect
                     boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
                 }}
-                className="bg-white rounded-lg overflow-hidden transition-all duration-300"
+                className="bg-white rounded-lg overflow-hidden transition-all duration-500 ease-in-out"
             >
                 <Stage
                     ref={ref}

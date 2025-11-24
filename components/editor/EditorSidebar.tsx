@@ -80,11 +80,10 @@ export default function EditorSidebar({
             onClick={() => setActiveTab(activeTab === tab ? null : tab)} // Toggle open/close
             disabled={disabled}
             title={label}
-            className={`w-12 h-12 rounded-lg transition-colors flex items-center justify-center ${
-                activeTab === tab
+            className={`w-12 h-12 rounded-lg transition-colors flex items-center justify-center ${activeTab === tab
                     ? "bg-blue-600 text-white"
                     : "text-gray-400 hover:bg-gray-700 hover:text-white disabled:opacity-50"
-            } ${disabled ? 'cursor-not-allowed' : ''}`}
+                } ${disabled ? 'cursor-not-allowed' : ''}`}
         >
             <Icon size={20} strokeWidth={1.5} />
         </button>
@@ -187,7 +186,7 @@ export default function EditorSidebar({
 
             {/* 2. COLLAPSIBLE CONTENT PANEL (Fixed Width: 320px, only shows if a tab is selected) */}
             {/* Added dynamic class to hide the panel if activeTab is null */}
-            <div className={`flex-shrink-0 bg-white ${activeTab ? 'w-80 border-r border-gray-200' : 'w-0'}`}>
+            <div className={`flex-shrink-0 bg-white transition-all duration-500 ease-in-out ${activeTab ? 'w-80 border-r border-gray-200' : 'w-0'}`}>
                 {/* Only render content if a tab is active */}
                 {activeTab && (
                     <div className="h-full overflow-y-auto relative">

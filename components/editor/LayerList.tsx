@@ -37,7 +37,7 @@ export default function LayerList({
   const mapListIndexToKonvaIndex = (listIndex: number): number => {
     return layers.length - 1 - listIndex;
   };
-  
+
   // Handlers operate on the reversed list index, then convert to the Konva index
   const handleDragStart = (listIndex: number) => {
     setDraggedListIndex(listIndex);
@@ -54,45 +54,45 @@ export default function LayerList({
     // Convert reversed list indices to Konva indices (where 0 is the back layer)
     const fromKonvaIndex = mapListIndexToKonvaIndex(draggedListIndex);
     const toKonvaIndex = mapListIndexToKonvaIndex(dropListIndex);
-    
+
     onMoveLayer(fromKonvaIndex, toKonvaIndex);
   };
-  
+
   const handleSelect = (listIndex: number) => {
-      onSelectLayer(mapListIndexToKonvaIndex(listIndex));
+    onSelectLayer(mapListIndexToKonvaIndex(listIndex));
   }
-  
+
   const handleRemove = (listIndex: number) => {
-      const konvaIndex = mapListIndexToKonvaIndex(listIndex);
-      onRemoveLayer(konvaIndex);
+    const konvaIndex = mapListIndexToKonvaIndex(listIndex);
+    onRemoveLayer(konvaIndex);
   }
-  
+
   const handleToggleLock = (listIndex: number) => {
-      const konvaIndex = mapListIndexToKonvaIndex(listIndex);
-      const layer = reversedLayers[listIndex];
-      onDefinitionChange(konvaIndex, { locked: !layer.locked });
+    const konvaIndex = mapListIndexToKonvaIndex(listIndex);
+    const layer = reversedLayers[listIndex];
+    onDefinitionChange(konvaIndex, { locked: !layer.locked });
   }
 
   const handleToggleVisibility = (listIndex: number) => {
-      const konvaIndex = mapListIndexToKonvaIndex(listIndex);
-      const layer = reversedLayers[listIndex];
-      // Toggles the 'visible' prop inside the node's properties
-      const currentVisibility = layer.props.visible ?? true;
-      onDefinitionChange(konvaIndex, { 
-          props: { ...layer.props, visible: !currentVisibility } 
-      } as Partial<KonvaNodeDefinition>);
+    const konvaIndex = mapListIndexToKonvaIndex(listIndex);
+    const layer = reversedLayers[listIndex];
+    // Toggles the 'visible' prop inside the node's properties
+    const currentVisibility = layer.props.visible ?? true;
+    onDefinitionChange(konvaIndex, {
+      props: { ...layer.props, visible: !currentVisibility }
+    } as Partial<KonvaNodeDefinition>);
   }
 
   return (
-    <div className="w-64 bg-white border-l p-4 flex flex-col gap-3 overflow-y-auto">
-      <h2 className="font-semibold text-lg border-b pb-2 text-gray-800">Layers ({layers.length})</h2>
-      
-      <div className="space-y-1 flex-1">
+    <div className="flex-1 h-full bg-white flex flex-col gap-3 overflow-hidden">
+      <h2 className="font-semibold text-lg border-b border-gray-200 pb-3 px-4 pt-2 text-gray-800 shrink-0">Layers ({layers.length})</h2>
+
+      <div className="space-y-2 flex-1 overflow-y-auto px-4 pb-4 custom-scrollbar">
         {reversedLayers.map((layer, listIndex) => {
           const konvaIndex = mapListIndexToKonvaIndex(listIndex);
           const isSelected = selectedIndex === konvaIndex;
           const isLocked = layer.locked ?? false;
-          const isVisible = layer.props.visible ?? true; 
+          const isVisible = layer.props.visible ?? true;
 
           return (
             <div
@@ -103,56 +103,55 @@ export default function LayerList({
               onDragOver={handleDragOver}
               onDrop={(e) => handleDrop(e, listIndex)}
               onDragEnd={() => setDraggedListIndex(null)}
-              
+
               // Styling
-              className={`p-2 rounded text-sm cursor-pointer border transition-all duration-150 ${
-                isSelected
+              className={`p-2 rounded text-sm cursor-pointer border transition-all duration-150 ${isSelected
                   ? "bg-blue-100 border-blue-500 ring-2 ring-blue-500"
                   : draggedListIndex === listIndex ? "bg-gray-200 border-gray-400" : "bg-white border-gray-200 hover:bg-gray-100"
-              } ${isLocked ? 'opacity-70' : 'hover:shadow-sm'}`}
+                } ${isLocked ? 'opacity-70' : 'hover:shadow-sm'}`}
             >
               <div className="flex justify-between items-center gap-2">
-                
+
                 {/* Layer Name/Info */}
                 <span className={`font-medium truncate flex-1 ${isLocked ? 'italic text-gray-500' : 'text-gray-700'}`}>
                   {layer.type}: {
                     layer.type === 'Text' ? (layer.props as any).text :
-                    layer.type === 'Image' ? (layer.props as any).src?.substring(0, 10) :
-                    layer.id.substring(0, 5)
+                      layer.type === 'Image' ? (layer.props as any).src?.substring(0, 10) :
+                        layer.id.substring(0, 5)
                   }...
                 </span>
-                
+
                 {/* Control Buttons */}
                 <div className="flex items-center gap-1">
-                    {/* Visibility Toggle */}
-                    <button 
-                        onClick={(e) => { e.stopPropagation(); handleToggleVisibility(listIndex); }}
-                        className="p-1 rounded hover:bg-gray-200 text-gray-500 text-sm"
-                        title={isVisible ? "Hide Layer" : "Show Layer"}
-                    >
-                        {isVisible ? '👁️' : '🚫'}
-                    </button>
-                    
-                    {/* Lock Toggle */}
-                    <button 
-                        onClick={(e) => { e.stopPropagation(); handleToggleLock(listIndex); }}
-                        className="p-1 rounded hover:bg-gray-200 text-gray-500 text-sm"
-                        title={isLocked ? "Unlock Layer" : "Lock Layer"}
-                    >
-                        {isLocked ? '🔒' : '🔓'}
-                    </button>
-                    
-                    {/* Remove Button */}
-                    <button 
-                        onClick={(e) => { e.stopPropagation(); handleRemove(listIndex); }}
-                        className="p-1 rounded hover:bg-red-100 text-red-500 text-sm"
-                        title="Remove Layer"
-                    >
-                        &times;
-                    </button>
+                  {/* Visibility Toggle */}
+                  <button
+                    onClick={(e) => { e.stopPropagation(); handleToggleVisibility(listIndex); }}
+                    className="p-1 rounded hover:bg-gray-200 text-gray-500 text-sm"
+                    title={isVisible ? "Hide Layer" : "Show Layer"}
+                  >
+                    {isVisible ? '👁️' : '🚫'}
+                  </button>
+
+                  {/* Lock Toggle */}
+                  <button
+                    onClick={(e) => { e.stopPropagation(); handleToggleLock(listIndex); }}
+                    className="p-1 rounded hover:bg-gray-200 text-gray-500 text-sm"
+                    title={isLocked ? "Unlock Layer" : "Lock Layer"}
+                  >
+                    {isLocked ? '🔒' : '🔓'}
+                  </button>
+
+                  {/* Remove Button */}
+                  <button
+                    onClick={(e) => { e.stopPropagation(); handleRemove(listIndex); }}
+                    className="p-1 rounded hover:bg-red-100 text-red-500 text-sm"
+                    title="Remove Layer"
+                  >
+                    &times;
+                  </button>
                 </div>
               </div>
-              
+
               {/* Depth Indicator (Optional) */}
               <p className="text-xs text-gray-400 mt-0.5">
                 {listIndex === 0 && <span className="text-blue-500">Front (Top)</span>}
@@ -162,11 +161,13 @@ export default function LayerList({
           );
         })}
       </div>
-      
+
       {layers.length === 0 && (
-          <p className="text-center text-gray-500 text-sm mt-4">
-              This page has no layers.
+        <div className="flex-1 flex items-center justify-center px-4">
+          <p className="text-center text-gray-500 text-sm">
+            This page has no layers.
           </p>
+        </div>
       )}
     </div>
   );

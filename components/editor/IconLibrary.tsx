@@ -83,9 +83,9 @@ const IconLibrary: React.FC<IconLibraryProps> = ({ onAddLayer }) => {
           placeholder="Search icons..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full bg-gray-800 border border-gray-700 text-gray-200 p-2 pl-9 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none placeholder-gray-500"
+          className="w-full bg-white border border-gray-200 text-gray-900 p-2.5 pl-9 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none focus:border-blue-500 placeholder-gray-400 shadow-sm"
         />
-        <Search size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" />
+        <Search size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
       </div>
 
       {/* 2. Category Tabs (Horizontal Scroll) */}
@@ -100,7 +100,7 @@ const IconLibrary: React.FC<IconLibraryProps> = ({ onAddLayer }) => {
                 px-3 py-1.5 text-xs font-medium rounded-full whitespace-nowrap transition-all
                 ${isActive
                   ? 'bg-blue-600 text-white shadow-md'
-                  : 'bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-gray-200 border border-gray-700'}
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-900 border border-gray-200'}
               `}
             >
               {cat}
@@ -111,34 +111,34 @@ const IconLibrary: React.FC<IconLibraryProps> = ({ onAddLayer }) => {
 
       {/* 3. Icon Grid */}
       <div className="flex-1 overflow-y-auto custom-scrollbar min-h-0">
-        <div className="grid grid-cols-4 gap-2 pb-20">
+        <div className="grid grid-cols-3 gap-3 pb-20">
           {filteredIcons.map((iconDef) => (
             <button
               key={iconDef.name}
               onClick={() => handleAddIcon(iconDef)}
               className="
                 group flex flex-col items-center justify-center 
-                p-2 h-20 rounded-lg
-                bg-gray-800 border border-gray-700 
-                hover:bg-gray-700 hover:border-gray-600 hover:shadow-lg
+                p-3 h-24 rounded-lg
+                bg-white border border-gray-200 
+                hover:bg-gray-50 hover:border-gray-300 hover:shadow-md
                 transition-all duration-200
               "
               title={iconDef.name}
             >
               {/* Render the actual Lucide component for preview */}
               <iconDef.icon
-                size={24}
-                className="text-gray-400 group-hover:text-white transition-colors mb-2"
+                size={28}
+                className="text-gray-600 group-hover:text-gray-900 transition-colors mb-2"
                 strokeWidth={1.5}
               />
-              <span className="text-[10px] text-center text-gray-500 group-hover:text-gray-300 truncate w-full px-1">
+              <span className="text-[10px] text-center text-gray-500 group-hover:text-gray-700 truncate w-full px-1 font-medium">
                 {iconDef.name}
               </span>
             </button>
           ))}
 
           {filteredIcons.length === 0 && (
-            <div className="col-span-4 flex flex-col items-center justify-center py-10 text-gray-500">
+            <div className="col-span-3 flex flex-col items-center justify-center py-10 text-gray-400">
               <Search size={32} className="mb-2 opacity-20" />
               <p className="text-sm">No icons found.</p>
             </div>
