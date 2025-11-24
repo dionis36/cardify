@@ -217,6 +217,7 @@ interface CanvasStageProps {
     onDeselectNode: () => void;
     onNodeChange: (index: number, updates: Partial<KonvaNodeProps>) => void;
     onStartEditing: (node: Konva.Text) => void; // Placeholder for text editing
+    onEditQRCode?: () => void; // NEW: Handler for QR Code editing
 
     // CRITICAL: New prop for scaling logic (Plan 3)
     parentRef: React.RefObject<HTMLElement>;
@@ -227,7 +228,7 @@ interface CanvasStageProps {
 const CanvasStage = forwardRef<KonvaStageType, CanvasStageProps>(
     ({
         template, selectedNodeIndex, onSelectNode, onDeselectNode,
-        onNodeChange, onStartEditing, parentRef, mode
+        onNodeChange, onStartEditing, onEditQRCode, parentRef, mode
     }, ref) => {
 
         const { width: templateWidth, height: templateHeight, layers } = template;
@@ -504,8 +505,11 @@ const CanvasStage = forwardRef<KonvaStageType, CanvasStageProps>(
                 // Trigger the parent component to open the text editor UI
                 // FIX: Pass the actual Konva node (Text) to the handler
                 onStartEditing(e.target as Konva.Text);
+            } else if (selectedNodeDef && selectedNodeDef.type === 'Image' && (selectedNodeDef.props as any).qrMetadata && onEditQRCode) {
+                // NEW: Handle QR Code double click
+                onEditQRCode();
             }
-        }, [layers, mode, onStartEditing]);
+        }, [layers, mode, onStartEditing, onEditQRCode]);
 
 
         // --- Render ---
@@ -599,8 +603,8 @@ const CanvasStage = forwardRef<KonvaStageType, CanvasStageProps>(
                                 // Custom check based on component state
                                 ignoreStroke={false}
                                 flipEnabled={false}
-                                // CRITICAL: Enable keepRatio for Icon nodes to maintain aspect ratio
-                                keepRatio={selectedNodeDef?.type === 'Icon'}
+                                // CRITICAL: Enable keepRatio for Icon nodes and QR Codes to maintain aspect ratio
+                                keepRatio={selectedNodeDef?.type === 'Icon' || (selectedNodeDef?.type === 'Image' && !!(selectedNodeDef.props as any).qrMetadata)}
 
                                 // ADDED bounding box check for minimum size and template bounds
                                 boundBoxFunc={(oldBox, newBox) => {

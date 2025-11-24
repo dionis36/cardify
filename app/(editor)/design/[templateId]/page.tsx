@@ -7,7 +7,7 @@ import { produce } from "immer";
 
 // Components
 import CanvasStage from "@/components/editor/CanvasStage";
-import EditorSidebar from "@/components/editor/EditorSidebar";
+import EditorSidebar, { SidebarTab } from "@/components/editor/EditorSidebar";
 import EditorTopbar from "@/components/editor/EditorTopbar";
 import PropertyPanel from "@/components/editor/PropertyPanel";
 
@@ -199,6 +199,7 @@ export default function Editor() {
     // --- State Management ---
     const [state, dispatch] = useReducer(reducer, null, () => getInitialState(loadTemplate(templateId)));
     const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+    const [activeTab, setActiveTab] = useState<SidebarTab | null>("layers"); // NEW: Lifted state
     const currentPage = state.pages[state.current];
 
     const selectedNode = selectedIndex !== null ? currentPage.layers[selectedIndex] : null;
@@ -345,6 +346,11 @@ export default function Editor() {
         console.log("Start editing text node:", konvaNode.id());
     }, []);
 
+    // NEW: Handle QR Code Edit Request
+    const onEditQRCode = useCallback(() => {
+        setActiveTab('qrcode');
+    }, []);
+
 
     // --- OUTPUT / EXPORT HANDLERS ---
 
@@ -412,6 +418,10 @@ export default function Editor() {
                     // NEW PROPS FOR BACKGROUND
                     currentBackground={currentPage.background}
                     onBackgroundChange={onBackgroundChange}
+
+                    // NEW: Tab Control
+                    activeTab={activeTab}
+                    onTabChange={setActiveTab}
                 />
 
                 {/* B. CANVAS AREA (Flex Grow) */}
@@ -429,6 +439,7 @@ export default function Editor() {
                         onDeselectNode={() => setSelectedIndex(null)}
                         onNodeChange={onNodeChange}
                         onStartEditing={onStartEditing}
+                        onEditQRCode={onEditQRCode} // Pass handler
                         mode={mode}
                     />
                 </main>

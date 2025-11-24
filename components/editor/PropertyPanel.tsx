@@ -326,6 +326,10 @@ export default function PropertyPanel({
     const lineProps = node.props as ImageProps | LineProps | ArrowProps;
     stroke = lineProps.stroke ?? stroke;
     strokeWidth = lineProps.strokeWidth ?? strokeWidth;
+
+    if (node.type === "Image") {
+      cornerRadius = (lineProps as ImageProps).cornerRadius ?? cornerRadius;
+    }
   }
 
 
@@ -636,17 +640,21 @@ export default function PropertyPanel({
       <SectionContainer key="shape" title={node.type.includes("Image") ? "Border/Fill" : "Appearance"} icon={Layout}>
 
         {/* Fill Color and Shape-Specific Properties (Grid for uniformity) */}
-        {["Rect", "Circle", "Ellipse", "Star", "RegularPolygon", "Path"].includes(node.type) && (
+        {["Rect", "Circle", "Ellipse", "Star", "RegularPolygon", "Path", "Image"].includes(node.type) && (
           <div className="grid grid-cols-2 gap-3 pb-2">
-            {/* Fill Color */}
-            <ColorPickerWithSwatch
-              label="Fill Color"
-              color={fill}
-              onChange={(v) => handlePropChange('fill', v)}
-            />
+            {/* Fill Color - Only for shapes, not Image */}
+            {node.type !== "Image" ? (
+              <ColorPickerWithSwatch
+                label="Fill Color"
+                color={fill}
+                onChange={(v) => handlePropChange('fill', v)}
+              />
+            ) : (
+              <div /> // Spacer for Image
+            )}
 
-            {/* Corner Radius (Only for Rect) or Empty Space */}
-            {node.type === "Rect" ? (
+            {/* Corner Radius (For Rect and Image) or Empty Space */}
+            {node.type === "Rect" || node.type === "Image" ? (
               <InputGroup
                 label="Corner Radius"
                 value={cornerRadius}

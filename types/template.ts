@@ -104,6 +104,17 @@ export interface RectProps extends NodeCommonProps {
 
 export interface ImageProps extends NodeCommonProps {
   src: string;
+  cornerRadius?: number;
+  qrMetadata?: {
+    value: string;
+    fgColor: string;
+    bgColor: string;
+    dotStyle: 'squares' | 'dots';
+    eyeStyle: 'square' | 'round';
+    logoUrl?: string;
+    contentType: 'Website' | 'Email' | 'Phone' | 'SMS' | 'Contact' | 'Event';
+    inputs: Record<string, string>;
+  };
 }
 
 // --- SPECIFIC PROPERTIES: SHAPES & ICONS ---

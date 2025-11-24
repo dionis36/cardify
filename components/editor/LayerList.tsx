@@ -106,8 +106,8 @@ export default function LayerList({
 
               // Styling
               className={`p-2 rounded text-sm cursor-pointer border transition-all duration-150 ${isSelected
-                  ? "bg-blue-100 border-blue-500 ring-2 ring-blue-500"
-                  : draggedListIndex === listIndex ? "bg-gray-200 border-gray-400" : "bg-white border-gray-200 hover:bg-gray-100"
+                ? "bg-blue-100 border-blue-500 ring-2 ring-blue-500"
+                : draggedListIndex === listIndex ? "bg-gray-200 border-gray-400" : "bg-white border-gray-200 hover:bg-gray-100"
                 } ${isLocked ? 'opacity-70' : 'hover:shadow-sm'}`}
             >
               <div className="flex justify-between items-center gap-2">
@@ -116,7 +116,9 @@ export default function LayerList({
                 <span className={`font-medium truncate flex-1 ${isLocked ? 'italic text-gray-500' : 'text-gray-700'}`}>
                   {layer.type}: {
                     layer.type === 'Text' ? (layer.props as any).text :
-                      layer.type === 'Image' ? (layer.props as any).src?.substring(0, 10) :
+                      layer.type === 'Image' ? (
+                        (layer.props as any).qrMetadata ? 'QR Code' : (layer.props as any).src?.substring(0, 10)
+                      ) :
                         layer.id.substring(0, 5)
                   }...
                 </span>

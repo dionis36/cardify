@@ -8,15 +8,16 @@ import LayerList from "@/components/editor/LayerList";
 import { ShapeLibrary } from "@/components/editor/ShapeLibrary";
 import IconLibrary from "@/components/editor/IconLibrary";
 import BackgroundPanel from "@/components/editor/BackgroundPanel";
+import QRCodeDesigner from "@/components/editor/QRCodeDesigner";
 import { KonvaNodeDefinition, BackgroundPattern } from "@/types/template";
 import {
     Move, Layers, Settings, Image, Trash2,
     ChevronLeft, ChevronRight, Plus,
-    Sparkles, Palette, X,
+    Sparkles, Palette, X, QrCode,
 } from "lucide-react";
 
 // Update SidebarTab type to include new tabs
-type SidebarTab = "layers" | "elements" | "icons" | "background" | "pages";
+export type SidebarTab = "layers" | "elements" | "icons" | "background" | "qrcode" | "pages";
 type EditorMode = "FULL_EDIT" | "DATA_ONLY";
 
 interface EditorSidebarProps {
@@ -44,6 +45,10 @@ interface EditorSidebarProps {
     onDefinitionChange: (index: number, updates: Partial<KonvaNodeDefinition>) => void;
 
     mode: EditorMode;
+
+    // NEW: External Tab Control
+    activeTab?: SidebarTab | null;
+    onTabChange?: (tab: SidebarTab | null) => void;
 }
 
 export default function EditorSidebar({
@@ -63,12 +68,18 @@ export default function EditorSidebar({
     onRemoveLayer,
     onDefinitionChange,
     mode,
+    activeTab: controlledActiveTab,
+    onTabChange,
 }: EditorSidebarProps) {
     const isDataOnlyMode = mode === "DATA_ONLY";
 
     // State tracks which content panel is open. Initial state can be null/closed, 
     // but setting it to 'layers' is common for a focused start.
-    const [activeTab, setActiveTab] = useState<SidebarTab | null>("layers");
+    const [localActiveTab, setLocalActiveTab] = useState<SidebarTab | null>("layers");
+
+    // Use controlled state if provided, otherwise local
+    const activeTab = controlledActiveTab !== undefined ? controlledActiveTab : localActiveTab;
+    const setActiveTab = onTabChange || setLocalActiveTab;
 
     // --- Tab Navigation (Now Palette Buttons) ---
 
@@ -81,8 +92,8 @@ export default function EditorSidebar({
             disabled={disabled}
             title={label}
             className={`w-12 h-12 rounded-lg transition-colors flex items-center justify-center ${activeTab === tab
-                    ? "bg-blue-600 text-white"
-                    : "text-gray-400 hover:bg-gray-700 hover:text-white disabled:opacity-50"
+                ? "bg-blue-600 text-white"
+                : "text-gray-400 hover:bg-gray-700 hover:text-white disabled:opacity-50"
                 } ${disabled ? 'cursor-not-allowed' : ''}`}
         >
             <Icon size={20} strokeWidth={1.5} />
@@ -117,6 +128,11 @@ export default function EditorSidebar({
             case "background":
                 // BackgroundPanel handles background color/image changes
                 return <BackgroundPanel currentBackground={currentBackground} onBackgroundChange={onBackgroundChange} />;
+
+            case "qrcode":
+                const selectedNode = selectedIndex !== null ? layers[selectedIndex] : null;
+                const qrMetadata = selectedNode?.type === 'Image' ? (selectedNode.props as any).qrMetadata : undefined;
+                return <QRCodeDesigner onAddImage={onAddImage} onAddNode={onAddNode} initialData={qrMetadata} />;
 
             case "pages":
                 return (
@@ -176,6 +192,7 @@ export default function EditorSidebar({
                     {renderPaletteButton("elements", Move, "Shapes", isDataOnlyMode)}
                     {renderPaletteButton("icons", Sparkles, "Icons", isDataOnlyMode)}
                     {renderPaletteButton("background", Palette, "Background", isDataOnlyMode)}
+                    {renderPaletteButton("qrcode", QrCode, "QR Code", isDataOnlyMode)}
                 </div>
 
                 {/* Bottom Navigation Icons (e.g., Settings) */}
