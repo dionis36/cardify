@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useReducer, useState } from "react";
 import { useParams } from "next/navigation";
 import Konva from "konva";
-import { produce } from "immer"; 
+import { produce } from "immer";
 
 // Components
 import CanvasStage from "@/components/editor/CanvasStage";
@@ -14,40 +14,30 @@ import PropertyPanel from "@/components/editor/PropertyPanel";
 // Types/Libs
 import { CardTemplate, KonvaNodeDefinition, KonvaNodeProps, BackgroundPattern, BackgroundType } from "@/types/template";
 import { loadTemplate } from "@/lib/templates";
-import { downloadPNG, downloadPDF } from "@/lib/pdf"; 
+import { downloadPNG, downloadPDF } from "@/lib/pdf";
 
 // Define the editor modes
 type EditorMode = "FULL_EDIT" | "DATA_ONLY";
 
-// --- BACKGROUND DEFINITION (Temporary placeholder until types are consistently linked) ---
-// We assume this type exists in '@/types/template'
-// type BackgroundType = 'solid' | 'gradient' | 'pattern';
-// interface BackgroundPattern {
-//     type: BackgroundType;
-//     color1: string; // Primary color or gradient start
-//     color2: string; // Secondary color or gradient end
-//     opacity: number;
-//     rotation: number;
-//     scale: number;
-//     patternImageURL?: string; // Only for pattern type
-// }
-
 const DEFAULT_BACKGROUND: BackgroundPattern = {
     type: 'solid',
     color1: '#F3F4F6', // A light gray default
-    color2: '#000000', 
+    color2: '#000000',
     opacity: 1,
     rotation: 0,
     scale: 1,
     patternImageURL: '',
+    gradientType: 'linear',
+    gradientStops: [],
+    overlayColor: '#000000',
 };
 
 // --- State/Reducer logic ---
 type State = {
-  pages: CardTemplate[]; 
-  current: number; 
-  history: State[]; 
-  future: State[]; 
+    pages: CardTemplate[];
+    current: number;
+    history: State[];
+    future: State[];
 };
 
 // Initial state function using the loaded template
@@ -56,7 +46,7 @@ function getInitialState(template: CardTemplate): State {
     const initialTemplate: CardTemplate = {
         ...template,
         // Ensure background is initialized with default if missing
-        background: template.background || DEFAULT_BACKGROUND, 
+        background: template.background || DEFAULT_BACKGROUND,
     };
 
     return {
@@ -68,28 +58,28 @@ function getInitialState(template: CardTemplate): State {
 }
 
 // Reducer actions
-type Action = 
-  | { type: 'SET_PAGES', pages: CardTemplate[] }
-  | { type: 'CHANGE_NODE', index: number, updates: Partial<KonvaNodeProps> }
-  | { type: 'CHANGE_NODE_DEFINITION', index: number, updates: Partial<KonvaNodeDefinition> }
-  | { type: 'SET_SELECTED_INDEX', index: number | null }
-  | { type: 'ADD_NODE', node: KonvaNodeDefinition }
-  | { type: 'REMOVE_NODE', index: number }
-  | { type: 'MOVE_NODE', from: number, to: number }
-  | { type: 'CHANGE_MODE', mode: EditorMode }
-  | { type: 'ADD_PAGE', template: CardTemplate }
-  | { type: 'REMOVE_PAGE', index: number }
-  | { type: 'GOTO_PAGE', index: number }
-  | { type: 'UNDO' }
-  | { type: 'REDO' }
-  // NEW ACTION: Update Background
-  | { type: 'CHANGE_BACKGROUND', updates: Partial<BackgroundPattern> }; 
+type Action =
+    | { type: 'SET_PAGES', pages: CardTemplate[] }
+    | { type: 'CHANGE_NODE', index: number, updates: Partial<KonvaNodeProps> }
+    | { type: 'CHANGE_NODE_DEFINITION', index: number, updates: Partial<KonvaNodeDefinition> }
+    | { type: 'SET_SELECTED_INDEX', index: number | null }
+    | { type: 'ADD_NODE', node: KonvaNodeDefinition }
+    | { type: 'REMOVE_NODE', index: number }
+    | { type: 'MOVE_NODE', from: number, to: number }
+    | { type: 'CHANGE_MODE', mode: EditorMode }
+    | { type: 'ADD_PAGE', template: CardTemplate }
+    | { type: 'REMOVE_PAGE', index: number }
+    | { type: 'GOTO_PAGE', index: number }
+    | { type: 'UNDO' }
+    | { type: 'REDO' }
+    // NEW ACTION: Update Background
+    | { type: 'CHANGE_BACKGROUND', updates: Partial<BackgroundPattern> };
 
 // The core reducer logic
 function reducer(state: State, action: Action): State {
     const pages = state.pages;
     const current = state.current;
-    
+
     const newPages = produce(pages, (draft) => {
         const currentPage = draft[current];
         if (!currentPage) return; // Should not happen
@@ -104,7 +94,7 @@ function reducer(state: State, action: Action): State {
                     nodeToUpdate.props = { ...nodeToUpdate.props, ...action.updates } as KonvaNodeProps;
                 }
                 break;
-            
+
             case 'CHANGE_NODE_DEFINITION':
                 const defToUpdate = currentPage.layers[action.index];
                 if (defToUpdate) {
@@ -115,11 +105,11 @@ function reducer(state: State, action: Action): State {
             case 'ADD_NODE':
                 currentPage.layers.push(action.node);
                 break;
-            
+
             case 'REMOVE_NODE':
                 currentPage.layers.splice(action.index, 1);
                 break;
-                
+
             case 'MOVE_NODE':
                 const [removed] = currentPage.layers.splice(action.from, 1);
                 currentPage.layers.splice(action.to, 0, removed);
@@ -141,18 +131,18 @@ function reducer(state: State, action: Action): State {
 
             // NEW: Background Change Handler
             case 'CHANGE_BACKGROUND':
-                currentPage.background = { 
-                    ...currentPage.background, 
-                    ...action.updates 
+                currentPage.background = {
+                    ...currentPage.background,
+                    ...action.updates
                 };
                 break;
-            
+
             // Other cases that don't change pages or are handled separately (like SET_SELECTED_INDEX)
             case 'SET_SELECTED_INDEX':
             case 'CHANGE_MODE':
             case 'GOTO_PAGE':
                 // Do not produce a new state in immer for these, they are handled outside
-                return; 
+                return;
         }
     });
 
@@ -222,7 +212,7 @@ export default function Editor() {
     const onNodeDefinitionChange = useCallback((index: number, updates: Partial<KonvaNodeDefinition>) => {
         dispatch({ type: 'CHANGE_NODE_DEFINITION', index, updates });
     }, [dispatch]);
-    
+
     // NEW HANDLER: Background Change
     const onBackgroundChange = useCallback((updates: Partial<BackgroundPattern>) => {
         dispatch({ type: 'CHANGE_BACKGROUND', updates });
@@ -292,7 +282,7 @@ export default function Editor() {
 
 
     // --- ASSET & NODE ADDITION HANDLERS ---
-    
+
     const onAddNode = useCallback((node: KonvaNodeDefinition) => {
         dispatch({ type: 'ADD_NODE', node });
         setSelectedIndex(currentPage.layers.length); // Select the new node
@@ -346,8 +336,8 @@ export default function Editor() {
     useEffect(() => {
         setSelectedIndex(null);
     }, [currentPage.id]);
-    
-    
+
+
     // Functionality for TextNode to communicate it wants to be edited (double click)
     const onStartEditing = useCallback((konvaNode: Konva.Text) => {
         // This is where we would typically show a custom TextEditor overlay.
@@ -361,7 +351,7 @@ export default function Editor() {
     const handleDownload = useCallback((format: 'PNG' | 'PDF') => {
         if (!stageRef.current) return;
         const stage = stageRef.current;
-        
+
         // Hide Transformer before export
         const transformer = stage.findOne('Transformer');
         transformer?.visible(false);
@@ -384,16 +374,16 @@ export default function Editor() {
     // --- RENDER ---
     return (
         <div className="flex h-screen w-screen bg-gray-900 overflow-hidden">
-            <EditorTopbar 
-                templateName={currentPage.name} 
+            <EditorTopbar
+                templateName={currentPage.name}
                 onDownload={handleDownload}
                 onUndo={() => dispatch({ type: 'UNDO' })}
                 onRedo={() => dispatch({ type: 'REDO' })}
                 canUndo={state.history.length > 0}
                 canRedo={state.future.length > 0}
                 saving={false}
-                onSave={() => {}}
-                onBack={() => {}}
+                onSave={() => { }}
+                onBack={() => { }}
             />
 
             <div className="flex flex-1 pt-14 overflow-hidden">
@@ -408,7 +398,7 @@ export default function Editor() {
                     onDefinitionChange={onNodeDefinitionChange}
                     onAddNode={onAddNode}
                     onAddImage={onAddImage}
-                    
+
                     // Page Controls
                     addPage={addPage}
                     removePage={removePage}
@@ -425,7 +415,7 @@ export default function Editor() {
                 />
 
                 {/* B. CANVAS AREA (Flex Grow) */}
-                <main 
+                <main
                     ref={mainRef}
                     // FIX LAYER 2: Ensure canvas container stays below (z-0 relative)
                     className="relative z-0 flex-1 flex justify-center items-center overflow-auto p-8 bg-gray-200"
@@ -434,9 +424,9 @@ export default function Editor() {
                         ref={stageRef}
                         parentRef={mainRef}
                         template={currentPage}
-                        selectedNodeIndex={selectedIndex} 
+                        selectedNodeIndex={selectedIndex}
                         onSelectNode={(index: number | null) => setSelectedIndex(index)}
-                        onDeselectNode={() => setSelectedIndex(null)} 
+                        onDeselectNode={() => setSelectedIndex(null)}
                         onNodeChange={onNodeChange}
                         onStartEditing={onStartEditing}
                         mode={mode}
@@ -449,11 +439,11 @@ export default function Editor() {
                 <div className="property-panel relative z-50 h-full shrink-0">
                     <PropertyPanel
                         node={selectedNode}
-                        
-                        onPropChange={(updates: Partial<KonvaNodeProps>) => 
+
+                        onPropChange={(updates: Partial<KonvaNodeProps>) =>
                             selectedIndex !== null && onNodeChange(selectedIndex, updates)
                         }
-                        onDefinitionChange={(updates: Partial<KonvaNodeDefinition>) => 
+                        onDefinitionChange={(updates: Partial<KonvaNodeDefinition>) =>
                             selectedIndex !== null && onNodeDefinitionChange(selectedIndex, updates)
                         }
                         mode={mode}

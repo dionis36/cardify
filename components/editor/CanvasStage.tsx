@@ -71,64 +71,136 @@ interface BackgroundRendererProps {
 
 const BackgroundRenderer: React.FC<BackgroundRendererProps> = memo(({ template, background }) => {
     const { width, height } = template;
-    const { type, color1, color2, opacity, rotation, scale, patternImageURL } = background;
+    const {
+        type,
+        color1,
+        color2,
+        gradientType,
+        gradientStops,
+        opacity,
+        rotation,
+        scale,
+        patternImageURL,
+        overlayColor
+    } = background;
 
     // Pattern Image Loading
-    const patternImage = useCachedImage(type === 'pattern' ? patternImageURL : null);
+    const patternImage = useCachedImage((type === 'pattern' || type === 'texture') ? patternImageURL : null);
 
-    const commonProps = {
-        x: 0,
-        y: 0,
-        width: width,
-        height: height,
-        opacity: opacity,
-        rotation: 0, // Rotation is applied on the element within the layer if needed
-        // NOTE: Fill needs to be defined in render props below
+    // 1. Base Layer (Solid Color)
+    // Always render a base color. For gradients, this might be hidden or used as fallback.
+    // For patterns/textures, this is the background color behind the transparent pattern.
+    const renderBaseLayer = () => (
+        <Rect
+            x={0} y={0} width={width} height={height}
+            fill={color1}
+            listening={false}
+        />
+    );
+
+    // 2. Main Effect Layer (Gradient or Pattern/Texture)
+    const renderEffectLayer = () => {
+        if (type === 'solid') return null;
+
+        if (type === 'gradient') {
+            const stops = gradientStops
+                ? gradientStops.flatMap(s => [s.offset, s.color])
+                : [0, color1, 1, color2 || '#ffffff'];
+
+            let gradientProps: any = {};
+
+            if (gradientType === 'radial') {
+                gradientProps = {
+                    fillRadialGradientStartPoint: { x: width / 2, y: height / 2 },
+                    fillRadialGradientStartRadius: 0,
+                    fillRadialGradientEndPoint: { x: width / 2, y: height / 2 },
+                    fillRadialGradientEndRadius: Math.max(width, height) / 1.5, // Cover the area
+                    fillRadialGradientColorStops: stops,
+                };
+            } else {
+                // Linear Gradient Math
+                // Calculate start/end points based on rotation
+                const angleRad = (rotation || 0) * (Math.PI / 180);
+                // Simple approximation for full coverage:
+                // Center is (w/2, h/2). Vector is (cos, sin).
+                // Start = Center - Vector * Length. End = Center + Vector * Length.
+                const length = Math.sqrt(width * width + height * height) / 2;
+                const cx = width / 2;
+                const cy = height / 2;
+
+                gradientProps = {
+                    fillLinearGradientStartPoint: {
+                        x: cx - Math.cos(angleRad) * length,
+                        y: cy - Math.sin(angleRad) * length
+                    },
+                    fillLinearGradientEndPoint: {
+                        x: cx + Math.cos(angleRad) * length,
+                        y: cy + Math.sin(angleRad) * length
+                    },
+                    fillLinearGradientColorStops: stops,
+                };
+            }
+
+            return (
+                <Rect
+                    x={0} y={0} width={width} height={height}
+                    {...gradientProps}
+                    listening={false}
+                />
+            );
+        }
+
+        if ((type === 'pattern' || type === 'texture') && patternImage) {
+            return (
+                <Rect
+                    x={0} y={0} width={width} height={height}
+                    fillPatternImage={patternImage}
+                    fillPatternScaleX={scale}
+                    fillPatternScaleY={scale}
+                    fillPatternRotation={rotation}
+                    fillPatternRepeat='repeat'
+                    listening={false}
+                />
+            );
+        }
+
+        return null;
     };
 
-    const renderBackgroundFill = () => {
-        switch (type) {
-            case 'solid':
-                return { fill: color1 };
-            case 'gradient':
-                // Konva linear gradient: [start_x, start_y, end_x, end_y, color_stop_1, color_1, color_stop_2, color_2, ...]
-                return {
-                    fillLinearGradientStartPoint: { x: 0, y: 0 },
-                    fillLinearGradientEndPoint: { x: width, y: height },
-                    fillLinearGradientColorStops: [0, color1 || '#000000', 1, color2 || '#ffffff'],
-                    // A gradient can also have rotation applied if it were a Group, 
-                    // but for the background Rect, we use the gradient endpoints.
-                };
-            case 'pattern':
-                if (patternImage) {
-                    return {
-                        fillPatternImage: patternImage,
-                        fillPatternScaleX: scale,
-                        fillPatternScaleY: scale,
-                        fillPatternRotation: rotation,
-                        fillPatternRepeat: 'repeat',
-                        fill: color1, // Solid color for fallback or blend
-                    };
-                }
-                // Fallback to solid if pattern image fails to load
-                return { fill: color1 };
-            /* case 'image':
-                // Not fully implemented in this type definition but assumed to be handled via Rect fill/pattern logic
-                return { fill: color1 }; */
-            default:
-                return { fill: '#ffffff' };
+    // 3. Overlay Layer (Tint for Textures)
+    const renderOverlayLayer = () => {
+        if (type === 'texture' && overlayColor) {
+            return (
+                <Rect
+                    x={0} y={0} width={width} height={height}
+                    fill={overlayColor}
+                    opacity={0.3} // Fixed low opacity for tinting, or could be configurable
+                    globalCompositeOperation="source-over" // or 'multiply' for better tinting?
+                    listening={false}
+                />
+            );
         }
+        return null;
     };
 
     return (
-        <Rect
-            {...commonProps}
-            {...renderBackgroundFill()}
-            // The background rect is not selectable/draggable/rotatable
-            draggable={false}
-            listening={false}
-            name="background-layer-rect" // Important for identification
-        />
+        <Group
+            opacity={opacity}
+            name="background-layer-group"
+            listening={false} // The group itself shouldn't capture events
+        >
+            {renderBaseLayer()}
+            {renderEffectLayer()}
+            {renderOverlayLayer()}
+
+            {/* Invisible Hit Rect to ensure clicks on background are detected if needed, 
+                but we generally want them to fall through to Stage or be handled by Stage */}
+            <Rect
+                x={0} y={0} width={width} height={height}
+                fill="transparent"
+                name="background-layer-rect" // Keep this name for click detection in CanvasStage
+            />
+        </Group>
     );
 });
 
