@@ -330,26 +330,22 @@ export default function Editor() {
 
     // --- SIDE EFFECTS ---
 
-    // Select the transformer on selection change
+    // REMOVED: Redundant Transformer logic. CanvasStage handles this internally.
+    /* 
     useEffect(() => {
         const transformer = stageRef.current?.findOne('Transformer') as Konva.Transformer;
         if (transformer) {
-            if (selectedNode) {
-                const node = stageRef.current?.findOne(`#${selectedNode.id}`);
-                if (node) {
-                    transformer.nodes([node]);
-                }
-            } else {
-                transformer.nodes([]);
-            }
-            transformer.getLayer()?.batchDraw();
+            // ...
         }
-    }, [selectedNode, stageRef]);
+    }, [selectedNode, stageRef]); 
+    */
 
     // Cleanup selection on page change
+    // CRITICAL FIX: Only clear selection if the Page ID changes (switching pages).
+    // Previously, this ran on every 'currentPage' update (every edit), causing deselection.
     useEffect(() => {
         setSelectedIndex(null);
-    }, [currentPage]);
+    }, [currentPage.id]);
     
     
     // Functionality for TextNode to communicate it wants to be edited (double click)
@@ -431,7 +427,8 @@ export default function Editor() {
                 {/* B. CANVAS AREA (Flex Grow) */}
                 <main 
                     ref={mainRef}
-                    className="flex-1 flex justify-center items-center overflow-auto p-8 bg-gray-200"
+                    // FIX LAYER 2: Ensure canvas container stays below (z-0 relative)
+                    className="relative z-0 flex-1 flex justify-center items-center overflow-auto p-8 bg-gray-200"
                 >
                     <CanvasStage
                         ref={stageRef}
@@ -447,23 +444,27 @@ export default function Editor() {
                 </main>
 
                 {/* C. RIGHT SIDEBAR (Fixed Width - Property Panel) */}
-                <PropertyPanel
-                    node={selectedNode}
-                    
-                    onPropChange={(updates: Partial<KonvaNodeProps>) => 
-                        selectedIndex !== null && onNodeChange(selectedIndex, updates)
-                    }
-                    onDefinitionChange={(updates: Partial<KonvaNodeDefinition>) => 
-                        selectedIndex !== null && onNodeDefinitionChange(selectedIndex, updates)
-                    }
-                    mode={mode}
+                {/* FIX LAYER 2: Ensure panel DOM stays above the canvas */}
+                {/* FIX SCROLL: Add h-full and shrink-0 to ensuring it fits container and doesn't squash */}
+                <div className="property-panel relative z-50 h-full shrink-0">
+                    <PropertyPanel
+                        node={selectedNode}
+                        
+                        onPropChange={(updates: Partial<KonvaNodeProps>) => 
+                            selectedIndex !== null && onNodeChange(selectedIndex, updates)
+                        }
+                        onDefinitionChange={(updates: Partial<KonvaNodeDefinition>) => 
+                            selectedIndex !== null && onNodeDefinitionChange(selectedIndex, updates)
+                        }
+                        mode={mode}
 
-                    // NEW PROPS for Layer Ordering
-                    onMoveToFront={moveLayerToFront}
-                    onMoveToBack={moveLayerToBack}
-                    onMoveUp={moveLayerUp}
-                    onMoveDown={moveLayerDown}
-                />
+                        // NEW PROPS for Layer Ordering
+                        onMoveToFront={moveLayerToFront}
+                        onMoveToBack={moveLayerToBack}
+                        onMoveUp={moveLayerUp}
+                        onMoveDown={moveLayerDown}
+                    />
+                </div>
             </div>
         </div>
     );

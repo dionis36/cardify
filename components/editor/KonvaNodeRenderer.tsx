@@ -47,7 +47,7 @@ interface KonvaNodeRendererProps {
  * Renders a single Konva node (shape, text, image, icon) based on its type.
  * It manages the attachment to the Konva Transformer and handles drag/transform end events.
  */
-const KonvaNodeRenderer: React.FC<KonvaNodeRendererProps> = memo(({
+const KonvaNodeRendererBase: React.FC<KonvaNodeRendererProps> = ({
   node,
   index,
   isSelected,
@@ -344,7 +344,19 @@ const KonvaNodeRenderer: React.FC<KonvaNodeRendererProps> = memo(({
   // Fallback for unhandled types
   console.error(`[KonvaNodeRenderer] Unhandled Konva Node Type: ${(node as any).type}`);
   return null;
-});
+};
 
+// FIX LAYER 4: Custom comparison function to prevent unnecessary re-renders
+const arePropsEqual = (prev: KonvaNodeRendererProps, next: KonvaNodeRendererProps) => {
+    return (
+        prev.isSelected === next.isSelected &&
+        prev.isLocked === next.isLocked &&
+        prev.isLayoutDisabled === next.isLayoutDisabled &&
+        prev.node === next.node &&
+        prev.index === next.index
+    );
+};
+
+const KonvaNodeRenderer = memo(KonvaNodeRendererBase, arePropsEqual);
 KonvaNodeRenderer.displayName = "KonvaNodeRenderer";
 export default KonvaNodeRenderer;

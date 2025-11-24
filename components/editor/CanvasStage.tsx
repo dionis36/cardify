@@ -252,6 +252,19 @@ const CanvasStage = forwardRef<KonvaStageType, CanvasStageProps>(
 
     // Handle click outside of any node/transformer
     const handleStageClick = useCallback((e: Konva.KonvaEventObject<MouseEvent>) => {
+        const domTarget = e.evt.target as HTMLElement | null;
+
+        // FIX LAYER 1: Check if click came from property panel
+        if (domTarget && domTarget.closest(".property-panel")) {
+            return;
+        }
+
+        // FIX LAYER 3: Check if click is on the actual canvas
+        // Konva listens on the container, but we only want to process clicks on the canvas element itself
+        if (!(domTarget instanceof HTMLCanvasElement)) {
+            return;
+        }
+
         // If we clicked on an already selected element, do nothing.
         // If we clicked on the canvas background itself:
         if (e.target === e.target.getStage() || e.target.name() === 'background-layer-rect') {

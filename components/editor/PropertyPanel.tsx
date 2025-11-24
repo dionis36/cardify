@@ -242,7 +242,8 @@ export default function PropertyPanel({
   if (!node) {
     return (
       // CHANGE: w-80 changed to w-72
-      <div className="w-72 border-l bg-white p-6 shrink-0 overflow-y-auto space-y-6">
+      // FIX SCROLL: Added h-full
+      <div className="property-panel w-72 border-l bg-white p-6 shrink-0 overflow-y-auto space-y-6 h-full">
         <div className="text-center p-8 border border-dashed border-gray-300 rounded-lg">
             <Settings size={24} className="mx-auto mb-3 text-gray-400" />
             <p className="text-sm font-medium text-gray-600">
@@ -648,7 +649,9 @@ export default function PropertyPanel({
 
   return (
     // CHANGE: w-80 changed to w-72
-    <div className="w-72 border-l bg-white p-6 shrink-0 overflow-y-auto space-y-6">
+    // FIX LAYER 4: Add property-panel class to outermost div to prevent focus loss issues
+    // FIX SCROLL: Added h-full to ensure scrollbar appears when content overflows
+    <div className="property-panel w-72 border-l bg-white p-6 shrink-0 overflow-y-auto space-y-6 h-full">
       <h2 className="text-2xl font-extrabold text-gray-900 border-b border-gray-200 pb-3">
         {node.type} Properties 🎨
       </h2>
