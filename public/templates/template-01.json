@@ -1,42 +1,46 @@
 {
   "id": "template_01",
-  "name": "Minimalist Horizontal Business Card",
-  "width": 600, 
-  "height": 350,
-  "thumbnail": "/templates/thumb_01.png",
-  "tags": ["minimalist", "modern"],
+  "name": "Blue Professional",
+  "width": 1050,
+  "height": 600,
   "orientation": "horizontal",
+  "category": "Professional",
+  "tags": [
+    "Business",
+    "Clean",
+    "Modern",
+    "Blue"
+  ],
+  "colors": [
+    "#FFFFFF",
+    "#2563EB",
+    "#1E293B"
+  ],
+  "features": [
+    "Logo",
+    "Contact Info",
+    "Vertical Divider"
+  ],
+  "thumbnail": "",
+  "preview": "",
+  "background": {
+    "type": "solid",
+    "color1": "#FFFFFF"
+  },
   "layers": [
     {
-      "id": "text_01",
-      "type": "Text",
+      "id": "logo_icon",
+      "type": "Icon",
       "props": {
-        "x": 40,
-        "y": 100,
-        "text": "ALEXANDER CHEN",
-        "fontSize": 28,
-        "fill": "#000000",
-        "fontFamily": "Arial",
-        "width": 300,
-        "height": 40,
-        "rotation": 0,
-        "opacity": 1
-      },
-      "editable": true,
-      "locked": false 
-    },
-    {
-      "id": "text_02",
-      "type": "Text",
-      "props": {
-        "x": 40,
-        "y": 145,
-        "text": "Senior Product Designer | 555-0199",
-        "fontSize": 16,
-        "fill": "#555555",
-        "fontFamily": "Arial",
-        "width": 400,
-        "height": 20,
+        "id": "logo_icon",
+        "x": 212,
+        "y": 140,
+        "width": 100,
+        "height": 100,
+        "data": "M12 2L4 6v4l8 4 8-4V6l-8-4zm0 2.18L17.82 6 12 8.82 6.18 6 12 4.18zM6 8.82v2.36L12 14l6-2.82V8.82L12 11.64 6 8.82z M8 14h2v8H8v-8zm6 0h2v8h-2v-8z",
+        "iconName": "Pillar",
+        "category": "Icon",
+        "fill": "#2563EB",
         "rotation": 0,
         "opacity": 1
       },
@@ -44,20 +48,168 @@
       "locked": false
     },
     {
-      "id": "rect_01",
+      "id": "company_name",
+      "type": "Text",
+      "props": {
+        "id": "company_name",
+        "x": 62,
+        "y": 260,
+        "width": 400,
+        "height": 50,
+        "text": "LOGO TEXT HERE",
+        "fontSize": 36,
+        "fontFamily": "Inter",
+        "fill": "#2563EB",
+        "rotation": 0,
+        "opacity": 1,
+        "align": "center",
+        "fontStyle": "bold",
+        "letterSpacing": 2
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "company_slogan",
+      "type": "Text",
+      "props": {
+        "id": "company_slogan",
+        "x": 62,
+        "y": 320,
+        "width": 400,
+        "height": 30,
+        "text": "SLOGAN HERE",
+        "fontSize": 18,
+        "fontFamily": "Inter",
+        "fill": "#64748B",
+        "rotation": 0,
+        "opacity": 1,
+        "align": "center",
+        "letterSpacing": 4
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "divider_line",
       "type": "Rect",
       "props": {
-        "x": 520,
-        "y": 0,
-        "width": 80,
-        "height": 350,
+        "id": "divider_line",
+        "x": 523,
+        "y": 100,
+        "width": 4,
+        "height": 400,
         "fill": "#2563EB",
-        "cornerRadius": 0,
         "rotation": 0,
         "opacity": 1
       },
-      "editable": false,
-      "locked": true
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "full_name",
+      "type": "Text",
+      "props": {
+        "id": "full_name",
+        "x": 550,
+        "y": 130,
+        "width": 450,
+        "height": 60,
+        "text": "FULL NAME",
+        "fontSize": 42,
+        "fontFamily": "Inter",
+        "fill": "#2563EB",
+        "rotation": 0,
+        "opacity": 1,
+        "align": "left",
+        "fontStyle": "bold"
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "job_title",
+      "type": "Text",
+      "props": {
+        "id": "job_title",
+        "x": 550,
+        "y": 190,
+        "width": 450,
+        "height": 40,
+        "text": "FOUNDER & CEO",
+        "fontSize": 22,
+        "fontFamily": "Inter",
+        "fill": "#64748B",
+        "rotation": 0,
+        "opacity": 1,
+        "align": "left",
+        "letterSpacing": 1
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "email_label",
+      "type": "Text",
+      "props": {
+        "id": "email_label",
+        "x": 550,
+        "y": 280,
+        "width": 450,
+        "height": 30,
+        "text": "EMAIL",
+        "fontSize": 16,
+        "fontFamily": "Inter",
+        "fill": "#2563EB",
+        "rotation": 0,
+        "opacity": 1,
+        "align": "left",
+        "fontStyle": "bold"
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "phone_label",
+      "type": "Text",
+      "props": {
+        "id": "phone_label",
+        "x": 550,
+        "y": 330,
+        "width": 450,
+        "height": 30,
+        "text": "PHONE",
+        "fontSize": 16,
+        "fontFamily": "Inter",
+        "fill": "#2563EB",
+        "rotation": 0,
+        "opacity": 1,
+        "align": "left",
+        "fontStyle": "bold"
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "website_label",
+      "type": "Text",
+      "props": {
+        "id": "website_label",
+        "x": 550,
+        "y": 380,
+        "width": 450,
+        "height": 30,
+        "text": "WEBSITE",
+        "fontSize": 16,
+        "fontFamily": "Inter",
+        "fill": "#2563EB",
+        "rotation": 0,
+        "opacity": 1,
+        "align": "left",
+        "fontStyle": "bold"
+      },
+      "editable": true,
+      "locked": false
     }
   ]
 }

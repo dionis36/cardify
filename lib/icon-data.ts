@@ -6,13 +6,13 @@ import * as LucideIcons from 'lucide-react';
 import { IconProps } from '@/types/template';
 
 // 1. Type Definitions for the Library
-export type IconCategory = 
-  | 'Essentials' 
-  | 'Business' 
-  | 'Social' 
-  | 'Tech' 
-  | 'Arrows' 
-  | 'Layout' 
+export type IconCategory =
+  | 'Essentials'
+  | 'Business'
+  | 'Social'
+  | 'Tech'
+  | 'Arrows'
+  | 'Layout'
   | 'Nature'
   | 'Shapes';
 
@@ -109,26 +109,26 @@ export const getIconComponent = (iconName: string): LucideIcon => {
  * or the editor should populate it upon creation if 'data' is strictly required.
  */
 export const getDefaultIconProps = (iconName: string): Partial<IconProps> => ({
-    // Base Node Props
-    x: 100,
-    y: 100,
-    width: 60, // Icons often look better starting slightly larger than 32
-    height: 60,
-    rotation: 0,
-    opacity: 1,
-    visible: true,
-    
-    // Icon Specifics
-    category: 'Icon', 
-    iconName: iconName,
-    
-    // Styling Defaults
-    fill: '#000000',
-    stroke: 'transparent',
-    strokeWidth: 0,
-    
-    // Data Placeholder: The Konva IconNode will likely need to derive this 
-    // from the iconName if it's rendering a native Path.
-    // For now, we leave it empty or could insert a generic box path.
-    data: '', 
+  // Base Node Props
+  x: 100,
+  y: 100,
+  width: 60, // Icons often look better starting slightly larger than 32
+  height: 60,
+  rotation: 0,
+  opacity: 1,
+  visible: true,
+
+  // Icon Specifics
+  category: 'Icon',
+  iconName: iconName,
+
+  // Styling Defaults
+  fill: '#000000',
+  stroke: 'transparent',
+  strokeWidth: 0,
+
+  // Data Placeholder: The Konva IconNode will likely need to derive this 
+  // from the iconName if it's rendering a native Path.
+  // For now, we leave it empty or could insert a generic box path.
+  data: '',
 });

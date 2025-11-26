@@ -10,15 +10,18 @@ import IconLibrary from "@/components/editor/IconLibrary";
 import BackgroundPanel from "@/components/editor/BackgroundPanel";
 import QRCodeDesigner from "@/components/editor/QRCodeDesigner";
 import ShortcutsReference from "@/components/editor/ShortcutsReference";
+import LogoLibraryPanel from "@/components/editor/LogoLibraryPanel"; // NEW IMPORT
 import { KonvaNodeDefinition, BackgroundPattern, LayerGroup } from "@/types/template";
+import { Logo } from "@/types/logo"; // NEW IMPORT
 import {
     Move, Layers, Settings, Image, Trash2,
     ChevronLeft, ChevronRight, Plus,
     Sparkles, Palette, X, QrCode,
+    Hexagon, // NEW ICON
 } from "lucide-react";
 
 // Update SidebarTab type to include new tabs
-export type SidebarTab = "layers" | "elements" | "icons" | "background" | "qrcode" | "settings";
+export type SidebarTab = "layers" | "elements" | "icons" | "logos" | "background" | "qrcode" | "settings";
 type EditorMode = "FULL_EDIT" | "DATA_ONLY";
 
 interface EditorSidebarProps {
@@ -29,6 +32,9 @@ interface EditorSidebarProps {
     // NEW PROP for background updates (Inferred for BackgroundPanel)
     currentBackground: BackgroundPattern;
     onBackgroundChange: (updates: Partial<BackgroundPattern>) => void;
+
+    // NEW PROP for logo selection
+    onSelectLogo?: (logo: Logo) => void;
 
     // Page Control Props (kept for potential future use, but not displayed)
     addPage: () => void;
@@ -63,6 +69,7 @@ export default function EditorSidebar({
     onAddImage,
     currentBackground,
     onBackgroundChange, // Destructure new prop
+    onSelectLogo, // Destructure new prop
     addPage,
     removePage,
     pageCount,
@@ -140,6 +147,9 @@ export default function EditorSidebar({
                 // IconLibrary also uses the generic onAddNode
                 return <IconLibrary onAddLayer={onAddNode} />;
 
+            case "logos":
+                return <LogoLibraryPanel onSelectLogo={onSelectLogo || (() => { })} />;
+
             case "background":
                 // BackgroundPanel handles background color/image changes
                 return <BackgroundPanel currentBackground={currentBackground} onBackgroundChange={onBackgroundChange} />;
@@ -169,6 +179,7 @@ export default function EditorSidebar({
                     {renderPaletteButton("layers", Layers, "Layers", isDataOnlyMode)}
                     {renderPaletteButton("elements", Move, "Shapes", isDataOnlyMode)}
                     {renderPaletteButton("icons", Sparkles, "Icons", isDataOnlyMode)}
+                    {renderPaletteButton("logos", Hexagon, "Logos", isDataOnlyMode)}
                     {renderPaletteButton("background", Palette, "Background", isDataOnlyMode)}
                     {renderPaletteButton("qrcode", QrCode, "QR Code", isDataOnlyMode)}
                 </div>

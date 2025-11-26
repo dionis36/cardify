@@ -1,90 +1,209 @@
 {
   "id": "template_03",
-  "name": "Professional Typography & Vector",
-  "width": 600,
-  "height": 350,
-  "thumbnail": "/templates/thumb_03.png",
-  "tags": ["professional", "corporate", "vector"],
+  "name": "Orange Modern",
+  "width": 1050,
+  "height": 600,
   "orientation": "horizontal",
+  "category": "Creative",
+  "tags": [
+    "Bold",
+    "Modern",
+    "Orange",
+    "Animal"
+  ],
+  "colors": [
+    "#F5A962",
+    "#1E3A5F",
+    "#2C5F8D"
+  ],
+  "features": [
+    "Logo",
+    "Horizontal Layout",
+    "Bold Colors"
+  ],
+  "thumbnail": "",
+  "preview": "",
+  "background": {
+    "type": "solid",
+    "color1": "#F5A962"
+  },
   "layers": [
     {
-      "id": "bg_rect",
+      "id": "border_dashed",
       "type": "Rect",
       "props": {
-        "x": 0,
-        "y": 0,
-        "width": 600,
-        "height": 350,
-        "fill": "#FFFFFF"
-      },
-      "editable": false,
-      "locked": true
-    },
-    {
-      "id": "text_01",
-      "type": "Text",
-      "props": {
-        "x": 30,
+        "id": "border_dashed",
+        "x": 40,
         "y": 40,
-        "text": "SENIOR ART DIRECTOR",
-        "fontSize": 14,
-        "fill": "#3B82F6",
-        "fontFamily": "Roboto",
-        "width": 300,
-        "height": 20,
-        "letterSpacing": 3.5,
-        "align": "left"
+        "width": 970,
+        "height": 520,
+        "stroke": "#FFFFFF",
+        "strokeWidth": 2,
+        "fill": "transparent",
+        "dash": [
+          10,
+          10
+        ],
+        "rotation": 0,
+        "opacity": 0.5
       },
       "editable": true,
       "locked": false
     },
     {
-      "id": "text_02",
+      "id": "logo_icon",
+      "type": "Icon",
+      "props": {
+        "id": "logo_icon",
+        "x": 200,
+        "y": 160,
+        "width": 120,
+        "height": 120,
+        "data": "M12 2L8 6h8l-4-4zM6 8c-1.1 0-2 .9-2 2v4c0 1.1.9 2 2 2h1v6h2v-6h6v6h2v-6h1c1.1 0 2-.9 2-2v-4c0-1.1-.9-2-2-2H6zm0 2h12v4H6v-4zm3 1v2h2v-2H9zm4 0v2h2v-2h-2z",
+        "iconName": "Bull",
+        "category": "Icon",
+        "fill": "#1E3A5F",
+        "rotation": 0,
+        "opacity": 1
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "company_name",
       "type": "Text",
       "props": {
-        "x": 30,
-        "y": 65,
-        "text": "MICHAEL VANCE",
-        "fontSize": 48,
-        "fill": "#000000",
-        "fontFamily": "Roboto",
-        "width": 540,
+        "id": "company_name",
+        "x": 60,
+        "y": 300,
+        "width": 400,
         "height": 60,
-        "shadowColor": "#A0A0A0",
-        "shadowBlur": 4,
-        "shadowOffsetX": 2,
-        "shadowOffsetY": 2,
+        "text": "LOGO TEXT HERE",
+        "fontSize": 36,
+        "fontFamily": "Inter",
+        "fill": "#1E3A5F",
+        "rotation": 0,
+        "opacity": 1,
+        "align": "center",
+        "fontStyle": "bold",
+        "letterSpacing": 1
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "company_slogan",
+      "type": "Text",
+      "props": {
+        "id": "company_slogan",
+        "x": 60,
+        "y": 360,
+        "width": 400,
+        "height": 40,
+        "text": "SLOGAN HERE",
+        "fontSize": 20,
+        "fontFamily": "Inter",
+        "fill": "#2C5F8D",
+        "rotation": 0,
+        "opacity": 1,
+        "align": "center",
+        "letterSpacing": 2
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "full_name",
+      "type": "Text",
+      "props": {
+        "id": "full_name",
+        "x": 560,
+        "y": 160,
+        "width": 400,
+        "height": 60,
+        "text": "Full Name",
+        "fontSize": 48,
+        "fontFamily": "Inter",
+        "fill": "#1E3A5F",
+        "rotation": 0,
+        "opacity": 1,
+        "align": "left",
+        "fontStyle": "bold"
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "job_title",
+      "type": "Text",
+      "props": {
+        "id": "job_title",
+        "x": 560,
+        "y": 230,
+        "width": 400,
+        "height": 40,
+        "text": "Founder & CEO",
+        "fontSize": 24,
+        "fontFamily": "Inter",
+        "fill": "#2C5F8D",
+        "rotation": 0,
+        "opacity": 1,
         "align": "left"
       },
       "editable": true,
       "locked": false
     },
     {
-      "id": "path_01",
-      "type": "Path",
+      "id": "divider_line",
+      "type": "Rect",
       "props": {
-        "x": 500,
-        "y": 0,
-        "width": 100,
-        "height": 100,
-        "fill": "#E5E7EB",
-        "data": "M 0 0 C 50 100, 100 0, 100 0 L 0 0 Z"
+        "id": "divider_line",
+        "x": 560,
+        "y": 290,
+        "width": 150,
+        "height": 6,
+        "fill": "#1E3A5F",
+        "rotation": 0,
+        "opacity": 1
       },
-      "editable": false,
-      "locked": true
+      "editable": true,
+      "locked": false
     },
     {
-      "id": "text_contact",
+      "id": "email_label",
       "type": "Text",
       "props": {
-        "x": 30,
-        "y": 280,
-        "text": "hello@company.com | (555) 123-4567\nwww.vancecreative.com",
-        "fontSize": 16,
-        "fill": "#555555",
-        "fontFamily": "Arial",
-        "width": 540,
-        "height": 50,
+        "id": "email_label",
+        "x": 560,
+        "y": 330,
+        "width": 400,
+        "height": 35,
+        "text": "Email",
+        "fontSize": 20,
+        "fontFamily": "Inter",
+        "fill": "#1E3A5F",
+        "rotation": 0,
+        "opacity": 1,
+        "align": "left"
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "phone_label",
+      "type": "Text",
+      "props": {
+        "id": "phone_label",
+        "x": 560,
+        "y": 380,
+        "width": 400,
+        "height": 35,
+        "text": "Phone",
+        "fontSize": 20,
+        "fontFamily": "Inter",
+        "fill": "#1E3A5F",
+        "rotation": 0,
+        "opacity": 1,
         "align": "left"
       },
       "editable": true,

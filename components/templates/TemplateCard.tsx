@@ -1,45 +1,33 @@
-
-"use client";
-
+import React from "react";
 import { CardTemplate } from "@/types/template";
+import Link from "next/link";
+import TemplatePreview from "./TemplatePreview";
 
 interface TemplateCardProps {
   template: CardTemplate;
-  onEdit: (id: string) => void;
+  onUseTemplate?: (template: CardTemplate) => void;
 }
 
-export default function TemplateCard({ template, onEdit }: TemplateCardProps) {
+export default function TemplateCard({ template, onUseTemplate }: TemplateCardProps) {
   return (
-    <div className="bg-white shadow rounded overflow-hidden flex flex-col">
-      <img
-        src={template.thumbnail}
-        alt={template.id}
-        className="w-full h-40 object-cover"
-      />
+    <Link href={`/design/${template.id}`} className="block group">
+      <div className="relative bg-white rounded-xl overflow-hidden border border-gray-200 shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+        {/* Thumbnail Container - Aspect Ratio 1.75:1 (Standard Business Card) */}
+        <div className="relative aspect-[1.75/1] w-full bg-gray-100 overflow-hidden">
+          {/* Live Template Preview */}
+          <TemplatePreview template={template} />
 
-      <div className="p-3 flex flex-col gap-2">
-        <h3 className="font-semibold text-gray-800">{template.id}</h3>
+          {/* Hover Overlay - Subtle tint */}
+          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-300 pointer-events-none" />
 
-        {template.tags && template.tags.length > 0 && (
-          <div className="flex flex-wrap gap-1">
-            {template.tags.map((tag, index) => (
-              <span
-                key={index}
-                className="bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded"
-              >
-                {tag}
-              </span>
-            ))}
-          </div>
-        )}
-
-        <button
-          onClick={() => onEdit(template.id)}
-          className="mt-2 px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
-        >
-          Edit Template
-        </button>
+          {/* Badge (e.g., New) - Kept as requested by design intuition, but minimal */}
+          {template.tags.includes('New') && (
+            <div className="absolute top-2 left-2 px-1.5 py-0.5 bg-blue-600 text-white text-[10px] font-bold uppercase tracking-wider rounded shadow-sm">
+              New
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+    </Link>
   );
 }

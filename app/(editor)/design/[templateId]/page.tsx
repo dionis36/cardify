@@ -14,6 +14,7 @@ import ZoomControls from "@/components/editor/ZoomControls";
 
 // Types/Libs
 import { CardTemplate, KonvaNodeDefinition, KonvaNodeProps, BackgroundPattern, BackgroundType, LayerGroup } from "@/types/template";
+import { Logo } from "@/types/logo";
 import { loadTemplate } from "@/lib/templates";
 import { downloadPNG, downloadPDF } from "@/lib/pdf";
 import { useKeyboardShortcuts } from "@/lib/useKeyboardShortcuts";
@@ -665,6 +666,56 @@ export default function Editor() {
         }
     }, [currentPage]);
 
+    // NEW: Handle Logo Selection
+    const onSelectLogo = useCallback((logo: Logo) => {
+        // 1. Find existing logo layer
+        const logoLayerIndex = currentPage.layers.findIndex(
+            layer => layer.id === 'logo_icon' || (layer.type === 'Icon' && (layer.props as any).iconName === 'Logo')
+        );
+
+        if (logoLayerIndex !== -1) {
+            // Update existing logo
+            const existingLogo = currentPage.layers[logoLayerIndex];
+            onNodeChange(logoLayerIndex, {
+                data: logo.path,
+                // Preserve existing fill, or use default if needed
+                // viewBox: logo.viewBox, // If Icon component supports viewBox prop
+            });
+            // Also update definition if needed (e.g. for metadata)
+            onNodeDefinitionChange(logoLayerIndex, {
+                props: {
+                    ...existingLogo.props,
+                    data: logo.path,
+                    iconName: logo.name,
+                    category: 'Icon', // Explicitly set category to satisfy type requirements
+                    // Store original viewBox if needed for scaling logic
+                }
+            });
+        } else {
+            // Add new logo if none exists
+            const newLogoNode: KonvaNodeDefinition = {
+                id: 'logo_icon',
+                type: 'Icon',
+                props: {
+                    id: 'logo_icon',
+                    x: 100,
+                    y: 100,
+                    width: logo.defaultSize || 80,
+                    height: logo.defaultSize || 80,
+                    data: logo.path,
+                    fill: '#000000', // Default color
+                    rotation: 0,
+                    opacity: 1,
+                    iconName: logo.name,
+                    category: 'Icon',
+                },
+                editable: true,
+                locked: false,
+            };
+            onAddNode(newLogoNode);
+        }
+    }, [currentPage.layers, onNodeChange, onNodeDefinitionChange, onAddNode]);
+
     // --- RENDER ---
     return (
         <div className="flex h-screen w-screen bg-gray-900 overflow-hidden">
@@ -706,6 +757,9 @@ export default function Editor() {
                     // NEW PROPS FOR BACKGROUND
                     currentBackground={currentPage.background}
                     onBackgroundChange={onBackgroundChange}
+
+                    // NEW: Logo Selection
+                    onSelectLogo={onSelectLogo}
 
                     // NEW: Group Management
                     groups={currentPage.groups || []}

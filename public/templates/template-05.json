@@ -1,0 +1,267 @@
+{
+    "id": "template_05",
+    "name": "Navy Professional",
+    "width": 1050,
+    "height": 600,
+    "orientation": "horizontal",
+    "category": "Professional",
+    "tags": [
+        "Business",
+        "Elegant",
+        "Navy",
+        "Gold"
+    ],
+    "colors": [
+        "#2C4A6B",
+        "#F5C842",
+        "#1E3A5F"
+    ],
+    "features": [
+        "Logo",
+        "Icon Contact",
+        "Premium"
+    ],
+    "thumbnail": "",
+    "preview": "",
+    "background": {
+        "type": "solid",
+        "color1": "#2C4A6B"
+    },
+    "layers": [
+        {
+            "id": "full_name",
+            "type": "Text",
+            "props": {
+                "id": "full_name",
+                "x": 80,
+                "y": 100,
+                "width": 500,
+                "height": 70,
+                "text": "FULL NAME",
+                "fontSize": 52,
+                "fontFamily": "Inter",
+                "fill": "#F5C842",
+                "rotation": 0,
+                "opacity": 1,
+                "align": "left",
+                "fontStyle": "bold"
+            },
+            "editable": true,
+            "locked": false
+        },
+        {
+            "id": "job_title",
+            "type": "Text",
+            "props": {
+                "id": "job_title",
+                "x": 80,
+                "y": 180,
+                "width": 500,
+                "height": 45,
+                "text": "CEO & Founder",
+                "fontSize": 26,
+                "fontFamily": "Inter",
+                "fill": "#F5C842",
+                "rotation": 0,
+                "opacity": 1,
+                "align": "left"
+            },
+            "editable": true,
+            "locked": false
+        },
+        {
+            "id": "divider_line",
+            "type": "Rect",
+            "props": {
+                "id": "divider_line",
+                "x": 80,
+                "y": 240,
+                "width": 200,
+                "height": 4,
+                "fill": "#1E3A5F",
+                "rotation": 0,
+                "opacity": 1
+            },
+            "editable": true,
+            "locked": false
+        },
+        {
+            "id": "phone_icon",
+            "type": "Icon",
+            "props": {
+                "id": "phone_icon",
+                "x": 80,
+                "y": 300,
+                "width": 24,
+                "height": 24,
+                "data": "M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z",
+                "iconName": "Phone",
+                "category": "Icon",
+                "fill": "#F5C842",
+                "rotation": 0,
+                "opacity": 1
+            },
+            "editable": true,
+            "locked": false
+        },
+        {
+            "id": "phone_text",
+            "type": "Text",
+            "props": {
+                "id": "phone_text",
+                "x": 120,
+                "y": 298,
+                "width": 350,
+                "height": 30,
+                "text": "415-999-9999",
+                "fontSize": 20,
+                "fontFamily": "Inter",
+                "fill": "#F5C842",
+                "rotation": 0,
+                "opacity": 1,
+                "align": "left"
+            },
+            "editable": true,
+            "locked": false
+        },
+        {
+            "id": "email_icon",
+            "type": "Icon",
+            "props": {
+                "id": "email_icon",
+                "x": 80,
+                "y": 350,
+                "width": 24,
+                "height": 24,
+                "data": "M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z",
+                "iconName": "Email",
+                "category": "Icon",
+                "fill": "#F5C842",
+                "rotation": 0,
+                "opacity": 1
+            },
+            "editable": true,
+            "locked": false
+        },
+        {
+            "id": "email_text",
+            "type": "Text",
+            "props": {
+                "id": "email_text",
+                "x": 120,
+                "y": 348,
+                "width": 350,
+                "height": 30,
+                "text": "john@email.com",
+                "fontSize": 20,
+                "fontFamily": "Inter",
+                "fill": "#F5C842",
+                "rotation": 0,
+                "opacity": 1,
+                "align": "left"
+            },
+            "editable": true,
+            "locked": false
+        },
+        {
+            "id": "website_icon",
+            "type": "Icon",
+            "props": {
+                "id": "website_icon",
+                "x": 80,
+                "y": 400,
+                "width": 24,
+                "height": 24,
+                "data": "M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z",
+                "iconName": "Website",
+                "category": "Icon",
+                "fill": "#F5C842",
+                "rotation": 0,
+                "opacity": 1
+            },
+            "editable": true,
+            "locked": false
+        },
+        {
+            "id": "website_text",
+            "type": "Text",
+            "props": {
+                "id": "website_text",
+                "x": 120,
+                "y": 398,
+                "width": 350,
+                "height": 30,
+                "text": "website.com",
+                "fontSize": 20,
+                "fontFamily": "Inter",
+                "fill": "#F5C842",
+                "rotation": 0,
+                "opacity": 1,
+                "align": "left"
+            },
+            "editable": true,
+            "locked": false
+        },
+        {
+            "id": "logo_icon",
+            "type": "Icon",
+            "props": {
+                "id": "logo_icon",
+                "x": 750,
+                "y": 200,
+                "width": 100,
+                "height": 100,
+                "data": "M14 6l-3.75 5 2.85 3.8-1.6 1.2C9.81 13.75 7 10 7 10l-6 8h22L14 6z",
+                "iconName": "Mountain",
+                "category": "Icon",
+                "fill": "#F5C842",
+                "rotation": 0,
+                "opacity": 1
+            },
+            "editable": true,
+            "locked": false
+        },
+        {
+            "id": "company_name",
+            "type": "Text",
+            "props": {
+                "id": "company_name",
+                "x": 600,
+                "y": 320,
+                "width": 400,
+                "height": 60,
+                "text": "LOGO TEXT HERE",
+                "fontSize": 32,
+                "fontFamily": "Inter",
+                "fill": "#F5C842",
+                "rotation": 0,
+                "opacity": 1,
+                "align": "center",
+                "fontStyle": "bold",
+                "letterSpacing": 1
+            },
+            "editable": true,
+            "locked": false
+        },
+        {
+            "id": "company_slogan",
+            "type": "Text",
+            "props": {
+                "id": "company_slogan",
+                "x": 600,
+                "y": 385,
+                "width": 400,
+                "height": 40,
+                "text": "SLOGAN HERE",
+                "fontSize": 18,
+                "fontFamily": "Inter",
+                "fill": "#F5C842",
+                "rotation": 0,
+                "opacity": 1,
+                "align": "center"
+            },
+            "editable": true,
+            "locked": false
+        }
+    ]
+}
