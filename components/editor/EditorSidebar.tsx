@@ -9,6 +9,7 @@ import { ShapeLibrary } from "@/components/editor/ShapeLibrary";
 import IconLibrary from "@/components/editor/IconLibrary";
 import BackgroundPanel from "@/components/editor/BackgroundPanel";
 import QRCodeDesigner from "@/components/editor/QRCodeDesigner";
+import ShortcutsReference from "@/components/editor/ShortcutsReference";
 import { KonvaNodeDefinition, BackgroundPattern, LayerGroup } from "@/types/template";
 import {
     Move, Layers, Settings, Image, Trash2,
@@ -17,7 +18,7 @@ import {
 } from "lucide-react";
 
 // Update SidebarTab type to include new tabs
-export type SidebarTab = "layers" | "elements" | "icons" | "background" | "qrcode" | "pages";
+export type SidebarTab = "layers" | "elements" | "icons" | "background" | "qrcode" | "settings";
 type EditorMode = "FULL_EDIT" | "DATA_ONLY";
 
 interface EditorSidebarProps {
@@ -29,7 +30,7 @@ interface EditorSidebarProps {
     currentBackground: BackgroundPattern;
     onBackgroundChange: (updates: Partial<BackgroundPattern>) => void;
 
-    // Page Control Props
+    // Page Control Props (kept for potential future use, but not displayed)
     addPage: () => void;
     removePage: () => void;
     pageCount: number;
@@ -148,46 +149,9 @@ export default function EditorSidebar({
                 const qrMetadata = selectedNode?.type === 'Image' ? (selectedNode.props as any).qrMetadata : undefined;
                 return <QRCodeDesigner onAddImage={onAddImage} onAddNode={onAddNode} initialData={qrMetadata} />;
 
-            case "pages":
-                return (
-                    // Page management content
-                    <div className="p-4 space-y-4">
-                        <h3 className="font-bold text-lg">Page Controls</h3>
-                        <div className="flex items-center space-x-2 p-3 border rounded-lg justify-between">
-                            <button
-                                onClick={removePage}
-                                disabled={pageCount <= 1}
-                                className="p-2 text-red-600 bg-red-100 rounded-lg hover:bg-red-200 transition disabled:opacity-50"
-                            >
-                                <Trash2 size={18} />
-                            </button>
-                            <div className="flex items-center space-x-2">
-                                <button
-                                    onClick={() => gotoPage(currentPage - 1)}
-                                    disabled={currentPage <= 1}
-                                    className="p-1 rounded hover:bg-gray-200"
-                                >
-                                    <ChevronLeft size={18} />
-                                </button>
-                                <span className="font-semibold text-sm">Page {currentPage} of {pageCount}</span>
-                                <button
-                                    onClick={() => gotoPage(currentPage + 1)}
-                                    disabled={currentPage >= pageCount}
-                                    className="p-1 rounded hover:bg-gray-200"
-                                >
-                                    <ChevronRight size={18} />
-                                </button>
-                            </div>
-                            <button
-                                onClick={addPage}
-                                className="p-2 text-blue-600 bg-blue-100 rounded-lg hover:bg-blue-200 transition"
-                            >
-                                <Plus size={18} />
-                            </button>
-                        </div>
-                        {/* More page settings could go here */}
-                    </div>
-                );
+            case "settings":
+                // NEW: Shortcuts Reference instead of page controls
+                return <ShortcutsReference />;
             default:
                 return null;
         }
@@ -211,7 +175,7 @@ export default function EditorSidebar({
 
                 {/* Bottom Navigation Icons (e.g., Settings) */}
                 <div className="space-y-2">
-                    {renderPaletteButton("pages", Settings, "Pages")}
+                    {renderPaletteButton("settings", Settings, "Settings")}
                 </div>
             </div>
 

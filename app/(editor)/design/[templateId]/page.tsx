@@ -16,6 +16,7 @@ import ZoomControls from "@/components/editor/ZoomControls";
 import { CardTemplate, KonvaNodeDefinition, KonvaNodeProps, BackgroundPattern, BackgroundType, LayerGroup } from "@/types/template";
 import { loadTemplate } from "@/lib/templates";
 import { downloadPNG, downloadPDF } from "@/lib/pdf";
+import { useKeyboardShortcuts } from "@/lib/useKeyboardShortcuts";
 
 // Define the editor modes
 type EditorMode = "FULL_EDIT" | "DATA_ONLY";
@@ -251,6 +252,7 @@ export default function Editor() {
     const [activeTab, setActiveTab] = useState<SidebarTab | null>("layers"); // NEW: Lifted state
     const [zoom, setZoom] = useState(1); // NEW: Zoom state
     const [panOffset, setPanOffset] = useState({ x: 0, y: 0 }); // NEW: Pan state
+    const [clipboard, setClipboard] = useState<KonvaNodeDefinition[]>([]); // NEW: Clipboard for copy/paste
     const currentPage = state.pages[state.current];
 
     const selectedNode = selectedIndices.length === 1 ? currentPage.layers[selectedIndices[0]] : null;
@@ -362,6 +364,191 @@ export default function Editor() {
     const onGroupChange = useCallback((groupId: string, updates: Partial<LayerGroup>) => {
         dispatch({ type: 'CHANGE_GROUP', groupId, updates });
     }, [dispatch]);
+
+
+    // --- KEYBOARD SHORTCUT HANDLERS ---
+
+    // Copy selected elements
+    const handleCopy = useCallback(() => {
+        if (selectedIndices.length === 0) return;
+        const copiedNodes = selectedIndices.map(i => currentPage.layers[i]).filter(Boolean);
+        setClipboard(copiedNodes);
+    }, [selectedIndices, currentPage.layers]);
+
+    // Paste copied elements
+    const handlePaste = useCallback(() => {
+        if (clipboard.length === 0) return;
+
+        clipboard.forEach(node => {
+            const newNode: KonvaNodeDefinition = {
+                ...node,
+                id: `${node.type.toLowerCase()}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+                props: {
+                    ...node.props,
+                    x: node.props.x + 20, // Offset pasted elements
+                    y: node.props.y + 20,
+                },
+            };
+            dispatch({ type: 'ADD_NODE', node: newNode });
+        });
+
+        // Select the newly pasted elements
+        const newIndices = Array.from(
+            { length: clipboard.length },
+            (_, i) => currentPage.layers.length + i
+        );
+        setSelectedIndices(newIndices);
+    }, [clipboard, dispatch, currentPage.layers.length]);
+
+    // Duplicate selected elements
+    const handleDuplicate = useCallback(() => {
+        if (selectedIndices.length === 0) return;
+
+        const nodesToDuplicate = selectedIndices.map(i => currentPage.layers[i]).filter(Boolean);
+        const newIndices: number[] = [];
+
+        nodesToDuplicate.forEach(node => {
+            const newNode: KonvaNodeDefinition = {
+                ...node,
+                id: `${node.type.toLowerCase()}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+                props: {
+                    ...node.props,
+                    x: node.props.x + 20,
+                    y: node.props.y + 20,
+                },
+            };
+            dispatch({ type: 'ADD_NODE', node: newNode });
+            newIndices.push(currentPage.layers.length + newIndices.length);
+        });
+
+        setSelectedIndices(newIndices);
+    }, [selectedIndices, currentPage.layers, dispatch]);
+
+    // Delete selected elements
+    const handleDelete = useCallback(() => {
+        if (selectedIndices.length === 0) return;
+
+        // Sort in descending order to maintain correct indices during deletion
+        const sortedIndices = [...selectedIndices].sort((a, b) => b - a);
+        sortedIndices.forEach(index => {
+            dispatch({ type: 'REMOVE_NODE', index });
+        });
+        setSelectedIndices([]);
+    }, [selectedIndices, dispatch]);
+
+    // Select all elements
+    const handleSelectAll = useCallback(() => {
+        setSelectedIndices(currentPage.layers.map((_, i) => i));
+    }, [currentPage.layers]);
+
+    // Deselect all
+    const handleDeselect = useCallback(() => {
+        setSelectedIndices([]);
+    }, []);
+
+    // Nudge elements
+    const handleNudge = useCallback((direction: 'up' | 'down' | 'left' | 'right', amount: number) => {
+        if (selectedIndices.length === 0) return;
+
+        selectedIndices.forEach(index => {
+            const node = currentPage.layers[index];
+            if (!node || node.locked) return;
+
+            const updates: Partial<KonvaNodeProps> = {};
+            switch (direction) {
+                case 'up':
+                    updates.y = node.props.y - amount;
+                    break;
+                case 'down':
+                    updates.y = node.props.y + amount;
+                    break;
+                case 'left':
+                    updates.x = node.props.x - amount;
+                    break;
+                case 'right':
+                    updates.x = node.props.x + amount;
+                    break;
+            }
+
+            onNodeChange(index, updates);
+        });
+    }, [selectedIndices, currentPage.layers, onNodeChange]);
+
+    // Toggle lock on selected elements
+    const handleToggleLock = useCallback(() => {
+        if (selectedIndices.length === 0) return;
+
+        // If any selected element is unlocked, lock all. Otherwise, unlock all.
+        const anyUnlocked = selectedIndices.some(i => !currentPage.layers[i]?.locked);
+
+        selectedIndices.forEach(index => {
+            onNodeDefinitionChange(index, { locked: anyUnlocked });
+        });
+    }, [selectedIndices, currentPage.layers, onNodeDefinitionChange]);
+
+    // Layer arrangement handlers
+    const handleBringForward = useCallback(() => {
+        if (selectedIndices.length !== 1) return;
+        const index = selectedIndices[0];
+        if (index === currentPage.layers.length - 1) return;
+        moveLayer(index, index + 1);
+    }, [selectedIndices, currentPage.layers.length, moveLayer]);
+
+    const handleSendBackward = useCallback(() => {
+        if (selectedIndices.length !== 1) return;
+        const index = selectedIndices[0];
+        if (index === 0) return;
+        moveLayer(index, index - 1);
+    }, [selectedIndices, moveLayer]);
+
+    const handleBringToFront = useCallback(() => {
+        if (selectedIndices.length !== 1) return;
+        const index = selectedIndices[0];
+        if (index === currentPage.layers.length - 1) return;
+        moveLayer(index, currentPage.layers.length - 1);
+    }, [selectedIndices, currentPage.layers.length, moveLayer]);
+
+    const handleSendToBack = useCallback(() => {
+        if (selectedIndices.length !== 1) return;
+        const index = selectedIndices[0];
+        if (index === 0) return;
+        moveLayer(index, 0);
+    }, [selectedIndices, moveLayer]);
+
+    // Group/Ungroup via keyboard
+    const handleGroupShortcut = useCallback(() => {
+        if (selectedIndices.length < 2) return;
+        const groupName = `Group ${(currentPage.groups?.length || 0) + 1}`;
+        onCreateGroup(groupName, selectedIndices);
+    }, [selectedIndices, currentPage.groups, onCreateGroup]);
+
+    const handleUngroupShortcut = useCallback(() => {
+        if (selectedIndices.length !== 1) return;
+        const node = currentPage.layers[selectedIndices[0]];
+        if (node?.groupId) {
+            onDeleteGroup(node.groupId);
+        }
+    }, [selectedIndices, currentPage.layers, onDeleteGroup]);
+
+    // Integrate keyboard shortcuts
+    useKeyboardShortcuts({
+        onUndo: () => dispatch({ type: 'UNDO' }),
+        onRedo: () => dispatch({ type: 'REDO' }),
+        onCopy: handleCopy,
+        onPaste: handlePaste,
+        onDuplicate: handleDuplicate,
+        onDelete: handleDelete,
+        onSelectAll: handleSelectAll,
+        onDeselect: handleDeselect,
+        onNudge: handleNudge,
+        onToggleLock: handleToggleLock,
+        onBringForward: handleBringForward,
+        onSendBackward: handleSendBackward,
+        onBringToFront: handleBringToFront,
+        onSendToBack: handleSendToBack,
+        onGroup: handleGroupShortcut,
+        onUngroup: handleUngroupShortcut,
+    }, mode === 'FULL_EDIT'); // Only enable shortcuts in full edit mode
 
 
     // --- ASSET & NODE ADDITION HANDLERS ---
