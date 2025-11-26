@@ -1,5 +1,5 @@
 // types/template.ts
-// PHASE 3 UPGRADE: Includes Icons, Complex Shapes, and Background Patterns
+// PHASE 3 UPGRADE: Includes Icons, Complex Shapes, Background Patterns, and Layer Groups
 
 import { TemplateCategoryKey } from "@/lib/templateCategories";
 
@@ -191,23 +191,37 @@ export type KonvaNodeProps =
   | PathProps
   | IconProps; // <-- NEW
 
+// --- LAYER GROUP DEFINITION (NEW) ---
+
+/**
+ * Layer Group structure for organizing layers into folders
+ */
+export interface LayerGroup {
+  id: string;
+  name: string;
+  expanded: boolean; // Whether the group is expanded in the UI
+  visible: boolean; // Group-level visibility control
+  locked: boolean; // Group-level lock control
+  parentGroupId?: string; // For nested groups (optional)
+}
+
 // --- CORE NODE DEFINITION ---
 
 // Defines the complete structure for any layer in the template
 export type KonvaNodeDefinition =
-  | { id: string; type: 'Text'; props: TextProps; editable: boolean; locked: boolean; }
-  | { id: string; type: 'Rect'; props: RectProps; editable: boolean; locked: boolean; }
-  | { id: string; type: 'Image'; props: ImageProps; editable: boolean; locked: boolean; }
+  | { id: string; type: 'Text'; props: TextProps; editable: boolean; locked: boolean; groupId?: string; }
+  | { id: string; type: 'Rect'; props: RectProps; editable: boolean; locked: boolean; groupId?: string; }
+  | { id: string; type: 'Image'; props: ImageProps; editable: boolean; locked: boolean; groupId?: string; }
   // Shapes
-  | { id: string; type: 'Circle'; props: CircleProps; editable: boolean; locked: boolean; }
-  | { id: string; type: 'Ellipse'; props: EllipseProps; editable: boolean; locked: boolean; }
-  | { id: string; type: 'Star'; props: StarProps; editable: boolean; locked: boolean; }
-  | { id: string; type: 'RegularPolygon'; props: RegularPolygonProps; editable: boolean; locked: boolean; }
-  | { id: string; type: 'Line'; props: LineProps; editable: boolean; locked: boolean; }
-  | { id: string; type: 'Arrow'; props: ArrowProps; editable: boolean; locked: boolean; }
-  | { id: string; type: 'Path'; props: PathProps; editable: boolean; locked: boolean; }
+  | { id: string; type: 'Circle'; props: CircleProps; editable: boolean; locked: boolean; groupId?: string; }
+  | { id: string; type: 'Ellipse'; props: EllipseProps; editable: boolean; locked: boolean; groupId?: string; }
+  | { id: string; type: 'Star'; props: StarProps; editable: boolean; locked: boolean; groupId?: string; }
+  | { id: string; type: 'RegularPolygon'; props: RegularPolygonProps; editable: boolean; locked: boolean; groupId?: string; }
+  | { id: string; type: 'Line'; props: LineProps; editable: boolean; locked: boolean; groupId?: string; }
+  | { id: string; type: 'Arrow'; props: ArrowProps; editable: boolean; locked: boolean; groupId?: string; }
+  | { id: string; type: 'Path'; props: PathProps; editable: boolean; locked: boolean; groupId?: string; }
   // NEW Node Definition
-  | { id: string; type: 'Icon'; props: IconProps; editable: boolean; locked: boolean; };
+  | { id: string; type: 'Icon'; props: IconProps; editable: boolean; locked: boolean; groupId?: string; };
 
 // --- CARD TEMPLATE STRUCTURE ---
 
@@ -227,6 +241,9 @@ export interface CardTemplate {
   background: BackgroundPattern;
 
   layers: KonvaNodeDefinition[];
+
+  // (NEW) Layer Groups
+  groups?: LayerGroup[];
 
   // Metadata for gallery/display
   thumbnail: string;

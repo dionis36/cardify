@@ -10,9 +10,10 @@ import CanvasStage from "@/components/editor/CanvasStage";
 import EditorSidebar, { SidebarTab } from "@/components/editor/EditorSidebar";
 import EditorTopbar from "@/components/editor/EditorTopbar";
 import PropertyPanel from "@/components/editor/PropertyPanel";
+import ZoomControls from "@/components/editor/ZoomControls";
 
 // Types/Libs
-import { CardTemplate, KonvaNodeDefinition, KonvaNodeProps, BackgroundPattern, BackgroundType } from "@/types/template";
+import { CardTemplate, KonvaNodeDefinition, KonvaNodeProps, BackgroundPattern, BackgroundType, LayerGroup } from "@/types/template";
 import { loadTemplate } from "@/lib/templates";
 import { downloadPNG, downloadPDF } from "@/lib/pdf";
 
@@ -72,8 +73,13 @@ type Action =
     | { type: 'GOTO_PAGE', index: number }
     | { type: 'UNDO' }
     | { type: 'REDO' }
-    // NEW ACTION: Update Background
-    | { type: 'CHANGE_BACKGROUND', updates: Partial<BackgroundPattern> };
+    // Background actions
+    | { type: 'CHANGE_BACKGROUND', updates: Partial<BackgroundPattern> }
+    // NEW: Group actions
+    | { type: 'CREATE_GROUP', group: LayerGroup, layerIndices: number[] }
+    | { type: 'DELETE_GROUP', groupId: string }
+    | { type: 'CHANGE_GROUP', groupId: string, updates: Partial<LayerGroup> }
+    | { type: 'ADD_LAYERS_TO_GROUP', groupId: string, layerIndices: number[] };
 
 // The core reducer logic
 function reducer(state: State, action: Action): State {
@@ -137,6 +143,49 @@ function reducer(state: State, action: Action): State {
                 };
                 break;
 
+            // NEW: Group Handlers
+            case 'CREATE_GROUP':
+                if (!currentPage.groups) {
+                    currentPage.groups = [];
+                }
+                currentPage.groups.push(action.group);
+                // Assign layers to the group
+                action.layerIndices.forEach(index => {
+                    if (currentPage.layers[index]) {
+                        currentPage.layers[index].groupId = action.group.id;
+                    }
+                });
+                break;
+
+            case 'DELETE_GROUP':
+                if (currentPage.groups) {
+                    currentPage.groups = currentPage.groups.filter(g => g.id !== action.groupId);
+                }
+                // Unassign layers from the group
+                currentPage.layers.forEach(layer => {
+                    if (layer.groupId === action.groupId) {
+                        layer.groupId = undefined;
+                    }
+                });
+                break;
+
+            case 'CHANGE_GROUP':
+                if (currentPage.groups) {
+                    const groupIndex = currentPage.groups.findIndex(g => g.id === action.groupId);
+                    if (groupIndex !== -1) {
+                        Object.assign(currentPage.groups[groupIndex], action.updates);
+                    }
+                }
+                break;
+
+            case 'ADD_LAYERS_TO_GROUP':
+                action.layerIndices.forEach(index => {
+                    if (currentPage.layers[index]) {
+                        currentPage.layers[index].groupId = action.groupId;
+                    }
+                });
+                break;
+
             // Other cases that don't change pages or are handled separately (like SET_SELECTED_INDEX)
             case 'SET_SELECTED_INDEX':
             case 'CHANGE_MODE':
@@ -198,11 +247,14 @@ export default function Editor() {
 
     // --- State Management ---
     const [state, dispatch] = useReducer(reducer, null, () => getInitialState(loadTemplate(templateId)));
-    const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+    const [selectedIndices, setSelectedIndices] = useState<number[]>([]); // CHANGED: Multi-select
     const [activeTab, setActiveTab] = useState<SidebarTab | null>("layers"); // NEW: Lifted state
+    const [zoom, setZoom] = useState(1); // NEW: Zoom state
+    const [panOffset, setPanOffset] = useState({ x: 0, y: 0 }); // NEW: Pan state
     const currentPage = state.pages[state.current];
 
-    const selectedNode = selectedIndex !== null ? currentPage.layers[selectedIndex] : null;
+    const selectedNode = selectedIndices.length === 1 ? currentPage.layers[selectedIndices[0]] : null;
+    const selectedNodes = selectedIndices.map(i => currentPage.layers[i]).filter(Boolean);
 
     // --- CORE HANDLERS ---
 
@@ -223,37 +275,45 @@ export default function Editor() {
 
     const moveLayer = useCallback((from: number, to: number) => {
         dispatch({ type: 'MOVE_NODE', from, to });
-        setSelectedIndex(to); // Keep the item selected
+        setSelectedIndices([to]); // Keep the item selected
     }, [dispatch]);
 
     const moveLayerUp = useCallback(() => {
-        if (selectedIndex === null || selectedIndex === currentPage.layers.length - 1) return;
+        const selectedIndex = selectedIndices[0];
+        if (selectedIndices.length !== 1 || selectedIndex === currentPage.layers.length - 1) return;
         moveLayer(selectedIndex, selectedIndex + 1);
-    }, [selectedIndex, currentPage.layers.length, moveLayer]);
+    }, [selectedIndices, currentPage.layers.length, moveLayer]);
 
     const moveLayerDown = useCallback(() => {
-        if (selectedIndex === null || selectedIndex === 0) return;
+        const selectedIndex = selectedIndices[0];
+        if (selectedIndices.length !== 1 || selectedIndex === 0) return;
         moveLayer(selectedIndex, selectedIndex - 1);
-    }, [selectedIndex, moveLayer]);
+    }, [selectedIndices, moveLayer]);
 
     const moveLayerToFront = useCallback(() => {
-        if (selectedIndex === null || selectedIndex === currentPage.layers.length - 1) return;
+        const selectedIndex = selectedIndices[0];
+        if (selectedIndices.length !== 1 || selectedIndex === currentPage.layers.length - 1) return;
         moveLayer(selectedIndex, currentPage.layers.length - 1);
-    }, [selectedIndex, currentPage.layers.length, moveLayer]);
+    }, [selectedIndices, currentPage.layers.length, moveLayer]);
 
     const moveLayerToBack = useCallback(() => {
-        if (selectedIndex === null || selectedIndex === 0) return;
+        const selectedIndex = selectedIndices[0];
+        if (selectedIndices.length !== 1 || selectedIndex === 0) return;
         moveLayer(selectedIndex, 0);
-    }, [selectedIndex, moveLayer]);
+    }, [selectedIndices, moveLayer]);
 
     const onRemoveLayer = useCallback(() => {
-        if (selectedIndex === null) return;
-        dispatch({ type: 'REMOVE_NODE', index: selectedIndex });
-        setSelectedIndex(null);
-    }, [selectedIndex, dispatch]);
+        if (selectedIndices.length === 0) return;
+        // Remove all selected layers (in reverse order to maintain indices)
+        const sortedIndices = [...selectedIndices].sort((a, b) => b - a);
+        sortedIndices.forEach(index => {
+            dispatch({ type: 'REMOVE_NODE', index });
+        });
+        setSelectedIndices([]);
+    }, [selectedIndices, dispatch]);
 
     const onSelectLayer = useCallback((index: number | null) => {
-        setSelectedIndex(index);
+        setSelectedIndices(index !== null ? [index] : []);
     }, []);
 
     // --- PAGE CONTROLS ---
@@ -266,19 +326,41 @@ export default function Editor() {
             background: DEFAULT_BACKGROUND, // Ensure new page gets a default background
         };
         dispatch({ type: 'ADD_PAGE', template: newPage });
-        setSelectedIndex(null);
+        setSelectedIndices([]);
     }, [dispatch, state.pages.length, templateId]);
 
     const removePage = useCallback(() => {
         if (state.pages.length > 1) {
             dispatch({ type: 'REMOVE_PAGE', index: state.current });
-            setSelectedIndex(null);
+            setSelectedIndices([]);
         }
     }, [dispatch, state.pages.length, state.current]);
 
     const gotoPage = useCallback((index: number) => {
         dispatch({ type: 'GOTO_PAGE', index });
-        setSelectedIndex(null);
+        setSelectedIndices([]);
+    }, [dispatch]);
+
+
+    // --- GROUP HANDLERS ---
+
+    const onCreateGroup = useCallback((name: string, layerIndices: number[]) => {
+        const newGroup: LayerGroup = {
+            id: `group_${Date.now()}`,
+            name,
+            expanded: true,
+            visible: true,
+            locked: false,
+        };
+        dispatch({ type: 'CREATE_GROUP', group: newGroup, layerIndices });
+    }, [dispatch]);
+
+    const onDeleteGroup = useCallback((groupId: string) => {
+        dispatch({ type: 'DELETE_GROUP', groupId });
+    }, [dispatch]);
+
+    const onGroupChange = useCallback((groupId: string, updates: Partial<LayerGroup>) => {
+        dispatch({ type: 'CHANGE_GROUP', groupId, updates });
     }, [dispatch]);
 
 
@@ -286,7 +368,7 @@ export default function Editor() {
 
     const onAddNode = useCallback((node: KonvaNodeDefinition) => {
         dispatch({ type: 'ADD_NODE', node });
-        setSelectedIndex(currentPage.layers.length); // Select the new node
+        setSelectedIndices([currentPage.layers.length]); // Select the new node
     }, [dispatch, currentPage.layers.length]);
 
     // Placeholder for image upload
@@ -335,7 +417,7 @@ export default function Editor() {
     // CRITICAL FIX: Only clear selection if the Page ID changes (switching pages).
     // Previously, this ran on every 'currentPage' update (every edit), causing deselection.
     useEffect(() => {
-        setSelectedIndex(null);
+        setSelectedIndices([]);
     }, [currentPage.id]);
 
 
@@ -349,6 +431,25 @@ export default function Editor() {
     // NEW: Handle QR Code Edit Request
     const onEditQRCode = useCallback(() => {
         setActiveTab('qrcode');
+    }, []);
+
+    // NEW: Zoom control handlers
+    const handleZoomIn = useCallback(() => {
+        setZoom(prev => Math.min(3.0, prev * 1.2));
+    }, []);
+
+    const handleZoomOut = useCallback(() => {
+        setZoom(prev => Math.max(0.1, prev / 1.2));
+    }, []);
+
+    const handleZoomReset = useCallback(() => {
+        setZoom(1);
+    }, []);
+
+    const handleFitToScreen = useCallback(() => {
+        // This will be handled by the responsive scaling in CanvasStage
+        // Reset zoom to 1 to show the fit-to-screen view
+        setZoom(1);
     }, []);
 
 
@@ -397,7 +498,7 @@ export default function Editor() {
                 <EditorSidebar
                     // Element/Layer Management
                     layers={currentPage.layers}
-                    selectedIndex={selectedIndex}
+                    selectedIndex={selectedIndices.length === 1 ? selectedIndices[0] : null}
                     onSelectLayer={onSelectLayer}
                     onMoveLayer={moveLayer}
                     onRemoveLayer={onRemoveLayer}
@@ -419,6 +520,12 @@ export default function Editor() {
                     currentBackground={currentPage.background}
                     onBackgroundChange={onBackgroundChange}
 
+                    // NEW: Group Management
+                    groups={currentPage.groups || []}
+                    onGroupChange={onGroupChange}
+                    onCreateGroup={onCreateGroup}
+                    onDeleteGroup={onDeleteGroup}
+
                     // NEW: Tab Control
                     activeTab={activeTab}
                     onTabChange={setActiveTab}
@@ -434,13 +541,26 @@ export default function Editor() {
                         ref={stageRef}
                         parentRef={mainRef}
                         template={currentPage}
-                        selectedNodeIndex={selectedIndex}
-                        onSelectNode={(index: number | null) => setSelectedIndex(index)}
-                        onDeselectNode={() => setSelectedIndex(null)}
+                        selectedNodeIndices={selectedIndices}
+                        onSelectNodes={(indices: number[]) => setSelectedIndices(indices)}
+                        onDeselectNode={() => setSelectedIndices([])}
                         onNodeChange={onNodeChange}
                         onStartEditing={onStartEditing}
                         onEditQRCode={onEditQRCode} // Pass handler
+                        zoom={zoom}
+                        onZoomChange={setZoom}
+                        panOffset={panOffset}
+                        onPanChange={setPanOffset}
                         mode={mode}
+                    />
+
+                    {/* Zoom Controls */}
+                    <ZoomControls
+                        zoom={zoom}
+                        onZoomIn={handleZoomIn}
+                        onZoomOut={handleZoomOut}
+                        onZoomReset={handleZoomReset}
+                        onFitToScreen={handleFitToScreen}
                     />
                 </main>
 
@@ -452,10 +572,10 @@ export default function Editor() {
                         node={selectedNode}
 
                         onPropChange={(updates: Partial<KonvaNodeProps>) =>
-                            selectedIndex !== null && onNodeChange(selectedIndex, updates)
+                            selectedIndices.length === 1 && onNodeChange(selectedIndices[0], updates)
                         }
                         onDefinitionChange={(updates: Partial<KonvaNodeDefinition>) =>
-                            selectedIndex !== null && onNodeDefinitionChange(selectedIndex, updates)
+                            selectedIndices.length === 1 && onNodeDefinitionChange(selectedIndices[0], updates)
                         }
                         mode={mode}
 

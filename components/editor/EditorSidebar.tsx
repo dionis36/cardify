@@ -9,7 +9,7 @@ import { ShapeLibrary } from "@/components/editor/ShapeLibrary";
 import IconLibrary from "@/components/editor/IconLibrary";
 import BackgroundPanel from "@/components/editor/BackgroundPanel";
 import QRCodeDesigner from "@/components/editor/QRCodeDesigner";
-import { KonvaNodeDefinition, BackgroundPattern } from "@/types/template";
+import { KonvaNodeDefinition, BackgroundPattern, LayerGroup } from "@/types/template";
 import {
     Move, Layers, Settings, Image, Trash2,
     ChevronLeft, ChevronRight, Plus,
@@ -46,6 +46,12 @@ interface EditorSidebarProps {
 
     mode: EditorMode;
 
+    // NEW: Group Management Props
+    groups?: LayerGroup[];
+    onGroupChange?: (groupId: string, updates: Partial<LayerGroup>) => void;
+    onCreateGroup?: (name: string, layerIndices: number[]) => void;
+    onDeleteGroup?: (groupId: string) => void;
+
     // NEW: External Tab Control
     activeTab?: SidebarTab | null;
     onTabChange?: (tab: SidebarTab | null) => void;
@@ -68,6 +74,10 @@ export default function EditorSidebar({
     onRemoveLayer,
     onDefinitionChange,
     mode,
+    groups,
+    onGroupChange,
+    onCreateGroup,
+    onDeleteGroup,
     activeTab: controlledActiveTab,
     onTabChange,
 }: EditorSidebarProps) {
@@ -115,6 +125,10 @@ export default function EditorSidebar({
                         onRemoveLayer={onRemoveLayer}
                         onDefinitionChange={onDefinitionChange}
                         mode={mode}
+                        groups={groups}
+                        onGroupChange={onGroupChange}
+                        onCreateGroup={onCreateGroup}
+                        onDeleteGroup={onDeleteGroup}
                     />
                 );
             case "elements":

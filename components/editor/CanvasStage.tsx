@@ -12,6 +12,7 @@ import { Stage as KonvaStageType } from "konva/lib/Stage";
 
 // FIX: Using relative import for helper
 import { getSnappingLines, getSnapAndAlignLines, SnappingLine } from "../../lib/alignmentHelpers";
+import { getNodesInRect, normalizeRect, SelectionRect } from "../../lib/selectionHelpers";
 
 /**
  * Define print-production constants in pixels.
@@ -212,23 +213,32 @@ type KonvaRef = React.RefObject<KonvaStageType>;
 
 interface CanvasStageProps {
     template: CardTemplate;
-    selectedNodeIndex: number | null;
-    onSelectNode: (index: number | null) => void;
+    selectedNodeIndices: number[]; // CHANGED: Support multi-selection
+    onSelectNodes: (indices: number[]) => void; // CHANGED: Select multiple nodes
     onDeselectNode: () => void;
     onNodeChange: (index: number, updates: Partial<KonvaNodeProps>) => void;
+    onBatchNodeChange?: (updates: Array<{ index: number; updates: Partial<KonvaNodeProps> }>) => void; // NEW: Batch updates
     onStartEditing: (node: Konva.Text) => void; // Placeholder for text editing
     onEditQRCode?: () => void; // NEW: Handler for QR Code editing
 
     // CRITICAL: New prop for scaling logic (Plan 3)
     parentRef: React.RefObject<HTMLElement>;
 
+    // NEW: Zoom and Pan controlled props
+    zoom?: number; // Zoom level (0.1 to 3.0)
+    onZoomChange?: (zoom: number) => void; // Callback when zoom changes
+    panOffset?: { x: number; y: number }; // Pan offset
+    onPanChange?: (offset: { x: number; y: number }) => void; // Callback when pan changes
+
     mode: "FULL_EDIT" | "DATA_ONLY";
 }
 
 const CanvasStage = forwardRef<KonvaStageType, CanvasStageProps>(
     ({
-        template, selectedNodeIndex, onSelectNode, onDeselectNode,
-        onNodeChange, onStartEditing, onEditQRCode, parentRef, mode
+        template, selectedNodeIndices, onSelectNodes, onDeselectNode,
+        onNodeChange, onBatchNodeChange, onStartEditing, onEditQRCode, parentRef,
+        zoom: externalZoom = 1, onZoomChange, panOffset: externalPanOffset = { x: 0, y: 0 }, onPanChange,
+        mode
     }, ref) => {
 
         const { width: templateWidth, height: templateHeight, layers } = template;
@@ -306,6 +316,21 @@ const CanvasStage = forwardRef<KonvaStageType, CanvasStageProps>(
             };
         }, [templateWidth, templateHeight, parentRef]);
 
+        // NEW: Use controlled zoom and pan (or fallback to defaults)
+        const zoom = externalZoom;
+        const panOffset = externalPanOffset;
+        const [isPanning, setIsPanning] = useState(false);
+        const [isSpacePressed, setIsSpacePressed] = useState(false);
+
+        // NEW: Selection rectangle state
+        const [selectionRect, setSelectionRect] = useState<{
+            x: number;
+            y: number;
+            width: number;
+            height: number;
+        } | null>(null);
+        const [isSelecting, setIsSelecting] = useState(false);
+
 
 
         // Transformer Reference
@@ -327,20 +352,21 @@ const CanvasStage = forwardRef<KonvaStageType, CanvasStageProps>(
             const transformer = trRef.current;
             if (!transformer) return;
 
-            // Check if there is a selected node and if it's the correct one for transformation
-            const selectedNodeDef = selectedNodeIndex !== null ? layers[selectedNodeIndex] : null;
+            // NEW: Handle multi-selection for transformer
+            if (selectedNodeIndices.length > 0 && mode === 'FULL_EDIT') {
+                const selectedNodes: Konva.Node[] = [];
 
-            if (selectedNodeDef && mode === 'FULL_EDIT' && !selectedNodeDef.locked) {
-                // Find the node by its Konva ID (which we assume is set on the Group wrapper in Renderer)
-                const node = stage.findOne(`#${selectedNodeDef.id}`);
+                selectedNodeIndices.forEach(index => {
+                    const nodeDef = layers[index];
+                    if (nodeDef && !nodeDef.locked) {
+                        const node = stage.findOne(`#${nodeDef.id}`);
+                        if (node && node.getType() !== 'Stage' && node.getType() !== 'Layer') {
+                            selectedNodes.push(node);
+                        }
+                    }
+                });
 
-                if (node && node.getType() !== 'Stage' && node.getType() !== 'Layer') {
-                    // Attach the transformer
-                    transformer.nodes([node]);
-                } else {
-                    // Detach if node not found or invalid
-                    transformer.nodes([]);
-                }
+                transformer.nodes(selectedNodes);
             } else {
                 // Detach if no selection or in restricted mode
                 transformer.nodes([]);
@@ -349,7 +375,7 @@ const CanvasStage = forwardRef<KonvaStageType, CanvasStageProps>(
             // Must redraw the layer to show/hide the transformer immediately
             layerRef.current?.batchDraw();
 
-        }, [selectedNodeIndex, layers, mode, ref]);
+        }, [selectedNodeIndices, layers, mode, ref]);
 
 
         // Handle click outside of any node/transformer
@@ -385,15 +411,26 @@ const CanvasStage = forwardRef<KonvaStageType, CanvasStageProps>(
                 return;
             }
 
-            // If we clicked on a node, find its corresponding index in the layers array
-            // We assume each rendered component is wrapped in a Konva.Group with the ID
+            // NEW: Multi-select logic with Ctrl+Click
             const clickedGroup = e.target.findAncestor('Group', true);
             const clickedId = clickedGroup?.id();
 
             if (clickedId) {
                 const index = layers.findIndex(node => node.id === clickedId);
                 if (index !== -1) {
-                    onSelectNode(index);
+                    const isCtrlPressed = e.evt.ctrlKey || e.evt.metaKey;
+
+                    if (isCtrlPressed) {
+                        // Toggle selection
+                        if (selectedNodeIndices.includes(index)) {
+                            onSelectNodes(selectedNodeIndices.filter(i => i !== index));
+                        } else {
+                            onSelectNodes([...selectedNodeIndices, index]);
+                        }
+                    } else {
+                        // Single select
+                        onSelectNodes([index]);
+                    }
                     return;
                 }
             }
@@ -401,7 +438,7 @@ const CanvasStage = forwardRef<KonvaStageType, CanvasStageProps>(
             // Deselect if selection logic failed for any reason
             onDeselectNode();
 
-        }, [layers, onSelectNode, onDeselectNode]);
+        }, [layers, selectedNodeIndices, onSelectNodes, onDeselectNode]);
 
 
         // Handle drag movement of a node
@@ -511,23 +548,130 @@ const CanvasStage = forwardRef<KonvaStageType, CanvasStageProps>(
             }
         }, [layers, mode, onStartEditing, onEditQRCode]);
 
+        // NEW: Zoom with Ctrl+Scroll
+        const handleWheel = useCallback((e: Konva.KonvaEventObject<WheelEvent>) => {
+            e.evt.preventDefault();
+
+            if (e.evt.ctrlKey || e.evt.metaKey) {
+                const scaleBy = 1.1;
+                const stage = e.target.getStage();
+                if (!stage) return;
+
+                const oldZoom = zoom;
+                const newZoom = e.evt.deltaY < 0 ? oldZoom * scaleBy : oldZoom / scaleBy;
+
+                // Clamp zoom between 0.1 and 3.0
+                const clampedZoom = Math.max(0.1, Math.min(3.0, newZoom));
+                onZoomChange?.(clampedZoom);
+            }
+        }, [zoom, onZoomChange]);
+
+        // NEW: Pan with Space+Drag
+        const handleMouseDown = useCallback((e: Konva.KonvaEventObject<MouseEvent>) => {
+            if (isSpacePressed && e.evt.button === 0) {
+                setIsPanning(true);
+                e.evt.preventDefault();
+            } else if (!isSpacePressed && e.evt.button === 0 && mode === 'FULL_EDIT') {
+                // Start selection rectangle if clicking on stage background
+                const stage = e.target.getStage();
+                if (!stage) return;
+
+                if (e.target === stage || e.target.name() === 'background-layer-rect') {
+                    const pos = stage.getPointerPosition();
+                    if (pos) {
+                        setIsSelecting(true);
+                        setSelectionRect({
+                            x: (pos.x - panOffset.x) / (stageSize.scale * zoom),
+                            y: (pos.y - panOffset.y) / (stageSize.scale * zoom),
+                            width: 0,
+                            height: 0,
+                        });
+                    }
+                }
+            }
+        }, [isSpacePressed, mode, panOffset, stageSize.scale, zoom]);
+
+        const handleMouseMove = useCallback((e: Konva.KonvaEventObject<MouseEvent>) => {
+            const stage = e.target.getStage();
+            if (!stage) return;
+
+            if (isPanning) {
+                const dx = e.evt.movementX;
+                const dy = e.evt.movementY;
+                onPanChange?.({ x: panOffset.x + dx, y: panOffset.y + dy });
+            } else if (isSelecting && selectionRect) {
+                const pos = stage.getPointerPosition();
+                if (pos) {
+                    setSelectionRect(prev => prev ? {
+                        ...prev,
+                        width: (pos.x - panOffset.x) / (stageSize.scale * zoom) - prev.x,
+                        height: (pos.y - panOffset.y) / (stageSize.scale * zoom) - prev.y,
+                    } : null);
+                }
+            }
+        }, [isPanning, isSelecting, selectionRect, panOffset, stageSize.scale, zoom, onPanChange]);
+
+        const handleMouseUp = useCallback(() => {
+            if (isPanning) {
+                setIsPanning(false);
+            } else if (isSelecting && selectionRect) {
+                // Complete selection rectangle
+                const normalized = normalizeRect(selectionRect);
+                const selectedIndices = getNodesInRect(layers, normalized);
+
+                if (selectedIndices.length > 0) {
+                    onSelectNodes(selectedIndices);
+                }
+
+                setIsSelecting(false);
+                setSelectionRect(null);
+            }
+        }, [isPanning, isSelecting, selectionRect, layers, onSelectNodes]);
+
+        // NEW: Keyboard handlers for Space key
+        useEffect(() => {
+            const handleKeyDown = (e: KeyboardEvent) => {
+                if (e.code === 'Space' && !isSpacePressed) {
+                    setIsSpacePressed(true);
+                    e.preventDefault();
+                }
+            };
+
+            const handleKeyUp = (e: KeyboardEvent) => {
+                if (e.code === 'Space') {
+                    setIsSpacePressed(false);
+                    setIsPanning(false);
+                }
+            };
+
+            window.addEventListener('keydown', handleKeyDown);
+            window.addEventListener('keyup', handleKeyUp);
+
+            return () => {
+                window.removeEventListener('keydown', handleKeyDown);
+                window.removeEventListener('keyup', handleKeyUp);
+            };
+        }, [isSpacePressed]);
+
 
         // --- Render ---
 
         // Konva requires that width/height are the unscaled dimensions of the content
         // The scaleX/scaleY props handle the visual zoom
 
-        const selectedNodeDef = selectedNodeIndex !== null ? layers[selectedNodeIndex] : null;
+        // Get first selected node for single-selection operations (like double-click editing)
+        const selectedNodeDef = selectedNodeIndices.length === 1 ? layers[selectedNodeIndices[0]] : null;
 
         return (
             // Wrapper div is not strictly necessary but can help for styling/debug
             <div
                 style={{
-                    // Set the size of the container to the scaled size of the card
-                    width: templateWidth * stageSize.scale,
-                    height: templateHeight * stageSize.scale,
+                    // Set the size of the container to the scaled size of the card (with zoom applied)
+                    width: templateWidth * stageSize.scale * zoom,
+                    height: templateHeight * stageSize.scale * zoom,
                     // Optional: add a subtle shadow for a card-like effect
                     boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
+                    cursor: isSpacePressed ? (isPanning ? 'grabbing' : 'grab') : 'default',
                 }}
                 className="bg-white rounded-lg overflow-hidden transition-all duration-500 ease-in-out"
             >
@@ -536,12 +680,19 @@ const CanvasStage = forwardRef<KonvaStageType, CanvasStageProps>(
                     // Set Konva stage dimensions to the TEMPLATE dimensions
                     width={templateWidth}
                     height={templateHeight}
-                    // CRITICAL: Apply the calculated scale factor
-                    scaleX={stageSize.scale}
-                    scaleY={stageSize.scale}
+                    // CRITICAL: Apply the calculated scale factor combined with zoom
+                    scaleX={stageSize.scale * zoom}
+                    scaleY={stageSize.scale * zoom}
+                    // Apply pan offset
+                    x={panOffset.x}
+                    y={panOffset.y}
                     // Events
                     onClick={handleStageClick}
                     onTap={handleStageClick} // Handle mobile touch events
+                    onWheel={handleWheel}
+                    onMouseDown={handleMouseDown}
+                    onMouseMove={handleMouseMove}
+                    onMouseUp={handleMouseUp}
                 >
                     {/* 1. BACKGROUND LAYER (Fixed Size, Unscaled Content) */}
                     <Layer name="background-layer">
@@ -570,12 +721,12 @@ const CanvasStage = forwardRef<KonvaStageType, CanvasStageProps>(
                                 key={nodeDef.id}
                                 index={index}
                                 node={nodeDef}
-                                isSelected={selectedNodeIndex === index}
+                                isSelected={selectedNodeIndices.includes(index)}
                                 isLocked={nodeDef.locked}
                                 isLayoutDisabled={mode === 'DATA_ONLY'} // Fix: map mode to isLayoutDisabled
 
                                 // Event handlers
-                                onSelect={() => onSelectNode(index)}
+                                onSelect={() => onSelectNodes([index])}
                                 onNodeChange={(idx, updates) => onNodeChange(idx, updates)} // Fix: onNodeChange signature match
                                 onStartEditing={onStartEditing}
 
@@ -589,49 +740,66 @@ const CanvasStage = forwardRef<KonvaStageType, CanvasStageProps>(
                             />
                         ))}
 
-                        {/* Transformer - Only visible if an unlocked node is selected in full edit mode */}
-                        {selectedNodeIndex !== null && layers[selectedNodeIndex] && (
-                            <Transformer
-                                ref={trRef}
-                                rotationSnaps={[0, 90, 180, 270]}
-                                anchorSize={10}
-                                borderStrokeWidth={1}
-                                enabledAnchors={['top-left', 'top-right', 'bottom-left', 'bottom-right']}
-                                padding={5}
-                                // Only enable transform if FULL_EDIT and NOT locked
-                                visible={!!(mode === 'FULL_EDIT' && selectedNodeDef && !selectedNodeDef.locked && selectedNodeDef.type !== 'Line' && selectedNodeDef.type !== 'Arrow')}
-                                // Custom check based on component state
-                                ignoreStroke={false}
-                                flipEnabled={false}
-                                // CRITICAL: Enable keepRatio for Icon nodes and QR Codes to maintain aspect ratio
-                                keepRatio={selectedNodeDef?.type === 'Icon' || (selectedNodeDef?.type === 'Image' && !!(selectedNodeDef.props as any).qrMetadata)}
+                        {/* Transformer - Visible for single or multi-selection in full edit mode */}
+                        {selectedNodeIndices.length > 0 && (() => {
+                            // Check if any selected nodes are unlocked and transformable
+                            const hasTransformableNodes = selectedNodeIndices.some(index => {
+                                const nodeDef = layers[index];
+                                return nodeDef && !nodeDef.locked && nodeDef.type !== 'Line' && nodeDef.type !== 'Arrow';
+                            });
 
-                                // ADDED bounding box check for minimum size and template bounds
-                                boundBoxFunc={(oldBox, newBox) => {
-                                    // Prevent scaling down too small
-                                    if (newBox.width * stageSize.scale < 10 || newBox.height * stageSize.scale < 10) { // check scaled minimum size
-                                        return oldBox;
-                                    }
+                            // For multi-selection, check if all selected nodes have same type for keepRatio
+                            const isMultiSelection = selectedNodeIndices.length > 1;
+                            const shouldKeepRatio = isMultiSelection ? false : (
+                                selectedNodeDef?.type === 'Icon' ||
+                                (selectedNodeDef?.type === 'Image' && !!(selectedNodeDef.props as any).qrMetadata)
+                            );
 
-                                    const templateMaxX = template.width;
-                                    const templateMaxY = template.height;
+                            return (
+                                <Transformer
+                                    ref={trRef}
+                                    rotationSnaps={[0, 90, 180, 270]}
+                                    anchorSize={10}
+                                    // Enhanced visual styling for multi-selection
+                                    borderStrokeWidth={isMultiSelection ? 2 : 1}
+                                    borderStroke={isMultiSelection ? '#3B82F6' : '#4F46E5'} // Blue-500 for multi, Indigo-600 for single
+                                    enabledAnchors={['top-left', 'top-right', 'bottom-left', 'bottom-right']}
+                                    padding={5}
+                                    // Show transformer if in FULL_EDIT mode and has transformable nodes
+                                    visible={!!(mode === 'FULL_EDIT' && hasTransformableNodes)}
+                                    ignoreStroke={false}
+                                    flipEnabled={false}
+                                    // CRITICAL: Enable keepRatio for Icon nodes and QR Codes to maintain aspect ratio
+                                    keepRatio={shouldKeepRatio}
 
-                                    // Clamping logic (relative to the Group)
-                                    let x = Math.max(0, newBox.x);
-                                    let y = Math.max(0, newBox.y);
+                                    // ADDED bounding box check for minimum size and template bounds
+                                    boundBoxFunc={(oldBox, newBox) => {
+                                        // Prevent scaling down too small
+                                        if (newBox.width * stageSize.scale < 10 || newBox.height * stageSize.scale < 10) { // check scaled minimum size
+                                            return oldBox;
+                                        }
 
-                                    // Clamp max X/Y position
-                                    if (x + newBox.width > templateMaxX) {
-                                        x = templateMaxX - newBox.width;
-                                    }
-                                    if (y + newBox.height > templateMaxY) {
-                                        y = templateMaxY - newBox.height;
-                                    }
+                                        const templateMaxX = template.width;
+                                        const templateMaxY = template.height;
 
-                                    return { x, y, width: newBox.width, height: newBox.height, rotation: newBox.rotation };
-                                }}
-                            />
-                        )}
+                                        // Clamping logic (relative to the Group)
+                                        let x = Math.max(0, newBox.x);
+                                        let y = Math.max(0, newBox.y);
+
+                                        // Clamp max X/Y position
+                                        if (x + newBox.width > templateMaxX) {
+                                            x = templateMaxX - newBox.width;
+                                        }
+                                        if (y + newBox.height > templateMaxY) {
+                                            y = templateMaxY - newBox.height;
+                                        }
+
+                                        return { x, y, width: newBox.width, height: newBox.height, rotation: newBox.rotation };
+                                    }}
+                                />
+                            );
+                        })()}
+
 
                     </Layer>
 
@@ -660,6 +828,21 @@ const CanvasStage = forwardRef<KonvaStageType, CanvasStageProps>(
                             />
                         ))}
                     </Layer>
+
+                    {/* 4. SELECTION RECTANGLE LAYER */}
+                    {selectionRect && isSelecting && (
+                        <Layer name="selection-layer" listening={false}>
+                            <Rect
+                                x={selectionRect.x}
+                                y={selectionRect.y}
+                                width={selectionRect.width}
+                                height={selectionRect.height}
+                                fill="rgba(59, 130, 246, 0.2)" // Blue-500 with 20% opacity
+                                stroke="#3B82F6" // Blue-500
+                                strokeWidth={1 / (stageSize.scale * zoom)} // Keep stroke width consistent at all zoom levels
+                            />
+                        </Layer>
+                    )}
                 </Stage>
             </div>
         );
@@ -667,8 +850,3 @@ const CanvasStage = forwardRef<KonvaStageType, CanvasStageProps>(
 
 CanvasStage.displayName = "CanvasStage";
 export default CanvasStage;
-
-
-
-
-
