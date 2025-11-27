@@ -2,15 +2,15 @@
 
 /**
  * Standard width for all business card templates. 
- * Based on the dimensions of template-01 and template-03.
+ * Based on the actual dimensions used in template JSON files.
  */
-export const STANDARD_CARD_WIDTH = 600;
+export const STANDARD_CARD_WIDTH = 1050;
 
 /**
  * Standard height for all business card templates.
- * Based on the dimensions of template-01 and template-03.
+ * Based on the actual dimensions used in template JSON files.
  */
-export const STANDARD_CARD_HEIGHT = 350;
+export const STANDARD_CARD_HEIGHT = 600;
 
 /**
  * Standard orientation for the editor view.
