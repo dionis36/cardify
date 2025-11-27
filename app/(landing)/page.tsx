@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { FC } from "react";
 import Button from "@/components/ui/Button";
-import Card  from "@/components/ui/Card";
+import Card from "@/components/ui/Card";
 
 const LandingPage: FC = () => {
   return (

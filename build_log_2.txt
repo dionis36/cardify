@@ -1,0 +1,32 @@
+
+> cardify-5@1.0.0 build
+> next build
+
+  Γû▓ Next.js 14.2.33
+
+   Creating an optimized production build ...
+ Γ£ô Compiled successfully
+   Linting and checking validity of types ...
+   Collecting page data ...
+   Generating static pages (0/8) ...
+   Generating static pages (2/8) 
+
+Error occurred prerendering page "/". Read more: https://nextjs.org/docs/messages/prerender-error
+
+TypeError: Cannot read properties of undefined (reading 'clientModules')
+    at C:\Users\DIO\Documents\PROJECT21\cardify-5\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:16:24425
+    at C:\Users\DIO\Documents\PROJECT21\cardify-5\node_modules\next\dist\server\lib\trace\tracer.js:191:62
+    at C:\Users\DIO\Documents\PROJECT21\cardify-5\node_modules\next\dist\server\lib\trace\tracer.js:140:36
+    at NoopContextManager.with (C:\Users\DIO\Documents\PROJECT21\cardify-5\node_modules\next\dist\compiled\@opentelemetry\api\index.js:1:7062)
+    at ContextAPI.with (C:\Users\DIO\Documents\PROJECT21\cardify-5\node_modules\next\dist\compiled\@opentelemetry\api\index.js:1:518)
+    at NoopTracer.startActiveSpan (C:\Users\DIO\Documents\PROJECT21\cardify-5\node_modules\next\dist\compiled\@opentelemetry\api\index.js:1:18093)
+    at ProxyTracer.startActiveSpan (C:\Users\DIO\Documents\PROJECT21\cardify-5\node_modules\next\dist\compiled\@opentelemetry\api\index.js:1:18854)
+    at C:\Users\DIO\Documents\PROJECT21\cardify-5\node_modules\next\dist\server\lib\trace\tracer.js:122:103
+    at NoopContextManager.with (C:\Users\DIO\Documents\PROJECT21\cardify-5\node_modules\next\dist\compiled\@opentelemetry\api\index.js:1:7062)
+    at ContextAPI.with (C:\Users\DIO\Documents\PROJECT21\cardify-5\node_modules\next\dist\compiled\@opentelemetry\api\index.js:1:518)
+   Generating static pages (4/8) 
+   Generating static pages (6/8) 
+ Γ£ô Generating static pages (8/8)
+
+> Export encountered errors on following paths:
+	/(landing)/page: /

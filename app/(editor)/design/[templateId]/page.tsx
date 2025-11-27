@@ -389,7 +389,7 @@ export default function Editor() {
                     x: node.props.x + 20, // Offset pasted elements
                     y: node.props.y + 20,
                 },
-            };
+            } as KonvaNodeDefinition;
             dispatch({ type: 'ADD_NODE', node: newNode });
         });
 
@@ -417,7 +417,7 @@ export default function Editor() {
                     x: node.props.x + 20,
                     y: node.props.y + 20,
                 },
-            };
+            } as KonvaNodeDefinition;
             dispatch({ type: 'ADD_NODE', node: newNode });
             newIndices.push(currentPage.layers.length + newIndices.length);
         });
