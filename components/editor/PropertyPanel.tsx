@@ -223,8 +223,21 @@ export default function PropertyPanel({
   type AllKonvaPropKeys = keyof TextProps | keyof RectProps | keyof ImageProps | keyof CircleProps | keyof EllipseProps | keyof StarProps | keyof RegularPolygonProps | keyof LineProps | keyof ArrowProps | keyof PathProps | keyof IconProps;
 
   const handlePropChange = useCallback((key: string, value: any) => {
+    let finalValue = value;
+
+    // FIX: Guard against NaN for numerical properties.
+    // This prevents Konva updates from silently failing if the user types invalid characters 
+    // into a number input, which is often perceived as "nothing changing".
+    if (typeof finalValue === 'number' && isNaN(finalValue)) {
+      console.warn(`PropertyPanel: Attempted to set ${key} with NaN value. Update aborted.`);
+      return; // Abort the update
+    }
+    
     // Convert percentage back to 0-1 opacity scale
-    const finalValue = key === 'opacity' && typeof value === 'number' ? value / 100 : value;
+    if (key === 'opacity' && typeof finalValue === 'number') {
+        finalValue = finalValue / 100;
+    }
+
     onPropChange({ [key as AllKonvaPropKeys]: finalValue } as Partial<KonvaNodeProps>);
   }, [onPropChange]);
 
@@ -689,13 +702,18 @@ export default function PropertyPanel({
   // 5. Transform Properties - MOVED DOWN
   panels.push(
     <SectionContainer key="transform" title="Transform" icon={Move} disabled={layoutControlsDisabled}>
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-2 gap-3">
+        {/* Row 1: X | Y */}
         <InputGroup label="X" value={Math.round(x)} step={1} onChange={(v) => handlePropChange('x', Number(v))} disabled={layoutControlsDisabled} />
         <InputGroup label="Y" value={Math.round(y)} step={1} onChange={(v) => handlePropChange('y', Number(v))} disabled={layoutControlsDisabled} />
-        <InputGroup label="Rot" unit="°" value={Math.round(rotation)} step={1} onChange={(v) => handlePropChange('rotation', Number(v))} disabled={layoutControlsDisabled} />
+        
+        {/* Row 2: Rotation | Opacity (Rearranged) */}
+        <InputGroup label="Rotation" unit="°" value={Math.round(rotation)} step={1} onChange={(v) => handlePropChange('rotation', Number(v))} disabled={layoutControlsDisabled} />
+        <InputGroup label="Opacity" unit="%" type="number" value={Math.round(opacity)} min={0} max={100} onChange={(v) => handlePropChange('opacity', Number(v))} disabled={layoutControlsDisabled} />
+        
+        {/* Row 3: Width | Height (Rearranged) */}
         <InputGroup label="Width" value={Math.round(width)} min={1} step={1} onChange={(v) => handlePropChange('width', Number(v))} disabled={layoutControlsDisabled} />
         <InputGroup label="Height" value={Math.round(height)} min={1} step={1} onChange={(v) => handlePropChange('height', Number(v))} disabled={layoutControlsDisabled} />
-        <InputGroup label="Opacity" unit="%" type="number" value={Math.round(opacity)} min={0} max={100} onChange={(v) => handlePropChange('opacity', Number(v))} disabled={layoutControlsDisabled} />
       </div>
     </SectionContainer>
   );
@@ -748,7 +766,3 @@ export default function PropertyPanel({
     </div>
   );
 }
-
-
-
-

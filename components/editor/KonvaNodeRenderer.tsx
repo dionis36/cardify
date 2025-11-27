@@ -138,8 +138,6 @@ const KonvaNodeRendererBase: React.FC<KonvaNodeRendererProps> = ({
     onDragMove,
     onDragEnd,
     onTransformEnd: handleTransformEnd,
-    // Visibility: only render if not locked
-    visible: !isLocked, 
   };
 
   // Extract shared styling props for basic shapes

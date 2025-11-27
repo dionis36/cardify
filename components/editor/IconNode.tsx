@@ -47,17 +47,14 @@ const IconNode: React.FC<IconNodeProps> = ({
 }) => {
     const { x, y, rotation, opacity, fill, stroke, strokeWidth, width, height } = props;
 
-    console.log(`IconNode render - ${iconName}: width=${width}, height=${height}`);
-
     const pathData = ICON_PATH_MAP[iconName] || ICON_PATH_MAP['HelpCircle'];
 
     // Lucide icons are designed for a 24x24 viewBox
     const ICON_BASE_SIZE = 24;
 
     // Calculate scale based on desired width/height
-    // Use the smaller dimension to maintain aspect ratio
-    const targetSize = Math.min(width, height);
-    const scale = targetSize / ICON_BASE_SIZE;
+    const scaleX = width / ICON_BASE_SIZE;
+    const scaleY = height / ICON_BASE_SIZE;
 
     return (
         <Group
@@ -65,25 +62,20 @@ const IconNode: React.FC<IconNodeProps> = ({
             ref={nodeRef}
             x={x}
             y={y}
-            // Set the base size for the group
-            width={ICON_BASE_SIZE}
-            height={ICON_BASE_SIZE}
             rotation={rotation}
             opacity={opacity}
             draggable={!isLayoutDisabled}
-            // Apply scale to achieve the desired size
-            scaleX={scale}
-            scaleY={scale}
         >
             <Path
                 x={0}
                 y={0}
-                // Path uses the base 24x24 size
                 data={pathData}
                 fill={fill}
                 stroke={stroke}
                 strokeWidth={strokeWidth}
-                // Scale the stroke width inversely so it appears consistent
+                // Apply scaling directly to Path (matches TemplatePreview approach)
+                scaleX={scaleX}
+                scaleY={scaleY}
                 strokeScaleEnabled={false}
             />
         </Group>
