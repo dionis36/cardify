@@ -571,37 +571,80 @@ export default function PropertyPanel({
     const iconStrokeWidth = iconProps.strokeWidth ?? 0;
     const iconWidth = iconProps.width ?? 60;
     const iconHeight = iconProps.height ?? 60;
+    const iconName = iconProps.iconName || '';
 
     // Check if icon is currently square (uniform size)
     const isUniformSize = iconWidth === iconHeight;
 
+    // Determine if it's a stroke-based icon (like Lucide)
+    const isLucide = iconName.startsWith('lucide:') || !iconName.includes(':');
+
     panels.push(
       <SectionContainer key="icon-styling" title="Icon Appearance" icon={Type}>
 
-        {/* Icon Color (Fill) */}
-        <ColorPickerWithSwatch
-          label="Icon Color"
-          color={iconFill}
-          onChange={(v) => handlePropChange('fill', v)}
-        />
+        {/* 
+            Smart Color Mapping:
+            - For Lucide (Stroke-based): "Color" -> Stroke, "Background" -> Fill
+            - For Others (Fill-based): "Color" -> Fill, "Border" -> Stroke
+        */}
 
-        {/* Icon Border/Stroke */}
-        <div className="border-t border-gray-100 pt-3">
-          <div className="grid grid-cols-2 gap-3">
+        {isLucide ? (
+          <>
+            {/* Primary Color (Stroke for Lucide) */}
             <ColorPickerWithSwatch
-              label="Border Color"
+              label="Icon Color"
               color={iconStroke}
               onChange={(v) => handlePropChange('stroke', v)}
             />
-            <InputGroup
-              label="Border Width"
-              type="number"
-              value={iconStrokeWidth}
-              min={0}
-              onChange={(v) => handlePropChange('strokeWidth', Number(v))}
+
+            <div className="border-t border-gray-100 pt-3 mt-3">
+              <div className="grid grid-cols-2 gap-3">
+                {/* Secondary Color (Fill for Lucide) */}
+                <ColorPickerWithSwatch
+                  label="Background"
+                  color={iconFill}
+                  onChange={(v) => handlePropChange('fill', v)}
+                />
+                <InputGroup
+                  label="Stroke Width"
+                  type="number"
+                  value={iconStrokeWidth}
+                  min={0}
+                  step={0.5}
+                  onChange={(v) => handlePropChange('strokeWidth', Number(v))}
+                />
+              </div>
+            </div>
+          </>
+        ) : (
+          <>
+            {/* Primary Color (Fill for others) */}
+            <ColorPickerWithSwatch
+              label="Icon Color"
+              color={iconFill}
+              onChange={(v) => handlePropChange('fill', v)}
             />
-          </div>
-        </div>
+
+            <div className="border-t border-gray-100 pt-3 mt-3">
+              <div className="grid grid-cols-2 gap-3">
+                {/* Secondary Color (Stroke for others) */}
+                <ColorPickerWithSwatch
+                  label="Border Color"
+                  color={iconStroke}
+                  onChange={(v) => handlePropChange('stroke', v)}
+                />
+                <InputGroup
+                  label="Border Width"
+                  type="number"
+                  value={iconStrokeWidth}
+                  min={0}
+                  step={0.5}
+                  onChange={(v) => handlePropChange('strokeWidth', Number(v))}
+                />
+              </div>
+            </div>
+          </>
+        )}
 
         {/* Icon Size - Uniform Control */}
         <div className="border-t border-gray-100 pt-3">
