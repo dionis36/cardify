@@ -806,7 +806,8 @@ export default function Editor() {
                         onDeselectNode={() => setSelectedIndices([])}
                         onNodeChange={onNodeChange}
                         onStartEditing={onStartEditing}
-                        onEditQRCode={onEditQRCode} // Pass handler
+                        onEditQRCode={onEditQRCode}
+                        onEditLogo={() => setActiveTab('logos')}
                         zoom={zoom}
                         onZoomChange={setZoom}
                         panOffset={panOffset}

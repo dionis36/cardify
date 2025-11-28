@@ -220,6 +220,7 @@ interface CanvasStageProps {
     onBatchNodeChange?: (updates: Array<{ index: number; updates: Partial<KonvaNodeProps> }>) => void; // NEW: Batch updates
     onStartEditing: (node: Konva.Text) => void; // Placeholder for text editing
     onEditQRCode?: () => void; // NEW: Handler for QR Code editing
+    onEditLogo?: () => void; // NEW: Handler for Logo editing
 
     // CRITICAL: New prop for scaling logic (Plan 3)
     parentRef: React.RefObject<HTMLElement>;
@@ -236,7 +237,7 @@ interface CanvasStageProps {
 const CanvasStage = forwardRef<KonvaStageType, CanvasStageProps>(
     ({
         template, selectedNodeIndices, onSelectNodes, onDeselectNode,
-        onNodeChange, onBatchNodeChange, onStartEditing, onEditQRCode, parentRef,
+        onNodeChange, onBatchNodeChange, onStartEditing, onEditQRCode, onEditLogo, parentRef,
         zoom: externalZoom = 1, onZoomChange, panOffset: externalPanOffset = { x: 0, y: 0 }, onPanChange,
         mode
     }, ref) => {
@@ -545,8 +546,11 @@ const CanvasStage = forwardRef<KonvaStageType, CanvasStageProps>(
             } else if (selectedNodeDef && selectedNodeDef.type === 'Image' && (selectedNodeDef.props as any).qrMetadata && onEditQRCode) {
                 // NEW: Handle QR Code double click
                 onEditQRCode();
+            } else if (selectedNodeDef && selectedNodeDef.type === 'Image' && (selectedNodeDef.props as any).isLogo && onEditLogo) {
+                // NEW: Handle Logo double click
+                onEditLogo();
             }
-        }, [layers, mode, onStartEditing, onEditQRCode]);
+        }, [layers, mode, onStartEditing, onEditQRCode, onEditLogo]);
 
         // NEW: Zoom with Ctrl+Scroll
         const handleWheel = useCallback((e: Konva.KonvaEventObject<WheelEvent>) => {
@@ -752,7 +756,8 @@ const CanvasStage = forwardRef<KonvaStageType, CanvasStageProps>(
                             const isMultiSelection = selectedNodeIndices.length > 1;
                             const shouldKeepRatio = isMultiSelection ? false : (
                                 selectedNodeDef?.type === 'Icon' ||
-                                (selectedNodeDef?.type === 'Image' && !!(selectedNodeDef.props as any).qrMetadata)
+                                (selectedNodeDef?.type === 'Image' && !!(selectedNodeDef.props as any).qrMetadata) ||
+                                (selectedNodeDef?.type === 'Image' && !!(selectedNodeDef.props as any).isLogo)
                             );
 
                             return (
