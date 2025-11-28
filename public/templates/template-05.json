@@ -203,20 +203,19 @@
             "locked": false
         },
         {
-            "id": "logo_icon",
-            "type": "Icon",
+            "id": "main_logo",
+            "type": "Image",
             "props": {
-                "id": "logo_icon",
+                "id": "main_logo",
                 "x": 750,
                 "y": 200,
                 "width": 100,
                 "height": 100,
-                "data": "M14 6l-3.75 5 2.85 3.8-1.6 1.2C9.81 13.75 7 10 7 10l-6 8h22L14 6z",
-                "iconName": "Mountain",
-                "category": "Icon",
-                "fill": "#F5C842",
+                "src": "/logos/LogoTaco_Logo-05/SVG/Logo5_Navy.svg",
                 "rotation": 0,
-                "opacity": 1
+                "opacity": 1,
+                "category": "Image",
+                "isLogo": true
             },
             "editable": true,
             "locked": false

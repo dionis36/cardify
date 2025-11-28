@@ -12,7 +12,7 @@ import QRCodeDesigner from "@/components/editor/QRCodeDesigner";
 import ShortcutsReference from "@/components/editor/ShortcutsReference";
 import LogoLibraryPanel from "@/components/editor/LogoLibraryPanel"; // NEW IMPORT
 import { KonvaNodeDefinition, BackgroundPattern, LayerGroup } from "@/types/template";
-import { Logo } from "@/types/logo"; // NEW IMPORT
+import { LogoVariant } from "@/lib/logoIndex"; // NEW IMPORT
 import {
     Move, Layers, Settings, Image, Trash2,
     ChevronLeft, ChevronRight, Plus,
@@ -34,7 +34,7 @@ interface EditorSidebarProps {
     onBackgroundChange: (updates: Partial<BackgroundPattern>) => void;
 
     // NEW PROP for logo selection
-    onSelectLogo?: (logo: Logo) => void;
+    onSelectLogo?: (logo: LogoVariant) => void;
 
     // Page Control Props (kept for potential future use, but not displayed)
     addPage: () => void;

@@ -81,6 +81,9 @@ export interface NodeCommonProps {
   shadowBlur?: number;
   shadowOffsetX?: number;
   shadowOffsetY?: number;
+
+  // Logo Identification
+  isLogo?: boolean;
 }
 
 // --- SPECIFIC PROPERTIES: STANDARD ---

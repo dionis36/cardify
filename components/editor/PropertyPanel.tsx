@@ -232,10 +232,10 @@ export default function PropertyPanel({
       console.warn(`PropertyPanel: Attempted to set ${key} with NaN value. Update aborted.`);
       return; // Abort the update
     }
-    
+
     // Convert percentage back to 0-1 opacity scale
     if (key === 'opacity' && typeof finalValue === 'number') {
-        finalValue = finalValue / 100;
+      finalValue = finalValue / 100;
     }
 
     onPropChange({ [key as AllKonvaPropKeys]: finalValue } as Partial<KonvaNodeProps>);
@@ -706,11 +706,11 @@ export default function PropertyPanel({
         {/* Row 1: X | Y */}
         <InputGroup label="X" value={Math.round(x)} step={1} onChange={(v) => handlePropChange('x', Number(v))} disabled={layoutControlsDisabled} />
         <InputGroup label="Y" value={Math.round(y)} step={1} onChange={(v) => handlePropChange('y', Number(v))} disabled={layoutControlsDisabled} />
-        
+
         {/* Row 2: Rotation | Opacity (Rearranged) */}
         <InputGroup label="Rotation" unit="°" value={Math.round(rotation)} step={1} onChange={(v) => handlePropChange('rotation', Number(v))} disabled={layoutControlsDisabled} />
         <InputGroup label="Opacity" unit="%" type="number" value={Math.round(opacity)} min={0} max={100} onChange={(v) => handlePropChange('opacity', Number(v))} disabled={layoutControlsDisabled} />
-        
+
         {/* Row 3: Width | Height (Rearranged) */}
         <InputGroup label="Width" value={Math.round(width)} min={1} step={1} onChange={(v) => handlePropChange('width', Number(v))} disabled={layoutControlsDisabled} />
         <InputGroup label="Height" value={Math.round(height)} min={1} step={1} onChange={(v) => handlePropChange('height', Number(v))} disabled={layoutControlsDisabled} />

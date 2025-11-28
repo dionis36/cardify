@@ -14,7 +14,8 @@ import ZoomControls from "@/components/editor/ZoomControls";
 
 // Types/Libs
 import { CardTemplate, KonvaNodeDefinition, KonvaNodeProps, BackgroundPattern, BackgroundType, LayerGroup } from "@/types/template";
-import { Logo } from "@/types/logo";
+import { LogoVariant } from "@/lib/logoIndex";
+import { trackLogoUsage } from "@/lib/logoAssignments";
 import { loadTemplate } from "@/lib/templates";
 import { downloadPNG, downloadPDF } from "@/lib/pdf";
 import { useKeyboardShortcuts } from "@/lib/useKeyboardShortcuts";
@@ -666,55 +667,73 @@ export default function Editor() {
         }
     }, [currentPage]);
 
-    // NEW: Handle Logo Selection
-    const onSelectLogo = useCallback((logo: Logo) => {
-        // 1. Find existing logo layer
+    // Handle Logo Selection - ONLY changes the logo, NOT the theme
+    const onSelectLogo = useCallback((logoVariant: LogoVariant) => {
+        // Find existing logo layer (Image with isLogo=true, or legacy Icon)
         const logoLayerIndex = currentPage.layers.findIndex(
-            layer => layer.id === 'logo_icon' || (layer.type === 'Icon' && (layer.props as any).iconName === 'Logo')
+            layer => (layer.type === 'Image' && layer.props.isLogo) ||
+                (layer.type === 'Icon' && (layer.props as any).iconName === 'Logo') ||
+                layer.id === 'logo_icon' || layer.id === 'main_logo'
         );
 
         if (logoLayerIndex !== -1) {
-            // Update existing logo
-            const existingLogo = currentPage.layers[logoLayerIndex];
-            onNodeChange(logoLayerIndex, {
-                data: logo.path,
-                // Preserve existing fill, or use default if needed
-                // viewBox: logo.viewBox, // If Icon component supports viewBox prop
-            });
-            // Also update definition if needed (e.g. for metadata)
-            onNodeDefinitionChange(logoLayerIndex, {
-                props: {
-                    ...existingLogo.props,
-                    data: logo.path,
-                    iconName: logo.name,
-                    category: 'Icon', // Explicitly set category to satisfy type requirements
-                    // Store original viewBox if needed for scaling logic
-                }
-            });
+            // Update existing logo - ONLY change the src, keep everything else
+            const existingNode = currentPage.layers[logoLayerIndex];
+
+            // If it's an Icon, convert to Image
+            if (existingNode.type === 'Icon') {
+                const newNodeDef: KonvaNodeDefinition = {
+                    ...existingNode,
+                    type: 'Image',
+                    props: {
+                        id: existingNode.props.id,
+                        x: existingNode.props.x,
+                        y: existingNode.props.y,
+                        width: existingNode.props.width,
+                        height: existingNode.props.height,
+                        rotation: existingNode.props.rotation,
+                        opacity: existingNode.props.opacity,
+                        src: logoVariant.path,
+                        category: 'Image',
+                        isLogo: true,
+                    } as any
+                };
+                onNodeDefinitionChange(logoLayerIndex, newNodeDef);
+            } else {
+                // Just update the src
+                onNodeChange(logoLayerIndex, { src: logoVariant.path });
+            }
         } else {
-            // Add new logo if none exists
+            // Add new logo
             const newLogoNode: KonvaNodeDefinition = {
-                id: 'logo_icon',
-                type: 'Icon',
+                id: 'main_logo',
+                type: 'Image',
                 props: {
-                    id: 'logo_icon',
+                    id: 'main_logo',
                     x: 100,
                     y: 100,
-                    width: logo.defaultSize || 80,
-                    height: logo.defaultSize || 80,
-                    data: logo.path,
-                    fill: '#000000', // Default color
+                    width: 150,
+                    height: 150,
+                    src: logoVariant.path,
                     rotation: 0,
                     opacity: 1,
-                    iconName: logo.name,
-                    category: 'Icon',
+                    category: 'Image',
+                    isLogo: true,
                 },
                 editable: true,
                 locked: false,
             };
             onAddNode(newLogoNode);
         }
-    }, [currentPage.layers, onNodeChange, onNodeDefinitionChange, onAddNode]);
+
+        // Track logo usage for shuffle feature
+        // Extract logo family ID from path: "/logos/LogoTaco_Logo-01/..." -> "logo_01"
+        const pathParts = logoVariant.path.split('/');
+        const logoFolderName = pathParts[2]; // "LogoTaco_Logo-01"
+        const logoNumber = logoFolderName.split('-')[1]; // "01"
+        const logoFamilyId = `logo_${logoNumber}`;
+        trackLogoUsage(currentPage.id, logoFamilyId);
+    }, [currentPage, onNodeChange, onNodeDefinitionChange, onAddNode]);
 
     // --- RENDER ---
     return (

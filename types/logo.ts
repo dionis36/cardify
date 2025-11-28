@@ -1,13 +1,11 @@
+import { LogoFamily } from "@/lib/logoIndex";
+
 export type LogoCategory = 'abstract' | 'nature' | 'animal' | 'tech' | 'business';
 
-export interface Logo {
-    id: string;
-    name: string;
-    category: LogoCategory;
-    path: string; // SVG path data
-    viewBox: string; // SVG viewBox attribute
-    defaultSize: number; // Default width/height in pixels
-}
+// Re-export LogoFamily as Logo for compatibility, or extend it
+export type Logo = LogoFamily & {
+    category?: LogoCategory; // Optional category if we want to add it later
+};
 
 export interface LogoLibrary {
     logos: Logo[];

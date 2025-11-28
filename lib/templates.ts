@@ -1,4 +1,4 @@
-// lib/templates.ts (MODIFIED - Enforcing standard dimensions)
+// lib/templates.ts (MODIFIED - Enforcing standard dimensions + Logo Injection)
 
 // CardTemplate now reflects the new enhanced structure from @/types/template
 import { CardTemplate } from "@/types/template";
@@ -8,6 +8,7 @@ import {
     STANDARD_CARD_HEIGHT,
     STANDARD_CARD_ORIENTATION
 } from "./constants";
+import { getLogoForTemplate } from "./logoAssignments";
 
 // Import all template JSON files
 import template01JSON from "../public/templates/template-01.json";
@@ -29,13 +30,43 @@ const templateMap: Record<string, CardTemplate> = {
 /**
  * Helper function to enforce standard dimensions and orientation on a template.
  * This overrides the dimensions read from the JSON files.
+ * Also injects the appropriate logo based on template ID and background color.
  */
-const enforceStandardDimensions = (template: CardTemplate): CardTemplate => ({
-    ...template,
-    width: STANDARD_CARD_WIDTH,
-    height: STANDARD_CARD_HEIGHT,
-    orientation: STANDARD_CARD_ORIENTATION,
-});
+const enforceStandardDimensions = (template: CardTemplate): CardTemplate => {
+    // Get background color for smart logo selection
+    const bgColor = template.background?.color1 || '#FFFFFF';
+
+    // Get the appropriate logo variant for this template
+    const logoVariant = getLogoForTemplate(template.id, bgColor);
+
+    // Update logo layer if it exists
+    const updatedLayers = template.layers.map(layer => {
+        // Find logo layer by isLogo flag or by ID
+        if ((layer.type === 'Image' && layer.props.isLogo) ||
+            layer.id === 'main_logo' ||
+            layer.id === 'logo_icon') {
+            return {
+                ...layer,
+                type: 'Image' as const,
+                props: {
+                    ...layer.props,
+                    src: logoVariant.path,
+                    isLogo: true,
+                    category: 'Image' as const
+                }
+            };
+        }
+        return layer;
+    });
+
+    return {
+        ...template,
+        width: STANDARD_CARD_WIDTH,
+        height: STANDARD_CARD_HEIGHT,
+        orientation: STANDARD_CARD_ORIENTATION,
+        layers: updatedLayers
+    };
+};
 
 
 /**
