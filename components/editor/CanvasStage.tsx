@@ -317,6 +317,50 @@ const CanvasStage = forwardRef<KonvaStageType, CanvasStageProps>(
             };
         }, [templateWidth, templateHeight, parentRef]);
 
+        // CRITICAL: Font Loading Mechanism - Wait for fonts before initial render
+        const [fontsLoaded, setFontsLoaded] = useState(false);
+
+        useEffect(() => {
+            if (typeof document !== 'undefined' && document.fonts) {
+                // Check if fonts are already loaded
+                if (document.fonts.status === 'loaded') {
+                    setFontsLoaded(true);
+                    layerRef.current?.batchDraw();
+                } else {
+                    // Wait for all fonts to be loaded
+                    document.fonts.ready.then(() => {
+                        setFontsLoaded(true);
+                        // Force a redraw of the layer to apply loaded fonts
+                        layerRef.current?.batchDraw();
+                    });
+                }
+
+                // Also listen for individual font loads
+                const handleFontLoad = () => {
+                    if (document.fonts.status === 'loaded') {
+                        setFontsLoaded(true);
+                    }
+                    layerRef.current?.batchDraw();
+                };
+
+                document.fonts.addEventListener('loadingdone', handleFontLoad);
+
+                return () => {
+                    document.fonts.removeEventListener('loadingdone', handleFontLoad);
+                };
+            } else {
+                // Fallback if Font Loading API is not available
+                setFontsLoaded(true);
+            }
+        }, []); // Run once on mount
+
+        // Force redraw when fonts are loaded and layers change
+        useEffect(() => {
+            if (fontsLoaded) {
+                layerRef.current?.batchDraw();
+            }
+        }, [layers, fontsLoaded]); // Redraw when layers change AND fonts are loaded
+
         // NEW: Use controlled zoom and pan (or fallback to defaults)
         const zoom = externalZoom;
         const panOffset = externalPanOffset;

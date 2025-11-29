@@ -1,0 +1,211 @@
+{
+    "$schema": "./schema.json",
+    "id": "template_06",
+    "name": "Orange Split Professional",
+    "width": 1050,
+    "height": 600,
+    "orientation": "horizontal",
+    "background": {
+        "type": "solid",
+        "color1": "#FFFFFF"
+    },
+    "layers": [
+        {
+            "id": "right_orange_panel",
+            "type": "Rect",
+            "editable": false,
+            "locked": false,
+            "props": {
+                "id": "right_orange_panel",
+                "x": 525,
+                "y": 0,
+                "width": 525,
+                "height": 600,
+                "rotation": 0,
+                "opacity": 1,
+                "fill": "#E44C2A"
+            }
+        },
+        {
+            "id": "vertical_white_bar",
+            "type": "Rect",
+            "editable": false,
+            "locked": false,
+            "props": {
+                "id": "vertical_white_bar",
+                "x": 510,
+                "y": 120,
+                "width": 20,
+                "height": 140,
+                "rotation": 0,
+                "opacity": 1,
+                "fill": "#FFFFFF",
+                "cornerRadius": 5
+            }
+        },
+        {
+            "id": "logo_image",
+            "type": "Image",
+            "editable": true,
+            "locked": false,
+            "props": {
+                "id": "logo_image",
+                "x": 140,
+                "y": 160,
+                "width": 180,
+                "height": 180,
+                "rotation": 0,
+                "opacity": 1,
+                "src": "",
+                "isLogo": true,
+                "cornerRadius": 0
+            }
+        },
+        {
+            "id": "logo_text",
+            "type": "Text",
+            "editable": true,
+            "locked": false,
+            "props": {
+                "id": "logo_text",
+                "x": 100,
+                "y": 360,
+                "width": 300,
+                "height": 60,
+                "rotation": 0,
+                "opacity": 1,
+                "text": "LOGO TEXT HERE",
+                "fontSize": 42,
+                "fill": "#E44C2A",
+                "fontFamily": "Playfair Display",
+                "align": "center",
+                "letterSpacing": 2
+            }
+        },
+        {
+            "id": "slogan_text",
+            "type": "Text",
+            "editable": true,
+            "locked": false,
+            "props": {
+                "id": "slogan_text",
+                "x": 100,
+                "y": 420,
+                "width": 300,
+                "height": 40,
+                "rotation": 0,
+                "opacity": 1,
+                "text": "SLOGAN HERE",
+                "fontSize": 26,
+                "fill": "#777777",
+                "fontFamily": "Lato",
+                "align": "center",
+                "letterSpacing": 3
+            }
+        },
+        {
+            "id": "full_name_text",
+            "type": "Text",
+            "editable": true,
+            "locked": false,
+            "props": {
+                "id": "full_name_text",
+                "x": 620,
+                "y": 200,
+                "width": 350,
+                "height": 80,
+                "rotation": 0,
+                "opacity": 1,
+                "text": "FULL NAME",
+                "fontSize": 48,
+                "fill": "#FFFFFF",
+                "fontFamily": "Impact",
+                "align": "left",
+                "letterSpacing": 1
+            }
+        },
+        {
+            "id": "designation_text",
+            "type": "Text",
+            "editable": true,
+            "locked": false,
+            "props": {
+                "id": "designation_text",
+                "x": 620,
+                "y": 260,
+                "width": 350,
+                "height": 60,
+                "rotation": 0,
+                "opacity": 1,
+                "text": "FOUNDER & CEO",
+                "fontSize": 30,
+                "fill": "#FFFFFF",
+                "fontFamily": "Montserrat",
+                "align": "left",
+                "letterSpacing": 1
+            }
+        },
+        {
+            "id": "email_label",
+            "type": "Text",
+            "editable": true,
+            "locked": false,
+            "props": {
+                "id": "email_label",
+                "x": 620,
+                "y": 360,
+                "width": 200,
+                "height": 40,
+                "rotation": 0,
+                "opacity": 1,
+                "text": "EMAIL",
+                "fontSize": 26,
+                "fill": "#FFFFFF",
+                "fontFamily": "Roboto",
+                "align": "left",
+                "letterSpacing": 1
+            }
+        },
+        {
+            "id": "phone_label",
+            "type": "Text",
+            "editable": true,
+            "locked": false,
+            "props": {
+                "id": "phone_label",
+                "x": 620,
+                "y": 410,
+                "width": 200,
+                "height": 40,
+                "rotation": 0,
+                "opacity": 1,
+                "text": "PHONE",
+                "fontSize": 26,
+                "fill": "#FFFFFF",
+                "fontFamily": "Roboto",
+                "align": "left",
+                "letterSpacing": 1
+            }
+        }
+    ],
+    "groups": [],
+    "thumbnail": "",
+    "preview": "",
+    "tags": [
+        "professional",
+        "orange",
+        "split",
+        "modern"
+    ],
+    "category": "Business",
+    "colors": [
+        "#FFFFFF",
+        "#E44C2A",
+        "#777777"
+    ],
+    "features": [
+        "logo",
+        "text",
+        "clean_layout"
+    ]
+}

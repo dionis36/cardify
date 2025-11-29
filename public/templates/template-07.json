@@ -1,0 +1,243 @@
+{
+    "$schema": "./schema.json",
+    "id": "template_07",
+    "name": "Cream Teal Diagonal Professional",
+    "width": 1050,
+    "height": 600,
+    "orientation": "horizontal",
+    "background": {
+        "type": "solid",
+        "color1": "#F8F2E3"
+    },
+    "layers": [
+        {
+            "id": "right_teal_panel",
+            "type": "Rect",
+            "editable": false,
+            "locked": false,
+            "props": {
+                "id": "right_teal_panel",
+                "x": 550,
+                "y": 0,
+                "width": 500,
+                "height": 600,
+                "rotation": 0,
+                "opacity": 1,
+                "fill": "#5A8C8C"
+            }
+        },
+        {
+            "id": "diagonal_teal_shape",
+            "type": "Rect",
+            "editable": false,
+            "locked": false,
+            "props": {
+                "id": "diagonal_teal_shape",
+                "x": 450,
+                "y": -100,
+                "width": 350,
+                "height": 800,
+                "rotation": -14,
+                "opacity": 1,
+                "fill": "#5A8C8C"
+            }
+        },
+        {
+            "id": "diagonal_white_stripe",
+            "type": "Rect",
+            "editable": false,
+            "locked": false,
+            "props": {
+                "id": "diagonal_white_stripe",
+                "x": 500,
+                "y": -100,
+                "width": 35,
+                "height": 800,
+                "rotation": -14,
+                "opacity": 1,
+                "fill": "#FFFFFF"
+            }
+        },
+        {
+            "id": "logo_image",
+            "type": "Image",
+            "editable": true,
+            "locked": false,
+            "props": {
+                "id": "logo_image",
+                "x": 150,
+                "y": 140,
+                "width": 160,
+                "height": 160,
+                "rotation": 0,
+                "opacity": 1,
+                "src": "",
+                "isLogo": true
+            }
+        },
+        {
+            "id": "logo_text",
+            "type": "Text",
+            "editable": true,
+            "locked": false,
+            "props": {
+                "id": "logo_text",
+                "x": 100,
+                "y": 330,
+                "width": 300,
+                "height": 60,
+                "rotation": 0,
+                "opacity": 1,
+                "text": "LOGO TEXT HERE",
+                "fontSize": 42,
+                "fill": "#3A6A6A",
+                "fontFamily": "Playfair Display",
+                "align": "center",
+                "letterSpacing": 1
+            }
+        },
+        {
+            "id": "slogan_text",
+            "type": "Text",
+            "editable": true,
+            "locked": false,
+            "props": {
+                "id": "slogan_text",
+                "x": 100,
+                "y": 390,
+                "width": 300,
+                "height": 40,
+                "rotation": 0,
+                "opacity": 1,
+                "text": "SLOGAN HERE",
+                "fontSize": 26,
+                "fill": "#E88C8C",
+                "fontFamily": "Open Sans",
+                "align": "center",
+                "letterSpacing": 3
+            }
+        },
+        {
+            "id": "full_name_text",
+            "type": "Text",
+            "editable": true,
+            "locked": false,
+            "props": {
+                "id": "full_name_text",
+                "x": 630,
+                "y": 180,
+                "width": 350,
+                "height": 80,
+                "rotation": 0,
+                "opacity": 1,
+                "text": "FULL NAME",
+                "fontSize": 46,
+                "fill": "#FFFFFF",
+                "fontFamily": "Impact",
+                "align": "left",
+                "letterSpacing": 1
+            }
+        },
+        {
+            "id": "title_text",
+            "type": "Text",
+            "editable": true,
+            "locked": false,
+            "props": {
+                "id": "title_text",
+                "x": 630,
+                "y": 240,
+                "width": 350,
+                "height": 60,
+                "rotation": 0,
+                "opacity": 1,
+                "text": "FOUNDER & CEO",
+                "fontSize": 30,
+                "fill": "#FFFFFF",
+                "fontFamily": "Poppins",
+                "align": "left"
+            }
+        },
+        {
+            "id": "email_text",
+            "type": "Text",
+            "editable": true,
+            "locked": false,
+            "props": {
+                "id": "email_text",
+                "x": 630,
+                "y": 350,
+                "width": 300,
+                "height": 40,
+                "rotation": 0,
+                "opacity": 1,
+                "text": "EMAIL",
+                "fontSize": 26,
+                "fill": "#FFFFFF",
+                "fontFamily": "Lato",
+                "align": "left"
+            }
+        },
+        {
+            "id": "phone_text",
+            "type": "Text",
+            "editable": true,
+            "locked": false,
+            "props": {
+                "id": "phone_text",
+                "x": 630,
+                "y": 400,
+                "width": 300,
+                "height": 40,
+                "rotation": 0,
+                "opacity": 1,
+                "text": "PHONE",
+                "fontSize": 26,
+                "fill": "#FFFFFF",
+                "fontFamily": "Lato",
+                "align": "left"
+            }
+        },
+        {
+            "id": "website_text",
+            "type": "Text",
+            "editable": true,
+            "locked": false,
+            "props": {
+                "id": "website_text",
+                "x": 630,
+                "y": 450,
+                "width": 300,
+                "height": 40,
+                "rotation": 0,
+                "opacity": 1,
+                "text": "WEBSITE",
+                "fontSize": 26,
+                "fill": "#FFFFFF",
+                "fontFamily": "Lato",
+                "align": "left"
+            }
+        }
+    ],
+    "groups": [],
+    "thumbnail": "",
+    "preview": "",
+    "tags": [
+        "professional",
+        "teal",
+        "modern",
+        "diagonal"
+    ],
+    "category": "Business",
+    "colors": [
+        "#F8F2E3",
+        "#5A8C8C",
+        "#E88C8C",
+        "#3A6A6A"
+    ],
+    "features": [
+        "logo",
+        "modern_shape",
+        "diagonal_layout"
+    ]
+}

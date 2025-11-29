@@ -1,0 +1,606 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "CardTemplate",
+    "type": "object",
+    "properties": {
+        "id": {
+            "type": "string"
+        },
+        "name": {
+            "type": "string"
+        },
+        "width": {
+            "type": "number"
+        },
+        "height": {
+            "type": "number"
+        },
+        "orientation": {
+            "type": "string",
+            "enum": [
+                "horizontal",
+                "vertical"
+            ]
+        },
+        "background": {
+            "$ref": "#/definitions/BackgroundPattern"
+        },
+        "layers": {
+            "type": "array",
+            "items": {
+                "$ref": "#/definitions/KonvaNodeDefinition"
+            }
+        },
+        "groups": {
+            "type": "array",
+            "items": {
+                "$ref": "#/definitions/LayerGroup"
+            }
+        },
+        "thumbnail": {
+            "type": "string"
+        },
+        "preview": {
+            "type": "string"
+        },
+        "tags": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        },
+        "category": {
+            "type": "string"
+        },
+        "colors": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        },
+        "features": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        }
+    },
+    "required": [
+        "id",
+        "name",
+        "width",
+        "height",
+        "orientation",
+        "background",
+        "layers",
+        "thumbnail",
+        "preview",
+        "tags",
+        "category",
+        "colors",
+        "features"
+    ],
+    "definitions": {
+        "BackgroundPattern": {
+            "type": "object",
+            "properties": {
+                "type": {
+                    "type": "string",
+                    "enum": [
+                        "solid",
+                        "gradient",
+                        "pattern",
+                        "texture"
+                    ]
+                },
+                "color1": {
+                    "type": "string"
+                },
+                "color2": {
+                    "type": "string"
+                },
+                "gradientType": {
+                    "type": "string",
+                    "enum": [
+                        "linear",
+                        "radial"
+                    ]
+                },
+                "gradientStops": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "offset": {
+                                "type": "number"
+                            },
+                            "color": {
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "offset",
+                            "color"
+                        ]
+                    }
+                },
+                "rotation": {
+                    "type": "number"
+                },
+                "patternImageURL": {
+                    "type": "string"
+                },
+                "patternId": {
+                    "type": "string"
+                },
+                "patternColor": {
+                    "type": "string"
+                },
+                "scale": {
+                    "type": "number"
+                },
+                "opacity": {
+                    "type": "number"
+                },
+                "blur": {
+                    "type": "number"
+                },
+                "overlayColor": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "type",
+                "color1"
+            ]
+        },
+        "LayerGroup": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "expanded": {
+                    "type": "boolean"
+                },
+                "visible": {
+                    "type": "boolean"
+                },
+                "locked": {
+                    "type": "boolean"
+                },
+                "parentGroupId": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "id",
+                "name",
+                "expanded",
+                "visible",
+                "locked"
+            ]
+        },
+        "KonvaNodeDefinition": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string",
+                    "enum": [
+                        "Text",
+                        "Rect",
+                        "Image",
+                        "Circle",
+                        "Ellipse",
+                        "Star",
+                        "RegularPolygon",
+                        "Line",
+                        "Arrow",
+                        "Path",
+                        "Icon"
+                    ]
+                },
+                "editable": {
+                    "type": "boolean"
+                },
+                "locked": {
+                    "type": "boolean"
+                },
+                "groupId": {
+                    "type": "string"
+                },
+                "props": {
+                    "type": "object"
+                }
+            },
+            "required": [
+                "id",
+                "type",
+                "props",
+                "editable",
+                "locked"
+            ],
+            "allOf": [
+                {
+                    "if": {
+                        "properties": {
+                            "type": {
+                                "const": "Text"
+                            }
+                        }
+                    },
+                    "then": {
+                        "properties": {
+                            "props": {
+                                "$ref": "#/definitions/TextProps"
+                            }
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "type": {
+                                "const": "Rect"
+                            }
+                        }
+                    },
+                    "then": {
+                        "properties": {
+                            "props": {
+                                "$ref": "#/definitions/RectProps"
+                            }
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "type": {
+                                "const": "Image"
+                            }
+                        }
+                    },
+                    "then": {
+                        "properties": {
+                            "props": {
+                                "$ref": "#/definitions/ImageProps"
+                            }
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "type": {
+                                "const": "Circle"
+                            }
+                        }
+                    },
+                    "then": {
+                        "properties": {
+                            "props": {
+                                "$ref": "#/definitions/CircleProps"
+                            }
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "type": {
+                                "const": "Icon"
+                            }
+                        }
+                    },
+                    "then": {
+                        "properties": {
+                            "props": {
+                                "$ref": "#/definitions/IconProps"
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "NodeCommonProps": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "x": {
+                    "type": "number"
+                },
+                "y": {
+                    "type": "number"
+                },
+                "width": {
+                    "type": "number"
+                },
+                "height": {
+                    "type": "number"
+                },
+                "rotation": {
+                    "type": "number"
+                },
+                "opacity": {
+                    "type": "number"
+                },
+                "visible": {
+                    "type": "boolean"
+                },
+                "fill": {
+                    "type": "string"
+                },
+                "stroke": {
+                    "type": "string"
+                },
+                "strokeWidth": {
+                    "type": "number"
+                },
+                "category": {
+                    "type": "string",
+                    "enum": [
+                        "Icon",
+                        "ComplexShape",
+                        "BasicShape",
+                        "Text",
+                        "Image"
+                    ]
+                },
+                "shadowColor": {
+                    "type": "string"
+                },
+                "shadowBlur": {
+                    "type": "number"
+                },
+                "shadowOffsetX": {
+                    "type": "number"
+                },
+                "shadowOffsetY": {
+                    "type": "number"
+                },
+                "isLogo": {
+                    "type": "boolean"
+                }
+            },
+            "required": [
+                "id",
+                "x",
+                "y",
+                "width",
+                "height",
+                "rotation",
+                "opacity"
+            ]
+        },
+        "TextProps": {
+            "allOf": [
+                {
+                    "$ref": "#/definitions/NodeCommonProps"
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "text": {
+                            "type": "string"
+                        },
+                        "fontSize": {
+                            "type": "number"
+                        },
+                        "fill": {
+                            "type": "string"
+                        },
+                        "fontFamily": {
+                            "type": "string",
+                            "enum": [
+                                "Arial",
+                                "Verdana",
+                                "Helvetica",
+                                "Inter",
+                                "Roboto",
+                                "Open Sans",
+                                "Lato",
+                                "Montserrat",
+                                "Poppins",
+                                "sans-serif",
+                                "Times New Roman",
+                                "Georgia",
+                                "Palatino",
+                                "serif",
+                                "Playfair Display",
+                                "Merriweather",
+                                "Courier New",
+                                "Lucida Console",
+                                "monospace",
+                                "Garamond",
+                                "Impact",
+                                "Comic Sans MS",
+                                "Pacifico",
+                                "Bebas Neue"
+                            ]
+                        },
+                        "align": {
+                            "type": "string",
+                            "enum": [
+                                "left",
+                                "center",
+                                "right",
+                                "justify"
+                            ]
+                        },
+                        "lineHeight": {
+                            "type": "number"
+                        },
+                        "letterSpacing": {
+                            "type": "number"
+                        },
+                        "textDecoration": {
+                            "type": "string",
+                            "enum": [
+                                "underline",
+                                "line-through",
+                                ""
+                            ]
+                        },
+                        "fontStyle": {
+                            "type": "string"
+                        }
+                    },
+                    "required": [
+                        "text",
+                        "fontSize",
+                        "fill",
+                        "fontFamily"
+                    ]
+                }
+            ]
+        },
+        "RectProps": {
+            "allOf": [
+                {
+                    "$ref": "#/definitions/NodeCommonProps"
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "fill": {
+                            "type": "string"
+                        },
+                        "cornerRadius": {
+                            "type": "number"
+                        }
+                    },
+                    "required": [
+                        "fill"
+                    ]
+                }
+            ]
+        },
+        "ImageProps": {
+            "allOf": [
+                {
+                    "$ref": "#/definitions/NodeCommonProps"
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "src": {
+                            "type": "string"
+                        },
+                        "cornerRadius": {
+                            "type": "number"
+                        },
+                        "qrMetadata": {
+                            "type": "object",
+                            "properties": {
+                                "value": {
+                                    "type": "string"
+                                },
+                                "fgColor": {
+                                    "type": "string"
+                                },
+                                "bgColor": {
+                                    "type": "string"
+                                },
+                                "dotStyle": {
+                                    "type": "string",
+                                    "enum": [
+                                        "squares",
+                                        "dots"
+                                    ]
+                                },
+                                "eyeStyle": {
+                                    "type": "string",
+                                    "enum": [
+                                        "square",
+                                        "round"
+                                    ]
+                                },
+                                "logoUrl": {
+                                    "type": "string"
+                                },
+                                "contentType": {
+                                    "type": "string",
+                                    "enum": [
+                                        "Website",
+                                        "Email",
+                                        "Phone",
+                                        "SMS",
+                                        "Contact",
+                                        "Event"
+                                    ]
+                                },
+                                "inputs": {
+                                    "type": "object"
+                                }
+                            },
+                            "required": [
+                                "value",
+                                "fgColor",
+                                "bgColor",
+                                "dotStyle",
+                                "eyeStyle",
+                                "contentType",
+                                "inputs"
+                            ]
+                        }
+                    },
+                    "required": [
+                        "src"
+                    ]
+                }
+            ]
+        },
+        "CircleProps": {
+            "allOf": [
+                {
+                    "$ref": "#/definitions/NodeCommonProps"
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "radius": {
+                            "type": "number"
+                        }
+                    },
+                    "required": [
+                        "radius"
+                    ]
+                }
+            ]
+        },
+        "IconProps": {
+            "allOf": [
+                {
+                    "$ref": "#/definitions/NodeCommonProps"
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "data": {
+                            "type": "string"
+                        },
+                        "iconName": {
+                            "type": "string"
+                        },
+                        "category": {
+                            "const": "Icon"
+                        }
+                    },
+                    "required": [
+                        "iconName",
+                        "category"
+                    ]
+                }
+            ]
+        }
+    }
+}
