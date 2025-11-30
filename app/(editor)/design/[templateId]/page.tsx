@@ -11,6 +11,8 @@ import EditorSidebar, { SidebarTab } from "@/components/editor/EditorSidebar";
 import EditorTopbar from "@/components/editor/EditorTopbar";
 import PropertyPanel from "@/components/editor/PropertyPanel";
 import ZoomControls from "@/components/editor/ZoomControls";
+import ConfirmationModal from "@/components/ui/ConfirmationModal";
+
 
 // Types/Libs
 import { CardTemplate, KonvaNodeDefinition, KonvaNodeProps, BackgroundPattern, BackgroundType, LayerGroup } from "@/types/template";
@@ -267,6 +269,8 @@ export default function Editor() {
     const [panOffset, setPanOffset] = useState({ x: 0, y: 0 }); // NEW: Pan state
     const [clipboard, setClipboard] = useState<KonvaNodeDefinition[]>([]); // NEW: Clipboard for copy/paste
     const currentPage = state.pages[state.current];
+    const [showResetConfirm, setShowResetConfirm] = useState(false);
+
 
     const selectedNode = selectedIndices.length === 1 ? currentPage.layers[selectedIndices[0]] : null;
     const selectedNodes = selectedIndices.map(i => currentPage.layers[i]).filter(Boolean);
@@ -653,11 +657,13 @@ export default function Editor() {
     }, []);
 
     const handleReset = useCallback(() => {
-        if (confirm("Are you sure you want to reset the design? All changes will be lost.")) {
-            const originalTemplate = loadTemplate(templateId);
-            dispatch({ type: 'RESET', template: originalTemplate });
-            setSelectedIndices([]);
-        }
+      setShowResetConfirm(true);
+    }, []);
+    const confirmReset = useCallback(() => {
+      const originalTemplate = loadTemplate(templateId);
+      dispatch({ type: 'RESET', template: originalTemplate });
+      setSelectedIndices([]);
+      setShowResetConfirm(false);
     }, [templateId]);
 
 
@@ -874,6 +880,16 @@ export default function Editor() {
                     />
                 </div>
             </div>
+            {/* Reset Confirmation Modal */}
+            <ConfirmationModal
+              isOpen={showResetConfirm}
+              onClose={() => setShowResetConfirm(false)}
+              onConfirm={confirmReset}
+              title="Reset Design"
+              message="Are you sure you want to reset the design? All changes will be lost and cannot be recovered."
+              variant="danger"
+              confirmText="Reset"
+            />
         </div>
     );
 }

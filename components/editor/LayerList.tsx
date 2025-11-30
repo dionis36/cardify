@@ -7,6 +7,8 @@ import React, { useState, useMemo } from "react";
 import { ChevronDown, ChevronRight, Eye, EyeOff, Lock, Unlock, Trash2, Folder, FolderOpen, Check, Layers, Type, Image as ImageIcon, Move } from "lucide-react";
 import LayerSearchBar from "./LayerSearchBar";
 import BulkActionsToolbar from "./BulkActionsToolbar";
+import ConfirmationModal from "../ui/ConfirmationModal";
+
 
 interface LayerListProps {
   layers: KonvaNodeDefinition[];
@@ -46,6 +48,15 @@ export default function LayerList({
 
   // Bulk selection state
   const [bulkSelectedIndices, setBulkSelectedIndices] = useState<number[]>([]);
+
+  // Confirmation modal state
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+    variant?: 'danger' | 'warning' | 'info';
+  }>({ isOpen: false, title: '', message: '', onConfirm: () => {} });
 
   // Group expansion state
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(
@@ -183,14 +194,20 @@ export default function LayerList({
   };
 
   const handleBulkDeleteAll = () => {
-    if (confirm(`Delete ${bulkSelectedIndices.length} layer(s)?`)) {
-      // Sort in descending order to maintain correct indices during deletion
-      const sortedIndices = [...bulkSelectedIndices].sort((a, b) => b - a);
-      sortedIndices.forEach(index => {
-        onRemoveLayer(index);
-      });
-      setBulkSelectedIndices([]);
-    }
+    setConfirmModal({
+      isOpen: true,
+      title: 'Delete Layers',
+      message: `Are you sure you want to delete ${bulkSelectedIndices.length} layer(s)? This action cannot be undone.`,
+      variant: 'danger',
+      onConfirm: () => {
+        // Sort in descending order to maintain correct indices during deletion
+        const sortedIndices = [...bulkSelectedIndices].sort((a, b) => b - a);
+        sortedIndices.forEach(index => {
+          onRemoveLayer(index);
+        });
+        setBulkSelectedIndices([]);
+      }
+    });
   };
 
   const handleBulkGroup = () => {
@@ -247,15 +264,21 @@ export default function LayerList({
   };
 
   const handleGroupDelete = (groupId: string) => {
-    if (confirm("Delete this group? (Layers will be ungrouped)")) {
-      // Ungroup all layers
-      layers.forEach((layer, index) => {
-        if (layer.groupId === groupId) {
-          onDefinitionChange(index, { groupId: undefined });
-        }
-      });
-      onDeleteGroup?.(groupId);
-    }
+    setConfirmModal({
+      isOpen: true,
+      title: 'Delete Group',
+      message: 'Are you sure you want to delete this group? Layers will be ungrouped but not deleted.',
+      variant: 'warning',
+      onConfirm: () => {
+        // Ungroup all layers
+        layers.forEach((layer, index) => {
+          if (layer.groupId === groupId) {
+            onDefinitionChange(index, { groupId: undefined });
+          }
+        });
+        onDeleteGroup?.(groupId);
+      }
+    });
   };
 
   // Organize layers by groups
@@ -422,6 +445,16 @@ export default function LayerList({
           </p>
         </div>
       )}
+
+      {/* Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={confirmModal.isOpen}
+        onClose={() => setConfirmModal({ ...confirmModal, isOpen: false })}
+        onConfirm={confirmModal.onConfirm}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        variant={confirmModal.variant}
+      />
     </div>
   );
 
