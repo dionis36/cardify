@@ -21,7 +21,7 @@ import ColorPicker from "./ColorPicker";
 import {
   AlignLeft, AlignCenter, AlignRight, AlignJustify, Type, Underline, Bold,
   ArrowUp, ArrowDown, ChevronsUp, ChevronsDown, Lock, Unlock,
-  Eye, EyeOff, Edit, Move, RotateCw, Settings, Layout, Layers
+  Eye, EyeOff, Edit, Move, RotateCw, Settings, Layout, Layers, Trash2
 } from "lucide-react";
 
 // --- FONT OPTIONS LIST ---
@@ -152,6 +152,7 @@ interface PropertyPanelProps {
   onMoveUp: () => void;
   onMoveDown: () => void;
   onAddNode?: (node: KonvaNodeDefinition) => void;
+  onDelete?: () => void;
 }
 
 export default function PropertyPanel({
@@ -160,7 +161,8 @@ export default function PropertyPanel({
   onDefinitionChange,
   mode,
   onMoveToFront, onMoveToBack, onMoveUp, onMoveDown,
-  onAddNode
+  onAddNode,
+  onDelete
 }: PropertyPanelProps) {
 
   type AllKonvaPropKeys = keyof TextProps | keyof RectProps | keyof ImageProps | keyof CircleProps | keyof EllipseProps | keyof StarProps | keyof RegularPolygonProps | keyof LineProps | keyof ArrowProps | keyof PathProps | keyof IconProps;
@@ -327,7 +329,7 @@ export default function PropertyPanel({
   panels.push(
     <div key="config" className="space-y-4">
       <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider">Configuration</h3>
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-4 gap-2">
         <button
           onClick={handleToggleLock}
           className={`p-2 rounded-md text-sm font-medium transition-colors flex flex-col items-center justify-center gap-1 ${isLocked ? 'bg-red-50 text-red-600 hover:bg-red-100' : 'bg-green-50 text-green-600 hover:bg-green-100'}`}
@@ -351,6 +353,15 @@ export default function PropertyPanel({
         >
           <Edit size={14} />
           <span className="text-[10px] font-semibold">{node.editable ? "EDITABLE" : "FIXED"}</span>
+        </button>
+        <button
+          onClick={onDelete}
+          className="p-2 rounded-md text-sm font-medium transition-colors flex flex-col items-center justify-center gap-1 bg-red-50 text-red-600 hover:bg-red-100"
+          title="Delete Element"
+          disabled={isLocked}
+        >
+          <Trash2 size={14} />
+          <span className="text-[10px] font-semibold">DELETE</span>
         </button>
       </div>
     </div>

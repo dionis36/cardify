@@ -232,9 +232,19 @@ export default function EditorSidebar({
         <div className="flex h-full bg-gray-50 border-r border-gray-200 overflow-hidden font-sans">
 
             {/* 1. NARROW ICON NAVIGATION PALETTE (Fixed Width: 80px for labels) */}
-            <div className="w-20 bg-[#1e1e2e] flex flex-col justify-between items-center py-4 border-r border-gray-800 flex-shrink-0 z-20 shadow-xl">
-                {/* Top Navigation Icons */}
-                <div className="w-full space-y-1">
+            <div className="w-20 bg-[#1e1e2e] flex flex-col justify-between items-center py-4 border-r border-gray-800 flex-shrink-0 z-20 shadow-xl h-full">
+                <style>{`
+                    .no-scrollbar::-webkit-scrollbar {
+                        display: none;
+                    }
+                    .no-scrollbar {
+                        -ms-overflow-style: none;
+                        scrollbar-width: none;
+                    }
+                `}</style>
+
+                {/* Top Navigation Icons - Scrollable Area */}
+                <div className="w-full space-y-1 flex-1 overflow-y-auto no-scrollbar">
                     {renderPaletteButton("layers", Layers, "Layers", isDataOnlyMode)}
 
                     {/* DIRECT ACTION: Add Text */}
@@ -278,8 +288,8 @@ export default function EditorSidebar({
                     {renderPaletteButton("qrcode", QrCode, "QR Code", isDataOnlyMode)}
                 </div>
 
-                {/* Bottom Navigation Icons (e.g., Settings) */}
-                <div className="w-full space-y-1">
+                {/* Bottom Navigation Icons (e.g., Settings) - Pinned to bottom */}
+                <div className="w-full space-y-1 mt-2 flex-shrink-0">
                     {renderPaletteButton("settings", Settings, "Settings")}
                 </div>
             </div>

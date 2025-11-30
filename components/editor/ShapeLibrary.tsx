@@ -1,12 +1,10 @@
-// components/editor/ShapeLibrary.tsx (Updated for Phase 3 Content)
-
 'use client';
 
 import React, { useCallback } from 'react';
 import {
   Square, Circle, Minus, Star,
   HardHat, Pentagon,
-  Feather, ArrowRight, Text, UploadCloud, CornerUpRight
+  Feather, ArrowRight, UploadCloud, CornerUpRight
 } from 'lucide-react';
 
 // Import definitions from our new libraries
@@ -30,18 +28,6 @@ const defineShape = (type: KonvaNodeType, icon: React.FC<any>, name: string, gro
 });
 
 const SHAPE_DEFINITIONS: ShapeButton[] = [
-  // 1. TEXT INPUT (Dedicated Group)
-  defineShape('Text', Text, 'Text Box', 'Text', {
-    width: 250,
-    height: 40,
-    text: "Click to edit text",
-    fontSize: 28,
-    fill: '#000000',
-    fontFamily: 'Inter',
-    rotation: 0,
-    opacity: 1
-  }),
-
   // 2. BASIC GEOMETRIC SHAPES
   defineShape('Rect', Square, 'Rectangle', 'Basic', {
     width: 100,
@@ -194,7 +180,6 @@ export function ShapeLibrary({ onAddNode }: ShapeLibraryProps) {
   // --- DATA PREPARATION ---
 
   // 1. Separate Standard Shapes
-  const textNode = SHAPE_DEFINITIONS.filter(s => s.group === 'Text');
   const basicShapes = SHAPE_DEFINITIONS.filter(s => s.group === 'Basic');
   const standardVectors = SHAPE_DEFINITIONS.filter(s => s.group === 'Vector');
 
@@ -215,11 +200,6 @@ export function ShapeLibrary({ onAddNode }: ShapeLibraryProps) {
   return (
     <div className="flex-1 h-full flex flex-col overflow-hidden">
       <div className="space-y-6 overflow-y-auto custom-scrollbar flex-1 pb-20">
-
-        {/* 1. DEDICATED TEXT SECTION */}
-        {renderShapeGroup('Text', textNode, 1)}
-
-        <div className="border-t border-gray-200 pt-3"></div>
 
         {/* 2. BASIC SHAPES */}
         {renderShapeGroup('Basic Shapes', basicShapes, 3)}

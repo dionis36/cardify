@@ -868,6 +868,9 @@ export default function Editor() {
 
                         // NEW: Allow adding nodes from property panel (e.g. empty state)
                         onAddNode={onAddNode}
+
+                        // NEW: Allow deleting nodes from property panel
+                        onDelete={handleDelete}
                     />
                 </div>
             </div>
