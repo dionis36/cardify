@@ -33,14 +33,14 @@
             "locked": false,
             "props": {
                 "id": "vertical_white_bar",
-                "x": 510,
-                "y": 120,
-                "width": 20,
-                "height": 140,
+                "x": 555,
+                "y": 0,
+                "width": 25,
+                "height": 300,
                 "rotation": 0,
                 "opacity": 1,
                 "fill": "#FFFFFF",
-                "cornerRadius": 5
+                "cornerRadius": 3
             }
         },
         {
@@ -110,18 +110,19 @@
             "locked": false,
             "props": {
                 "id": "full_name_text",
-                "x": 620,
-                "y": 200,
+                "x": 670,
+                "y": 310,
                 "width": 350,
                 "height": 80,
                 "rotation": 0,
                 "opacity": 1,
                 "text": "FULL NAME",
-                "fontSize": 48,
+                "fontSize": 70,
                 "fill": "#FFFFFF",
                 "fontFamily": "Impact",
-                "align": "left",
-                "letterSpacing": 1
+                "align": "right",
+                "letterSpacing": 1,
+                "lineHeight": 1.2
             }
         },
         {
@@ -131,8 +132,8 @@
             "locked": false,
             "props": {
                 "id": "designation_text",
-                "x": 620,
-                "y": 260,
+                "x": 670,
+                "y": 400,
                 "width": 350,
                 "height": 60,
                 "rotation": 0,
@@ -141,8 +142,9 @@
                 "fontSize": 30,
                 "fill": "#FFFFFF",
                 "fontFamily": "Montserrat",
-                "align": "left",
-                "letterSpacing": 1
+                "align": "right",
+                "letterSpacing": 1,
+                "lineHeight": 1.2
             }
         },
         {
@@ -152,17 +154,17 @@
             "locked": false,
             "props": {
                 "id": "email_label",
-                "x": 620,
-                "y": 360,
+                "x": 820,
+                "y": 470,
                 "width": 200,
                 "height": 40,
                 "rotation": 0,
                 "opacity": 1,
                 "text": "EMAIL",
-                "fontSize": 26,
+                "fontSize": 25,
                 "fill": "#FFFFFF",
                 "fontFamily": "Roboto",
-                "align": "left",
+                "align": "right",
                 "letterSpacing": 1
             }
         },
@@ -173,17 +175,17 @@
             "locked": false,
             "props": {
                 "id": "phone_label",
-                "x": 620,
-                "y": 410,
+                "x": 820,
+                "y": 524,
                 "width": 200,
                 "height": 40,
                 "rotation": 0,
                 "opacity": 1,
                 "text": "PHONE",
-                "fontSize": 26,
+                "fontSize": 25,
                 "fill": "#FFFFFF",
                 "fontFamily": "Roboto",
-                "align": "left",
+                "align": "right",
                 "letterSpacing": 1
             }
         }

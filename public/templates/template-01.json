@@ -34,7 +34,7 @@
       "props": {
         "id": "logo_icon",
         "x": 212,
-        "y": 140,
+        "y": 180,
         "width": 100,
         "height": 100,
         "data": "M12 2L4 6v4l8 4 8-4V6l-8-4zm0 2.18L17.82 6 12 8.82 6.18 6 12 4.18zM6 8.82v2.36L12 14l6-2.82V8.82L12 11.64 6 8.82z M8 14h2v8H8v-8zm6 0h2v8h-2v-8z",
@@ -53,7 +53,7 @@
       "props": {
         "id": "company_name",
         "x": 62,
-        "y": 260,
+        "y": 310,
         "width": 400,
         "height": 50,
         "text": "LOGO TEXT HERE",
@@ -64,7 +64,8 @@
         "opacity": 1,
         "align": "center",
         "fontStyle": "bold",
-        "letterSpacing": 2
+        "letterSpacing": 2,
+        "lineHeight": 1.2
       },
       "editable": true,
       "locked": false
@@ -75,7 +76,7 @@
       "props": {
         "id": "company_slogan",
         "x": 62,
-        "y": 320,
+        "y": 365,
         "width": 400,
         "height": 30,
         "text": "SLOGAN HERE",
@@ -85,7 +86,8 @@
         "rotation": 0,
         "opacity": 1,
         "align": "center",
-        "letterSpacing": 4
+        "letterSpacing": 4,
+        "lineHeight": 1.2
       },
       "editable": true,
       "locked": false
@@ -95,7 +97,7 @@
       "type": "Rect",
       "props": {
         "id": "divider_line",
-        "x": 523,
+        "x": 521,
         "y": 100,
         "width": 4,
         "height": 400,
@@ -111,18 +113,20 @@
       "type": "Text",
       "props": {
         "id": "full_name",
-        "x": 550,
-        "y": 130,
+        "x": 610,
+        "y": 170,
         "width": 450,
         "height": 60,
         "text": "FULL NAME",
-        "fontSize": 65,
+        "fontSize": 70,
         "fontFamily": "Impact",
         "fill": "#2563EB",
         "rotation": 0,
         "opacity": 1,
         "align": "left",
-        "fontStyle": "bold"
+        "fontStyle": "bold",
+        "letterSpacing": 1,
+        "lineHeight": 1.2
       },
       "editable": true,
       "locked": false
@@ -132,8 +136,8 @@
       "type": "Text",
       "props": {
         "id": "job_title",
-        "x": 550,
-        "y": 190,
+        "x": 610,
+        "y": 260,
         "width": 450,
         "height": 40,
         "text": "FOUNDER & CEO",
@@ -143,7 +147,8 @@
         "rotation": 0,
         "opacity": 1,
         "align": "left",
-        "letterSpacing": 1
+        "letterSpacing": 1,
+        "lineHeight": 1.2
       },
       "editable": true,
       "locked": false
@@ -153,8 +158,8 @@
       "type": "Text",
       "props": {
         "id": "email_label",
-        "x": 550,
-        "y": 280,
+        "x": 610,
+        "y": 372,
         "width": 450,
         "height": 30,
         "text": "EMAIL",
@@ -164,7 +169,8 @@
         "rotation": 0,
         "opacity": 1,
         "align": "left",
-        "fontStyle": "bold"
+        "fontStyle": "bold",
+        "lineHeight": 1.2
       },
       "editable": true,
       "locked": false
@@ -174,8 +180,8 @@
       "type": "Text",
       "props": {
         "id": "phone_label",
-        "x": 550,
-        "y": 330,
+        "x": 610,
+        "y": 417,
         "width": 450,
         "height": 30,
         "text": "PHONE",
@@ -195,8 +201,8 @@
       "type": "Text",
       "props": {
         "id": "website_label",
-        "x": 550,
-        "y": 380,
+        "x": 610,
+        "y": 457,
         "width": 450,
         "height": 30,
         "text": "WEBSITE",

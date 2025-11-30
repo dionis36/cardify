@@ -17,7 +17,7 @@
       "locked": false,
       "props": {
         "id": "left_panel",
-        "x": 0,
+        "x": -10,
         "y": 0,
         "width": 420,
         "height": 600,
@@ -36,7 +36,7 @@
         "id": "accent_line",
         "x": 420,
         "y": 0,
-        "width": 8,
+        "width": 10,
         "height": 600,
         "rotation": 0,
         "opacity": 1,
