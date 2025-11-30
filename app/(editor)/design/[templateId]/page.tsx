@@ -865,6 +865,9 @@ export default function Editor() {
                         onMoveToBack={moveLayerToBack}
                         onMoveUp={moveLayerUp}
                         onMoveDown={moveLayerDown}
+
+                        // NEW: Allow adding nodes from property panel (e.g. empty state)
+                        onAddNode={onAddNode}
                     />
                 </div>
             </div>

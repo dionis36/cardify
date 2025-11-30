@@ -17,7 +17,7 @@ import {
     Move, Layers, Settings, Image, Trash2,
     ChevronLeft, ChevronRight, Plus,
     Sparkles, Palette, X, QrCode,
-    Hexagon, // NEW ICON
+    Hexagon, Type, // NEW ICON
 } from "lucide-react";
 
 // Update SidebarTab type to include new tabs
@@ -236,6 +236,41 @@ export default function EditorSidebar({
                 {/* Top Navigation Icons */}
                 <div className="w-full space-y-1">
                     {renderPaletteButton("layers", Layers, "Layers", isDataOnlyMode)}
+
+                    {/* DIRECT ACTION: Add Text */}
+                    <button
+                        onClick={() => {
+                            const id = `node_text_${Date.now()}`;
+                            const newTextNode: KonvaNodeDefinition = {
+                                id,
+                                type: 'Text',
+                                props: {
+                                    id,
+                                    x: 50,
+                                    y: 50,
+                                    text: "Click to edit text",
+                                    fontSize: 28,
+                                    fill: '#000000',
+                                    fontFamily: 'Inter',
+                                    rotation: 0,
+                                    opacity: 1,
+                                    width: 250,
+                                    height: 40,
+                                } as any,
+                                editable: true,
+                                locked: false,
+                            };
+                            onAddNode(newTextNode);
+                        }}
+                        className="w-full py-3 px-1 flex flex-col items-center justify-center gap-1 transition-all duration-200 group relative text-gray-400 hover:text-gray-100 hover:bg-gray-800"
+                        title="Add Text"
+                    >
+                        <Type size={22} strokeWidth={1.5} className="transition-transform duration-200 group-hover:scale-110" />
+                        <span className="text-[10px] font-medium tracking-wide text-gray-500 group-hover:text-gray-300">
+                            Text
+                        </span>
+                    </button>
+
                     {renderPaletteButton("elements", Move, "Shapes", isDataOnlyMode)}
                     {renderPaletteButton("icons", Sparkles, "Icons", isDataOnlyMode)}
                     {renderPaletteButton("logos", Hexagon, "Logos", isDataOnlyMode)}

@@ -1,5 +1,3 @@
-// components/editor/PropertyPanel.tsx
-
 "use client";
 
 import {
@@ -153,6 +151,7 @@ interface PropertyPanelProps {
   onMoveToBack: () => void;
   onMoveUp: () => void;
   onMoveDown: () => void;
+  onAddNode?: (node: KonvaNodeDefinition) => void;
 }
 
 export default function PropertyPanel({
@@ -160,7 +159,8 @@ export default function PropertyPanel({
   onPropChange,
   onDefinitionChange,
   mode,
-  onMoveToFront, onMoveToBack, onMoveUp, onMoveDown
+  onMoveToFront, onMoveToBack, onMoveUp, onMoveDown,
+  onAddNode
 }: PropertyPanelProps) {
 
   type AllKonvaPropKeys = keyof TextProps | keyof RectProps | keyof ImageProps | keyof CircleProps | keyof EllipseProps | keyof StarProps | keyof RegularPolygonProps | keyof LineProps | keyof ArrowProps | keyof PathProps | keyof IconProps;
@@ -186,12 +186,47 @@ export default function PropertyPanel({
 
   if (!node) {
     return (
-      <div className="property-panel w-80 border-l bg-white p-6 shrink-0 overflow-y-auto space-y-6 h-full shadow-lg z-10">
-        <div className="text-center p-8 border border-dashed border-gray-300 rounded-lg">
-          <Settings size={24} className="mx-auto mb-3 text-gray-400" />
-          <p className="text-sm font-medium text-gray-600">
+      <div className="property-panel w-80 border-l bg-white p-6 shrink-0 h-full shadow-lg z-10 flex flex-col justify-center items-center text-center">
+        <div className="p-8 border border-dashed border-gray-300 rounded-lg bg-gray-50/50 w-full max-w-xs">
+          <Settings size={32} className="mx-auto mb-4 text-gray-300" />
+          <p className="text-sm font-medium text-gray-500 mb-6">
             Select an element on the canvas to view and edit its properties.
           </p>
+
+          {/* Quick Actions */}
+          {onAddNode && (
+            <div className="space-y-3">
+              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Quick Actions</p>
+              <button
+                onClick={() => {
+                  const id = `node_text_${Date.now()}`;
+                  onAddNode({
+                    id,
+                    type: 'Text',
+                    props: {
+                      id,
+                      x: 100,
+                      y: 100,
+                      text: "New Text",
+                      fontSize: 28,
+                      fill: '#000000',
+                      fontFamily: 'Inter',
+                      rotation: 0,
+                      opacity: 1,
+                      width: 250,
+                      height: 40,
+                    } as any,
+                    editable: true,
+                    locked: false,
+                  });
+                }}
+                className="w-full py-2 px-4 bg-white border border-gray-200 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors flex items-center justify-center gap-2"
+              >
+                <Type size={16} />
+                Add Text
+              </button>
+            </div>
+          )}
         </div>
       </div>
     );
