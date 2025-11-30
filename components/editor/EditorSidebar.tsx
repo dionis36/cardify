@@ -196,9 +196,7 @@ export default function EditorSidebar({
                 return (
                     <div className="flex flex-col h-full">
                         <PanelHeader title="Background" icon={Palette} />
-                        <div className="p-0">
-                            <BackgroundPanel currentBackground={currentBackground} onBackgroundChange={onBackgroundChange} />
-                        </div>
+                        <BackgroundPanel currentBackground={currentBackground} onBackgroundChange={onBackgroundChange} />
                     </div>
                 );
 

@@ -102,7 +102,7 @@ const BackgroundPanel: React.FC<BackgroundPanelProps> = ({ currentBackground, on
 
   return (
     <div className="flex-1 h-full flex flex-col overflow-hidden">
-      <div className="space-y-6 text-gray-900 overflow-y-auto custom-scrollbar flex-1 pb-20">
+      <div className="space-y-6 text-gray-900 overflow-y-auto custom-scrollbar flex-1 p-5 pb-20">
 
         {/* Type Selector */}
         <div className="flex p-1 bg-gray-100 rounded-lg border border-gray-200">
@@ -336,7 +336,7 @@ const SectionHeader = ({ title }: { title: string }) => (
 );
 
 const PresetGrid = ({ title, children }: { title: string, children: React.ReactNode }) => (
-  <div className="space-y-2">
+  <div className="space-y-3">
     <SectionHeader title={title} />
     <div className="grid grid-cols-4 gap-3">
       {children}
@@ -345,10 +345,10 @@ const PresetGrid = ({ title, children }: { title: string, children: React.ReactN
 );
 
 const ColorPickerInput = ({ label, value, onChange }: { label: string, value: string, onChange: (val: string) => void }) => (
-  <div className="flex items-center justify-between bg-gray-50 p-3 rounded-lg border border-gray-200">
-    <span className="text-xs text-gray-700 font-medium">{label}</span>
-    <div className="flex items-center space-x-2">
-      <div className="w-8 h-8 rounded-md border-2 border-gray-300 overflow-hidden relative shadow-sm">
+  <div className="flex flex-col space-y-2">
+    <span className="text-xs font-semibold text-gray-700">{label}</span>
+    <div className="flex items-center space-x-3 bg-white p-2 rounded-md border border-gray-300 shadow-sm">
+      <div className="w-10 h-10 rounded-md border border-gray-200 overflow-hidden relative flex-shrink-0">
         <input
           type="color"
           value={value}
@@ -356,7 +356,19 @@ const ColorPickerInput = ({ label, value, onChange }: { label: string, value: st
           className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[150%] h-[150%] p-0 m-0 cursor-pointer border-none"
         />
       </div>
-      <span className="text-[10px] font-mono text-gray-500 uppercase">{value}</span>
+      <div className="flex-1">
+        <input
+          type="text"
+          value={value.toUpperCase()}
+          onChange={(e) => {
+            if (/^#[0-9A-F]{0,6}$/i.test(e.target.value)) {
+              onChange(e.target.value);
+            }
+          }}
+          className="w-full text-xs font-mono text-gray-600 border-none focus:ring-0 p-0"
+          placeholder="#000000"
+        />
+      </div>
     </div>
   </div>
 );
@@ -372,17 +384,17 @@ interface RangeInputProps {
 }
 
 const RangeInput = ({ label, value, min, max, step, onChange, unit = '' }: RangeInputProps) => (
-  <div className="space-y-2">
-    <div className="flex justify-between text-xs text-gray-700">
-      <span className="font-medium">{label}</span>
-      <span className="text-gray-500">{Math.round(value * 100) / 100}{unit}</span>
+  <div className="space-y-1.5">
+    <div className="flex justify-between items-center">
+      <label className="text-xs font-semibold text-gray-700">{label}</label>
+      <span className="text-xs text-gray-500 font-mono bg-gray-100 px-1.5 py-0.5 rounded">{Math.round(value * 100) / 100}{unit}</span>
     </div>
     <input
       type="range"
       min={min} max={max} step={step}
       value={value}
       onChange={(e) => onChange(parseFloat(e.target.value))}
-      className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-500"
+      className="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600 hover:accent-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
     />
   </div>
 );
