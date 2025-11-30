@@ -82,7 +82,8 @@ type Action =
     | { type: 'CREATE_GROUP', group: LayerGroup, layerIndices: number[] }
     | { type: 'DELETE_GROUP', groupId: string }
     | { type: 'CHANGE_GROUP', groupId: string, updates: Partial<LayerGroup> }
-    | { type: 'ADD_LAYERS_TO_GROUP', groupId: string, layerIndices: number[] };
+    | { type: 'ADD_LAYERS_TO_GROUP', groupId: string, layerIndices: number[] }
+    | { type: 'RESET', template: CardTemplate };
 
 // The core reducer logic
 function reducer(state: State, action: Action): State {
@@ -189,6 +190,9 @@ function reducer(state: State, action: Action): State {
                 });
                 break;
 
+            case 'RESET':
+                return [action.template];
+
             // Other cases that don't change pages or are handled separately (like SET_SELECTED_INDEX)
             case 'SET_SELECTED_INDEX':
             case 'CHANGE_MODE':
@@ -235,6 +239,13 @@ function reducer(state: State, action: Action): State {
                 };
             }
             return state;
+        case 'RESET':
+            return {
+                pages: [action.template],
+                current: 0,
+                history: [...state.history, state], // Save state before reset
+                future: [],
+            };
     }
 }
 
@@ -641,6 +652,14 @@ export default function Editor() {
         setZoom(1);
     }, []);
 
+    const handleReset = useCallback(() => {
+        if (confirm("Are you sure you want to reset the design? All changes will be lost.")) {
+            const originalTemplate = loadTemplate(templateId);
+            dispatch({ type: 'RESET', template: originalTemplate });
+            setSelectedIndices([]);
+        }
+    }, [templateId]);
+
 
     // --- OUTPUT / EXPORT HANDLERS ---
 
@@ -748,6 +767,7 @@ export default function Editor() {
                 saving={false}
                 onSave={() => { }}
                 onBack={() => { }}
+                onReset={handleReset}
             />
 
             <div className="flex flex-1 pt-14 overflow-hidden">

@@ -1,15 +1,17 @@
-// components\editor\EditorTopbar.tsx
+// components/editor/EditorTopbar.tsx
 
 "use client";
 
-import { Download, Undo, Redo, Save, ArrowLeft, Layout, FileText, Loader, Shuffle } from "lucide-react";
+import { Download, Undo, Redo, Save, ArrowLeft, Loader, Shuffle, RotateCcw, ChevronDown, FileImage, FileText } from "lucide-react";
 import Link from "next/link";
+import { useState, useRef, useEffect } from "react";
 
 interface EditorTopbarProps {
     templateName: string;
     onDownload: (format: 'PNG' | 'PDF') => void;
     onUndo: () => void;
     onRedo: () => void;
+    onReset?: () => void; // Added Reset prop
     canUndo: boolean;
     canRedo: boolean;
 
@@ -28,6 +30,7 @@ export default function EditorTopbar({
     onDownload,
     onUndo,
     onRedo,
+    onReset,
     canUndo,
     canRedo,
     saving = false,
@@ -36,12 +39,33 @@ export default function EditorTopbar({
     onShuffleLogo,
     hasLogo = false
 }: EditorTopbarProps) {
+    const [isExportOpen, setIsExportOpen] = useState(false);
+    const exportRef = useRef<HTMLDivElement>(null);
+
+    // Close dropdown when clicking outside
+    useEffect(() => {
+        function handleClickOutside(event: MouseEvent) {
+            if (exportRef.current && !exportRef.current.contains(event.target as Node)) {
+                setIsExportOpen(false);
+            }
+        }
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, []);
+
+    const handleDownload = (format: 'PNG' | 'PDF') => {
+        onDownload(format);
+        setIsExportOpen(false);
+    };
+
     return (
         <div className="absolute top-0 left-0 right-0 h-14 bg-white border-b border-gray-200 flex items-center justify-between px-4 z-50 shadow-sm">
 
             {/* 1. Left: Back & Title */}
             <div className="flex items-center space-x-4">
-                <Link href="/dashboard" className="p-2 hover:bg-gray-100 rounded-full text-gray-600 transition-colors">
+                <Link href="/templates" className="p-2 hover:bg-gray-100 rounded-full text-gray-600 transition-colors" title="Back to Templates">
                     <ArrowLeft size={20} />
                 </Link>
                 <div className="flex flex-col">
@@ -70,6 +94,20 @@ export default function EditorTopbar({
                     <Redo size={18} className="text-gray-700" />
                 </button>
 
+                {/* Reset Button */}
+                {onReset && (
+                    <>
+                        <div className="w-px h-4 bg-gray-300 mx-1"></div>
+                        <button
+                            onClick={onReset}
+                            className="p-1.5 rounded hover:bg-white hover:shadow-sm transition-all text-red-500 hover:text-red-600"
+                            title="Reset Design"
+                        >
+                            <RotateCcw size={18} />
+                        </button>
+                    </>
+                )}
+
                 {/* Shuffle Logo Button */}
                 {hasLogo && onShuffleLogo && (
                     <>
@@ -91,27 +129,41 @@ export default function EditorTopbar({
                 <button
                     onClick={onSave}
                     disabled={saving}
-                    className="flex items-center px-3 py-1.5 text-sm font-medium text-gray-600 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition disabled:opacity-50"
+                    className="flex items-center px-3 py-2 text-sm font-medium text-gray-600 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition disabled:opacity-50"
                 >
                     {saving ? <Loader size={16} className="animate-spin mr-2" /> : <Save size={16} className="mr-2" />}
                     Save
                 </button>
 
-                {/* Download Dropdown (Simplified for now) */}
-                <div className="flex rounded-md shadow-sm" role="group">
+                {/* Export Dropdown */}
+                <div className="relative" ref={exportRef}>
                     <button
-                        onClick={() => onDownload('PNG')}
-                        className="px-3 py-1.5 text-sm font-medium text-white bg-blue-600 border border-blue-600 rounded-l-md hover:bg-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-500 transition flex items-center"
+                        onClick={() => setIsExportOpen(!isExportOpen)}
+                        className="flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition shadow-sm"
                     >
                         <Download size={16} className="mr-2" />
-                        PNG
+                        Export
+                        <ChevronDown size={14} className={`ml-2 transition-transform ${isExportOpen ? 'rotate-180' : ''}`} />
                     </button>
-                    <button
-                        onClick={() => onDownload('PDF')}
-                        className="px-3 py-1.5 text-sm font-medium text-blue-600 bg-white border border-l-0 border-blue-600 rounded-r-md hover:bg-gray-50 focus:z-10 focus:ring-2 focus:ring-blue-500 transition"
-                    >
-                        PDF
-                    </button>
+
+                    {isExportOpen && (
+                        <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-100 py-1 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                            <button
+                                onClick={() => handleDownload('PNG')}
+                                className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                            >
+                                <FileImage size={16} className="text-blue-500" />
+                                <span>Download as PNG</span>
+                            </button>
+                            <button
+                                onClick={() => handleDownload('PDF')}
+                                className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                            >
+                                <FileText size={16} className="text-red-500" />
+                                <span>Download as PDF</span>
+                            </button>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

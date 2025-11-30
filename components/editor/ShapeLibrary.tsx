@@ -214,7 +214,7 @@ export function ShapeLibrary({ onAddNode }: ShapeLibraryProps) {
 
   return (
     <div className="flex-1 h-full flex flex-col overflow-hidden">
-      <div className="p-4 space-y-6 overflow-y-auto custom-scrollbar flex-1 pb-20">
+      <div className="space-y-6 overflow-y-auto custom-scrollbar flex-1 pb-20">
 
         {/* 1. DEDICATED TEXT SECTION */}
         {renderShapeGroup('Text', textNode, 1)}

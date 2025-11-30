@@ -107,7 +107,7 @@ const IconLibrary: React.FC<IconLibraryProps> = ({ onAddLayer }) => {
   }, [onAddLayer]);
 
   return (
-    <div className="flex flex-col h-full p-4 space-y-4">
+    <div className="flex flex-col h-full space-y-4">
 
       {/* Search Bar */}
       <div className="relative shrink-0">

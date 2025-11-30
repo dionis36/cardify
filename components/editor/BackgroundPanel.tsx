@@ -102,7 +102,7 @@ const BackgroundPanel: React.FC<BackgroundPanelProps> = ({ currentBackground, on
 
   return (
     <div className="flex-1 h-full flex flex-col overflow-hidden">
-      <div className="p-4 space-y-6 text-gray-900 overflow-y-auto custom-scrollbar flex-1 pb-20">
+      <div className="space-y-6 text-gray-900 overflow-y-auto custom-scrollbar flex-1 pb-20">
 
         {/* Type Selector */}
         <div className="flex p-1 bg-gray-100 rounded-lg border border-gray-200">

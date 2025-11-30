@@ -101,67 +101,128 @@ export default function EditorSidebar({
 
     // --- Tab Navigation (Now Palette Buttons) ---
 
-    const renderPaletteButton = (tab: SidebarTab, Icon: React.FC<any>, label: string, disabled: boolean = false) => (
-        // Note: Assuming a simple Tooltip component is available for the professional look
-        // If not, the 'title' attribute will serve as a basic tooltip
-        <button
-            key={tab}
-            onClick={() => setActiveTab(activeTab === tab ? null : tab)} // Toggle open/close
-            disabled={disabled}
-            title={label}
-            className={`w-12 h-12 rounded-lg transition-colors flex items-center justify-center ${activeTab === tab
-                ? "bg-blue-600 text-white"
-                : "text-gray-400 hover:bg-gray-700 hover:text-white disabled:opacity-50"
-                } ${disabled ? 'cursor-not-allowed' : ''}`}
-        >
-            <Icon size={20} strokeWidth={1.5} />
-        </button>
-    );
+    const renderPaletteButton = (tab: SidebarTab, Icon: React.FC<any>, label: string, disabled: boolean = false) => {
+        const isActive = activeTab === tab;
+        return (
+            <button
+                key={tab}
+                onClick={() => setActiveTab(isActive ? null : tab)} // Toggle open/close
+                disabled={disabled}
+                className={`w-full py-3 px-1 flex flex-col items-center justify-center gap-1 transition-all duration-200 group relative ${isActive
+                    ? "text-blue-500 bg-blue-50/10 border-r-2 border-blue-500"
+                    : "text-gray-400 hover:text-gray-100 hover:bg-gray-800"
+                    } ${disabled ? 'opacity-30 cursor-not-allowed' : ''}`}
+            >
+                <Icon size={22} strokeWidth={1.5} className={`transition-transform duration-200 ${isActive ? 'scale-110' : 'group-hover:scale-110'}`} />
+                <span className={`text-[10px] font-medium tracking-wide ${isActive ? 'text-blue-400' : 'text-gray-500 group-hover:text-gray-300'}`}>
+                    {label}
+                </span>
+            </button>
+        );
+    };
 
     // --- Tab Content Renderer ---
     const renderContent = () => {
         if (!activeTab) return null;
 
+        // Common Header for all panels
+        const PanelHeader = ({ title, icon: Icon }: { title: string, icon?: any }) => (
+            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 bg-white sticky top-0 z-10">
+                <div className="flex items-center gap-2 text-gray-800">
+                    {Icon && <Icon size={18} className="text-blue-600" />}
+                    <h2 className="font-bold text-base tracking-tight">{title}</h2>
+                </div>
+                <button
+                    onClick={() => setActiveTab(null)}
+                    className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
+                    title="Close Panel"
+                >
+                    <X size={18} />
+                </button>
+            </div>
+        );
+
         switch (activeTab) {
             case "layers":
                 return (
-                    <LayerList
-                        layers={layers}
-                        selectedIndex={selectedIndex}
-                        onSelectLayer={onSelectLayer}
-                        onMoveLayer={onMoveLayer}
-                        onRemoveLayer={onRemoveLayer}
-                        onDefinitionChange={onDefinitionChange}
-                        mode={mode}
-                        groups={groups}
-                        onGroupChange={onGroupChange}
-                        onCreateGroup={onCreateGroup}
-                        onDeleteGroup={onDeleteGroup}
-                    />
+                    <div className="flex flex-col h-full">
+                        <PanelHeader title="Layers" icon={Layers} />
+                        <LayerList
+                            layers={layers}
+                            selectedIndex={selectedIndex}
+                            onSelectLayer={onSelectLayer}
+                            onMoveLayer={onMoveLayer}
+                            onRemoveLayer={onRemoveLayer}
+                            onDefinitionChange={onDefinitionChange}
+                            mode={mode}
+                            groups={groups}
+                            onGroupChange={onGroupChange}
+                            onCreateGroup={onCreateGroup}
+                            onDeleteGroup={onDeleteGroup}
+                        />
+                    </div>
                 );
             case "elements":
-                // ShapeLibrary uses the generic onAddNode for all shapes (text, rect, circle, etc.)
-                return <ShapeLibrary onAddNode={onAddNode} />;
+                return (
+                    <div className="flex flex-col h-full">
+                        <PanelHeader title="Shapes" icon={Move} />
+                        <div className="p-4">
+                            <ShapeLibrary onAddNode={onAddNode} />
+                        </div>
+                    </div>
+                );
 
             case "icons":
-                // IconLibrary also uses the generic onAddNode
-                return <IconLibrary onAddLayer={onAddNode} />;
+                return (
+                    <div className="flex flex-col h-full">
+                        <PanelHeader title="Icons" icon={Sparkles} />
+                        <div className="p-4">
+                            <IconLibrary onAddLayer={onAddNode} />
+                        </div>
+                    </div>
+                );
 
             case "logos":
-                return <LogoLibraryPanel onSelectLogo={onSelectLogo || (() => { })} />;
+                return (
+                    <div className="flex flex-col h-full">
+                        <PanelHeader title="Logos" icon={Hexagon} />
+                        <div className="p-4">
+                            <LogoLibraryPanel onSelectLogo={onSelectLogo || (() => { })} />
+                        </div>
+                    </div>
+                );
 
             case "background":
-                // BackgroundPanel handles background color/image changes
-                return <BackgroundPanel currentBackground={currentBackground} onBackgroundChange={onBackgroundChange} />;
+                return (
+                    <div className="flex flex-col h-full">
+                        <PanelHeader title="Background" icon={Palette} />
+                        <div className="p-0">
+                            <BackgroundPanel currentBackground={currentBackground} onBackgroundChange={onBackgroundChange} />
+                        </div>
+                    </div>
+                );
 
             case "qrcode":
                 const selectedNode = selectedIndex !== null ? layers[selectedIndex] : null;
                 const qrMetadata = selectedNode?.type === 'Image' ? (selectedNode.props as any).qrMetadata : undefined;
-                return <QRCodeDesigner onAddImage={onAddImage} onAddNode={onAddNode} initialData={qrMetadata} />;
+                return (
+                    <div className="flex flex-col h-full">
+                        <PanelHeader title="QR Code" icon={QrCode} />
+                        <div className="p-4">
+                            <QRCodeDesigner onAddImage={onAddImage} onAddNode={onAddNode} initialData={qrMetadata} />
+                        </div>
+                    </div>
+                );
 
             case "settings":
-                // NEW: Shortcuts Reference instead of page controls
-                return <ShortcutsReference />;
+                return (
+                    <div className="flex flex-col h-full">
+                        <PanelHeader title="Shortcuts" icon={Settings} />
+                        <div className="p-4">
+                            <ShortcutsReference />
+                        </div>
+                    </div>
+                );
             default:
                 return null;
         }
@@ -170,43 +231,32 @@ export default function EditorSidebar({
 
     return (
         // The container is now a flex row
-        <div className="flex h-full bg-white border-r border-gray-200 overflow-hidden">
+        <div className="flex h-full bg-gray-50 border-r border-gray-200 overflow-hidden font-sans">
 
-            {/* 1. NARROW ICON NAVIGATION PALETTE (Fixed Width: 64px) */}
-            <div className="w-16 bg-gray-900 flex flex-col justify-between items-center py-4 border-r border-gray-800 flex-shrink-0">
+            {/* 1. NARROW ICON NAVIGATION PALETTE (Fixed Width: 80px for labels) */}
+            <div className="w-20 bg-[#1e1e2e] flex flex-col justify-between items-center py-4 border-r border-gray-800 flex-shrink-0 z-20 shadow-xl">
                 {/* Top Navigation Icons */}
-                <div className="space-y-2">
+                <div className="w-full space-y-1">
                     {renderPaletteButton("layers", Layers, "Layers", isDataOnlyMode)}
                     {renderPaletteButton("elements", Move, "Shapes", isDataOnlyMode)}
                     {renderPaletteButton("icons", Sparkles, "Icons", isDataOnlyMode)}
                     {renderPaletteButton("logos", Hexagon, "Logos", isDataOnlyMode)}
-                    {renderPaletteButton("background", Palette, "Background", isDataOnlyMode)}
+                    {renderPaletteButton("background", Palette, "Bg", isDataOnlyMode)}
                     {renderPaletteButton("qrcode", QrCode, "QR Code", isDataOnlyMode)}
                 </div>
 
                 {/* Bottom Navigation Icons (e.g., Settings) */}
-                <div className="space-y-2">
+                <div className="w-full space-y-1">
                     {renderPaletteButton("settings", Settings, "Settings")}
                 </div>
             </div>
 
             {/* 2. COLLAPSIBLE CONTENT PANEL (Fixed Width: 320px, only shows if a tab is selected) */}
-            {/* Added dynamic class to hide the panel if activeTab is null */}
-            <div className={`flex-shrink-0 bg-white transition-all duration-500 ease-in-out ${activeTab ? 'w-80 border-r border-gray-200' : 'w-0'}`}>
+            <div className={`flex-shrink-0 bg-white h-full shadow-lg transition-all duration-300 ease-in-out transform ${activeTab ? 'w-80 translate-x-0 opacity-100' : 'w-0 -translate-x-4 opacity-0 overflow-hidden'}`}>
                 {/* Only render content if a tab is active */}
                 {activeTab && (
-                    <div className="h-full overflow-y-auto relative">
-                        {/* Close Button: Click on active tab in palette or use X button to collapse */}
-                        <button
-                            onClick={() => setActiveTab(null)}
-                            className="absolute top-2 right-2 p-1 text-gray-400 hover:text-gray-700 z-10 transition-colors"
-                            title="Close Sidebar"
-                        >
-                            <X size={20} />
-                        </button>
-                        <div className="pt-8 pb-4">
-                            {renderContent()}
-                        </div>
+                    <div className="h-full overflow-y-auto custom-scrollbar relative">
+                        {renderContent()}
                     </div>
                 )}
             </div>

@@ -4,7 +4,7 @@
 
 import { KonvaNodeDefinition, LayerGroup, KonvaNodeType } from "@/types/template";
 import React, { useState, useMemo } from "react";
-import { ChevronDown, ChevronRight, Eye, EyeOff, Lock, Unlock, Trash2, Folder, FolderOpen, Check } from "lucide-react";
+import { ChevronDown, ChevronRight, Eye, EyeOff, Lock, Unlock, Trash2, Folder, FolderOpen, Check, Layers, Type, Image as ImageIcon, Move } from "lucide-react";
 import LayerSearchBar from "./LayerSearchBar";
 import BulkActionsToolbar from "./BulkActionsToolbar";
 
@@ -279,9 +279,7 @@ export default function LayerList({
 
   return (
     <div className="flex-1 h-full bg-white flex flex-col gap-0 overflow-hidden">
-      <h2 className="font-semibold text-lg border-b border-gray-200 pb-3 px-4 pt-2 text-gray-800 shrink-0">
-        Layers ({layers.length})
-      </h2>
+      {/* Header removed as it is now handled by EditorSidebar */}
 
       {/* Search Bar */}
       <LayerSearchBar
@@ -304,10 +302,10 @@ export default function LayerList({
 
       {/* Select All / Deselect All */}
       {layers.length > 0 && (
-        <div className="px-4 py-2 border-b border-gray-200 shrink-0">
+        <div className="px-4 py-2 border-b border-gray-200 shrink-0 bg-gray-50/50">
           <button
             onClick={bulkSelectedIndices.length === layers.length ? handleDeselectAll : handleSelectAll}
-            className="text-xs text-blue-600 hover:text-blue-700 font-medium"
+            className="text-xs text-blue-600 hover:text-blue-700 font-medium transition-colors"
           >
             {bulkSelectedIndices.length === layers.length ? "Deselect All" : "Select All"}
           </button>
@@ -315,7 +313,7 @@ export default function LayerList({
       )}
 
       {/* Layers List */}
-      <div className="space-y-1 flex-1 overflow-y-auto px-4 pb-4 custom-scrollbar">
+      <div className="space-y-1 flex-1 overflow-y-auto px-4 py-2 custom-scrollbar">
         {/* Render Groups */}
         {groups.map(group => {
           const groupLayers = layersByGroup.grouped[group.id] || [];
@@ -324,55 +322,57 @@ export default function LayerList({
           return (
             <div key={group.id} className="mb-2">
               {/* Group Header */}
-              <div className="flex items-center gap-2 p-2 bg-gray-100 rounded hover:bg-gray-150 border border-gray-200">
+              <div className="flex items-center gap-2 p-2 bg-gray-100 rounded hover:bg-gray-150 border border-gray-200 group">
                 <button
                   onClick={() => toggleGroupExpansion(group.id)}
-                  className="p-0.5 hover:bg-gray-200 rounded"
+                  className="p-0.5 hover:bg-gray-200 rounded text-gray-500"
                 >
                   {isExpanded ? (
-                    <ChevronDown className="w-4 h-4 text-gray-600" />
+                    <ChevronDown className="w-4 h-4" />
                   ) : (
-                    <ChevronRight className="w-4 h-4 text-gray-600" />
+                    <ChevronRight className="w-4 h-4" />
                   )}
                 </button>
                 {isExpanded ? (
-                  <FolderOpen className="w-4 h-4 text-blue-600" />
+                  <FolderOpen className="w-4 h-4 text-blue-500" />
                 ) : (
-                  <Folder className="w-4 h-4 text-blue-600" />
+                  <Folder className="w-4 h-4 text-blue-500" />
                 )}
                 <span className="flex-1 font-medium text-sm text-gray-700">{group.name}</span>
-                <span className="text-xs text-gray-500">({groupLayers.length})</span>
+                <span className="text-xs text-gray-400">({groupLayers.length})</span>
 
-                {/* Group Controls */}
-                <button
-                  onClick={() => handleGroupVisibilityToggle(group.id)}
-                  className="p-1 rounded hover:bg-gray-200"
-                  title={group.visible ? "Hide group" : "Show group"}
-                >
-                  {group.visible ? (
-                    <Eye className="w-3.5 h-3.5 text-gray-600" />
-                  ) : (
-                    <EyeOff className="w-3.5 h-3.5 text-gray-400" />
-                  )}
-                </button>
-                <button
-                  onClick={() => handleGroupLockToggle(group.id)}
-                  className="p-1 rounded hover:bg-gray-200"
-                  title={group.locked ? "Unlock group" : "Lock group"}
-                >
-                  {group.locked ? (
-                    <Lock className="w-3.5 h-3.5 text-gray-600" />
-                  ) : (
-                    <Unlock className="w-3.5 h-3.5 text-gray-400" />
-                  )}
-                </button>
-                <button
-                  onClick={() => handleGroupDelete(group.id)}
-                  className="p-1 rounded hover:bg-red-100 text-red-500"
-                  title="Delete group"
-                >
-                  <Trash2 className="w-3.5 h-3.5" />
-                </button>
+                {/* Group Controls - Visible on Hover */}
+                <div className="flex items-center opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button
+                    onClick={() => handleGroupVisibilityToggle(group.id)}
+                    className="p-1 rounded hover:bg-gray-200 text-gray-400 hover:text-gray-700"
+                    title={group.visible ? "Hide group" : "Show group"}
+                  >
+                    {group.visible ? (
+                      <Eye className="w-3.5 h-3.5" />
+                    ) : (
+                      <EyeOff className="w-3.5 h-3.5" />
+                    )}
+                  </button>
+                  <button
+                    onClick={() => handleGroupLockToggle(group.id)}
+                    className="p-1 rounded hover:bg-gray-200 text-gray-400 hover:text-gray-700"
+                    title={group.locked ? "Unlock group" : "Lock group"}
+                  >
+                    {group.locked ? (
+                      <Lock className="w-3.5 h-3.5" />
+                    ) : (
+                      <Unlock className="w-3.5 h-3.5" />
+                    )}
+                  </button>
+                  <button
+                    onClick={() => handleGroupDelete(group.id)}
+                    className="p-1 rounded hover:bg-red-50 text-gray-400 hover:text-red-500"
+                    title="Delete group"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
               </div>
 
               {/* Group Layers */}
@@ -415,9 +415,10 @@ export default function LayerList({
       </div>
 
       {layers.length === 0 && (
-        <div className="flex-1 flex items-center justify-center px-4">
-          <p className="text-center text-gray-500 text-sm">
-            This page has no layers.
+        <div className="flex-1 flex flex-col items-center justify-center px-4 text-gray-400">
+          <Layers className="w-12 h-12 mb-2 opacity-20" />
+          <p className="text-center text-sm">
+            No layers yet.
           </p>
         </div>
       )}
@@ -443,46 +444,53 @@ export default function LayerList({
         onDragOver={handleDragOver}
         onDrop={(e) => handleDrop(e, listIndex)}
         onDragEnd={() => setDraggedListIndex(null)}
-        className={`p-2 rounded text-sm cursor-pointer border transition-all duration-150 ${isSelected
-            ? "bg-blue-100 border-blue-500 ring-2 ring-blue-500"
-            : draggedListIndex === listIndex
-              ? "bg-gray-200 border-gray-400"
-              : isBulkSelected
-                ? "bg-blue-50 border-blue-300"
-                : "bg-white border-gray-200 hover:bg-gray-100"
-          } ${isLocked ? "opacity-70" : "hover:shadow-sm"}`}
+        className={`group relative p-2.5 rounded-lg text-sm cursor-pointer border transition-all duration-200 ${isSelected
+          ? "bg-blue-50 border-blue-200 shadow-sm"
+          : draggedListIndex === listIndex
+            ? "bg-gray-100 border-gray-300"
+            : isBulkSelected
+              ? "bg-blue-50/50 border-blue-100"
+              : "bg-white border-transparent hover:bg-gray-50 hover:border-gray-200"
+          } ${isLocked ? "opacity-75" : ""}`}
       >
-        <div className="flex justify-between items-center gap-2">
+        <div className="flex justify-between items-center gap-3">
           {/* Bulk Selection Checkbox */}
           <button
             onClick={(e) => {
               e.stopPropagation();
               handleBulkToggle(listIndex);
             }}
-            className={`w-4 h-4 rounded border flex items-center justify-center shrink-0 ${isBulkSelected
-                ? "bg-blue-600 border-blue-600"
-                : "border-gray-300 hover:border-blue-400"
+            className={`w-4 h-4 rounded border flex items-center justify-center shrink-0 transition-colors ${isBulkSelected
+              ? "bg-blue-600 border-blue-600"
+              : "border-gray-300 hover:border-blue-400 bg-white"
               }`}
           >
             {isBulkSelected && <Check className="w-3 h-3 text-white" />}
           </button>
 
-          {/* Layer Name */}
-          <span className={`font-medium truncate flex-1 ${isLocked ? "italic text-gray-500" : "text-gray-700"}`}>
-            {getLayerName(layer)}
-          </span>
+          {/* Layer Icon & Name */}
+          <div className="flex items-center gap-2 flex-1 min-w-0">
+            {/* Simple Icon based on type */}
+            {layer.type === 'Text' && <span className="text-gray-400"><Type size={14} /></span>}
+            {layer.type === 'Image' && <span className="text-gray-400"><ImageIcon size={14} /></span>}
+            {['Rect', 'Circle', 'Star'].includes(layer.type) && <span className="text-gray-400"><Move size={14} /></span>}
 
-          {/* Control Buttons */}
-          <div className="flex items-center gap-1">
+            <span className={`font-medium truncate ${isLocked ? "italic text-gray-500" : "text-gray-700"}`}>
+              {getLayerName(layer)}
+            </span>
+          </div>
+
+          {/* Control Buttons - Cleaner, Lucide Icons */}
+          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 handleToggleVisibility(listIndex);
               }}
-              className="p-1 rounded hover:bg-gray-200 text-gray-500 text-sm"
+              className={`p-1.5 rounded-md transition-colors ${!isVisible ? 'text-gray-400 bg-gray-100' : 'text-gray-400 hover:text-gray-700 hover:bg-gray-100'}`}
               title={isVisible ? "Hide Layer" : "Show Layer"}
             >
-              {isVisible ? "👁️" : "🚫"}
+              {isVisible ? <Eye size={14} /> : <EyeOff size={14} />}
             </button>
 
             <button
@@ -490,10 +498,10 @@ export default function LayerList({
                 e.stopPropagation();
                 handleToggleLock(listIndex);
               }}
-              className="p-1 rounded hover:bg-gray-200 text-gray-500 text-sm"
+              className={`p-1.5 rounded-md transition-colors ${isLocked ? 'text-red-400 bg-red-50' : 'text-gray-400 hover:text-gray-700 hover:bg-gray-100'}`}
               title={isLocked ? "Unlock Layer" : "Lock Layer"}
             >
-              {isLocked ? "🔒" : "🔓"}
+              {isLocked ? <Lock size={14} /> : <Unlock size={14} />}
             </button>
 
             <button
@@ -501,19 +509,21 @@ export default function LayerList({
                 e.stopPropagation();
                 handleRemove(listIndex);
               }}
-              className="p-1 rounded hover:bg-red-100 text-red-500 text-sm"
+              className="p-1.5 rounded-md text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors"
               title="Remove Layer"
             >
-              &times;
+              <Trash2 size={14} />
             </button>
           </div>
         </div>
 
-        {/* Depth Indicator */}
-        <p className="text-xs text-gray-400 mt-0.5">
-          {listIndex === 0 && <span className="text-blue-500">Front (Top)</span>}
-          {listIndex === layers.length - 1 && <span className="text-red-500">Back (Bottom)</span>}
-        </p>
+        {/* Depth Indicator (Subtle) */}
+        {(listIndex === 0 || listIndex === layers.length - 1) && (
+          <div className="absolute left-0 top-0 bottom-0 w-0.5 rounded-l-lg bg-transparent">
+            {listIndex === 0 && <div className="h-full bg-blue-400/50 w-full" title="Front" />}
+            {listIndex === layers.length - 1 && <div className="h-full bg-red-400/50 w-full" title="Back" />}
+          </div>
+        )}
       </div>
     );
   }
