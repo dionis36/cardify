@@ -245,8 +245,8 @@ function reducer(state: State, action: Action): State {
             return {
                 pages: [action.template],
                 current: 0,
-                history: [...state.history, state], // Save state before reset
-                future: [],
+                history: [], // Clear history on reset
+                future: [], // Clear future on reset
             };
     }
 }
@@ -657,13 +657,13 @@ export default function Editor() {
     }, []);
 
     const handleReset = useCallback(() => {
-      setShowResetConfirm(true);
+        setShowResetConfirm(true);
     }, []);
     const confirmReset = useCallback(() => {
-      const originalTemplate = loadTemplate(templateId);
-      dispatch({ type: 'RESET', template: originalTemplate });
-      setSelectedIndices([]);
-      setShowResetConfirm(false);
+        const originalTemplate = loadTemplate(templateId);
+        dispatch({ type: 'RESET', template: originalTemplate });
+        setSelectedIndices([]);
+        setShowResetConfirm(false);
     }, [templateId]);
 
 
@@ -882,13 +882,13 @@ export default function Editor() {
             </div>
             {/* Reset Confirmation Modal */}
             <ConfirmationModal
-              isOpen={showResetConfirm}
-              onClose={() => setShowResetConfirm(false)}
-              onConfirm={confirmReset}
-              title="Reset Design"
-              message="Are you sure you want to reset the design? All changes will be lost and cannot be recovered."
-              variant="danger"
-              confirmText="Reset"
+                isOpen={showResetConfirm}
+                onClose={() => setShowResetConfirm(false)}
+                onConfirm={confirmReset}
+                title="Reset Design"
+                message="Are you sure you want to reset the design? All changes will be lost and cannot be recovered."
+                variant="danger"
+                confirmText="Reset"
             />
         </div>
     );
