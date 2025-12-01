@@ -130,6 +130,11 @@ export interface ImageProps extends NodeCommonProps {
   };
   flipHorizontal?: boolean;
   flipVertical?: boolean;
+  // Crop properties
+  cropX?: number;
+  cropY?: number;
+  cropWidth?: number;
+  cropHeight?: number;
 }
 
 // --- SPECIFIC PROPERTIES: SHAPES & ICONS ---

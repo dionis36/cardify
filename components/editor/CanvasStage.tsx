@@ -13,6 +13,8 @@ import { Stage as KonvaStageType } from "konva/lib/Stage";
 // FIX: Using relative import for helper
 import { getSnappingLines, getSnapAndAlignLines, SnappingLine } from "../../lib/alignmentHelpers";
 import { getNodesInRect, normalizeRect, SelectionRect } from "../../lib/selectionHelpers";
+import { useSelectionManager } from "../../hooks/useSelectionManager";
+import CropOverlay from "./CropOverlay";
 
 /**
  * Define print-production constants in pixels.
@@ -378,6 +380,21 @@ const CanvasStage = forwardRef<KonvaStageType, CanvasStageProps>(
 
 
 
+        // --- Selection Manager Integration ---
+        const {
+            editMode,
+            enterEditMode,
+            exitEditMode,
+            handleSingleClick,
+            handleDoubleClick,
+            primarySelectedNode,
+        } = useSelectionManager({
+            selectedNodeIndices,
+            onSelectNodes,
+            onDeselectNode,
+            layers,
+        });
+
         // Transformer Reference
         const trRef = useRef<Konva.Transformer>(null);
         const layerRef = useRef<Konva.Layer>(null);
@@ -442,6 +459,7 @@ const CanvasStage = forwardRef<KonvaStageType, CanvasStageProps>(
             // If we clicked on the canvas background itself:
             if (e.target === e.target.getStage() || e.target.name() === 'background-layer-rect') {
                 onDeselectNode();
+                exitEditMode(); // Exit edit mode on background click
                 return;
             }
 
@@ -453,37 +471,28 @@ const CanvasStage = forwardRef<KonvaStageType, CanvasStageProps>(
 
             if (e.target.attrs.name === 'background-layer-rect' || ancestorsArray.some((n: any) => n.name() === 'background-layer-rect')) {
                 onDeselectNode();
+                exitEditMode();
                 return;
             }
 
             // NEW: Multi-select logic with Ctrl+Click
             const clickedGroup = e.target.findAncestor('Group', true);
-            const clickedId = clickedGroup?.id();
+            const clickedId = clickedGroup?.id() || e.target.id(); // Fallback to target ID if no group
 
             if (clickedId) {
                 const index = layers.findIndex(node => node.id === clickedId);
                 if (index !== -1) {
                     const isCtrlPressed = e.evt.ctrlKey || e.evt.metaKey;
-
-                    if (isCtrlPressed) {
-                        // Toggle selection
-                        if (selectedNodeIndices.includes(index)) {
-                            onSelectNodes(selectedNodeIndices.filter(i => i !== index));
-                        } else {
-                            onSelectNodes([...selectedNodeIndices, index]);
-                        }
-                    } else {
-                        // Single select
-                        onSelectNodes([index]);
-                    }
+                    handleSingleClick(index, isCtrlPressed);
                     return;
                 }
             }
 
             // Deselect if selection logic failed for any reason
             onDeselectNode();
+            exitEditMode();
 
-        }, [layers, selectedNodeIndices, onSelectNodes, onDeselectNode]);
+        }, [layers, onDeselectNode, handleSingleClick, exitEditMode]);
 
 
         // Handle drag movement of a node
@@ -581,20 +590,31 @@ const CanvasStage = forwardRef<KonvaStageType, CanvasStageProps>(
 
 
         // Handle double-click for text editing
-        const handleDblClick = useCallback((e: Konva.KonvaEventObject<MouseEvent>, index: number) => {
-            const selectedNodeDef = layers[index];
-            if (selectedNodeDef && selectedNodeDef.type === 'Text' && mode === 'FULL_EDIT' && !selectedNodeDef.locked) {
-                // Trigger the parent component to open the text editor UI
-                // FIX: Pass the actual Konva node (Text) to the handler
-                onStartEditing(e.target as Konva.Text);
-            } else if (selectedNodeDef && selectedNodeDef.type === 'Image' && (selectedNodeDef.props as any).qrMetadata && onEditQRCode) {
-                // NEW: Handle QR Code double click
-                onEditQRCode();
-            } else if (selectedNodeDef && selectedNodeDef.type === 'Image' && (selectedNodeDef.props as any).isLogo && onEditLogo) {
-                // NEW: Handle Logo double click
-                onEditLogo();
+        const handleStageDblClick = useCallback((e: Konva.KonvaEventObject<MouseEvent>) => {
+            // Find the clicked node index
+            const clickedGroup = e.target.findAncestor('Group', true);
+            const clickedId = clickedGroup?.id() || e.target.id();
+
+            if (clickedId) {
+                const index = layers.findIndex(node => node.id === clickedId);
+                if (index !== -1) {
+                    handleDoubleClick(index);
+
+                    // Legacy support for text editing callback if needed, 
+                    // though useSelectionManager should ideally handle the state transition
+                    const selectedNodeDef = layers[index];
+                    if (selectedNodeDef && selectedNodeDef.type === 'Text' && mode === 'FULL_EDIT' && !selectedNodeDef.locked) {
+                        onStartEditing(e.target as Konva.Text);
+                    }
+                    // Legacy support for QR/Logo
+                    if (selectedNodeDef && selectedNodeDef.type === 'Image' && (selectedNodeDef.props as any).qrMetadata && onEditQRCode) {
+                        onEditQRCode();
+                    } else if (selectedNodeDef && selectedNodeDef.type === 'Image' && (selectedNodeDef.props as any).isLogo && onEditLogo) {
+                        onEditLogo();
+                    }
+                }
             }
-        }, [layers, mode, onStartEditing, onEditQRCode, onEditLogo]);
+        }, [layers, mode, onStartEditing, onEditQRCode, onEditLogo, handleDoubleClick]);
 
         // NEW: Zoom with Ctrl+Scroll
         const handleWheel = useCallback((e: Konva.KonvaEventObject<WheelEvent>) => {
@@ -741,6 +761,7 @@ const CanvasStage = forwardRef<KonvaStageType, CanvasStageProps>(
                     onMouseDown={handleMouseDown}
                     onMouseMove={handleMouseMove}
                     onMouseUp={handleMouseUp}
+                    onDblClick={handleStageDblClick}
                 >
                     {/* 1. BACKGROUND LAYER (Fixed Size, Unscaled Content) */}
                     <Layer name="background-layer">
@@ -849,6 +870,21 @@ const CanvasStage = forwardRef<KonvaStageType, CanvasStageProps>(
                             );
                         })()}
 
+                        {/* NEW: Crop Overlay */}
+                        {editMode === 'crop' && primarySelectedNode && primarySelectedNode.type === 'Image' && (
+                            <CropOverlay
+                                imageNode={{
+                                    x: primarySelectedNode.props.x,
+                                    y: primarySelectedNode.props.y,
+                                    width: primarySelectedNode.props.width,
+                                    height: primarySelectedNode.props.height,
+                                    rotation: primarySelectedNode.props.rotation,
+                                    props: primarySelectedNode.props as any,
+                                }}
+                                onCropChange={() => { }} // Implement crop change logic
+                                onExit={exitEditMode}
+                            />
+                        )}
 
                     </Layer>
 

@@ -21,8 +21,10 @@ import ColorPicker from "./ColorPicker";
 import {
   AlignLeft, AlignCenter, AlignRight, AlignJustify, Type, Underline, Bold,
   ArrowUp, ArrowDown, ChevronsUp, ChevronsDown, Lock, Unlock,
-  Eye, EyeOff, Edit, Move, RotateCw, Settings, Layout, Layers, Trash2
+  Eye, EyeOff, Edit, Move, RotateCw, Settings, Layout, Layers, Trash2,
+  Crop
 } from "lucide-react";
+import { getNodeCapabilities } from "@/lib/capabilities";
 
 // --- FONT OPTIONS LIST ---
 const FONT_OPTIONS: FontName[] = [
@@ -501,27 +503,48 @@ export default function PropertyPanel({
     );
   }
 
-  if (["Rect", "Circle", "Ellipse", "Star", "RegularPolygon", "Path", "Image", "Line", "Arrow"].includes(node.type)) {
+  // Use capabilities for generic shape/image properties
+  const capabilities = getNodeCapabilities(node);
+
+  if (capabilities.hasFill || capabilities.hasStroke || capabilities.hasCrop) {
     panels.push(
-      <SectionContainer key="shape" title={node.type.includes("Image") ? "Border/Fill" : "Appearance"} icon={Layout}>
-        {["Rect", "Circle", "Ellipse", "Star", "RegularPolygon", "Path", "Image"].includes(node.type) && (
-          <div className="grid grid-cols-2 gap-3 pb-2">
-            {node.type !== "Image" ? (
-              <ColorPickerWithSwatch label="Fill Color" color={fill} onChange={(v) => handlePropChange('fill', v)} />
-            ) : (
-              <div />
-            )}
-            {node.type === "Rect" || node.type === "Image" ? (
-              <InputGroup label="Corner Radius" value={cornerRadius} min={0} onChange={(v) => handlePropChange('cornerRadius', Number(v))} />
-            ) : (
-              <div />
-            )}
+      <SectionContainer key="shape" title={node.type.includes("Image") ? "Image Settings" : "Appearance"} icon={Layout}>
+        {/* Crop Button for Images */}
+        {capabilities.hasCrop && (
+          <div className="mb-4">
+            <button
+              className="w-full py-2 px-4 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md flex items-center justify-center gap-2 transition-colors text-sm font-medium"
+              onClick={() => {
+                // Placeholder for crop mode trigger
+                alert("Double-click the image on canvas to crop.");
+              }}
+            >
+              <Crop size={16} />
+              <span>Enter Crop Mode</span>
+            </button>
           </div>
         )}
-        <div className="grid grid-cols-2 gap-3 border-t border-gray-100 pt-3">
-          <ColorPickerWithSwatch label={node.type === "Image" ? "Border Color" : "Stroke Color"} color={stroke || "#000000"} onChange={(v) => handlePropChange('stroke', v)} />
-          <InputGroup label={node.type === "Image" ? "Border Width" : "Stroke Width"} value={strokeWidth} min={0} onChange={(v) => handlePropChange('strokeWidth', Number(v))} />
+
+        {capabilities.hasFill && node.type !== "Icon" && node.type !== "Text" && (
+          <div className="mb-3">
+            <ColorPickerWithSwatch label="Fill Color" color={fill} onChange={(v) => handlePropChange('fill', v)} />
+          </div>
+        )}
+
+        <div className="grid grid-cols-2 gap-3 pb-2">
+          {node.type === "Rect" || node.type === "Image" ? (
+            <InputGroup label="Corner Radius" value={cornerRadius} min={0} onChange={(v) => handlePropChange('cornerRadius', Number(v))} />
+          ) : (
+            <div />
+          )}
         </div>
+
+        {capabilities.hasStroke && node.type !== "Icon" && (
+          <div className="grid grid-cols-2 gap-3 border-t border-gray-100 pt-3">
+            <ColorPickerWithSwatch label={node.type === "Image" ? "Border Color" : "Stroke Color"} color={stroke || "#000000"} onChange={(v) => handlePropChange('stroke', v)} />
+            <InputGroup label={node.type === "Image" ? "Border Width" : "Stroke Width"} value={strokeWidth} min={0} onChange={(v) => handlePropChange('strokeWidth', Number(v))} />
+          </div>
+        )}
       </SectionContainer>
     );
   }

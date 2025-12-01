@@ -1,5 +1,3 @@
-// components/editor/ImageNode.tsx (CORRECTED)
-
 "use client";
 
 import React, { useRef, useState, useEffect, memo } from "react";
@@ -75,7 +73,11 @@ const ImageNode: React.FC<ImageNodeProps> = memo(({
   const konvaNodeRef = nodeRef || internalRef;
 
   // FIX APPLIED: strokeWidth is now safe to destructure from node.props because ImageProps extends BaseNodeProps and explicitly includes strokeWidth
-  const { x, y, width, height, rotation, opacity, visible, src, stroke, strokeWidth, cornerRadius } = node.props;
+  const {
+    x, y, width, height, rotation, opacity, visible, src,
+    stroke, strokeWidth, cornerRadius,
+    cropX, cropY, cropWidth, cropHeight
+  } = node.props;
 
   const image = useCachedImage(src);
 
@@ -111,6 +113,12 @@ const ImageNode: React.FC<ImageNodeProps> = memo(({
       stroke={stroke}
       strokeWidth={strokeWidth}
       cornerRadius={cornerRadius}
+      crop={{
+        x: cropX || 0,
+        y: cropY || 0,
+        width: cropWidth || 0,
+        height: cropHeight || 0,
+      }}
     />
   );
 });
