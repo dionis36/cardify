@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { QRCode } from 'react-qrcode-logo';
-import { Download, Upload, Plus, RefreshCw } from 'lucide-react';
+import { Download, Upload, Plus, RefreshCw, ChevronDown } from 'lucide-react';
 import { KonvaNodeDefinition } from '@/types/template';
 import { AVAILABLE_LOGOS, LogoVariant } from '@/lib/logoIndex';
 
@@ -45,6 +45,7 @@ export default function QRCodeDesigner({ onAddImage, onAddNode, initialData }: Q
     const [logoSource, setLogoSource] = useState<LogoSource>(null);
     const [ecLevel, setEcLevel] = useState<ECLevel>('Q'); // Q = 25% error correction, good for logos
     const [logoTab, setLogoTab] = useState<'library' | 'upload'>('library');
+    const [isLogoExpanded, setIsLogoExpanded] = useState(false);
     const [error, setError] = useState<string>('');
 
     const qrRef = useRef<any>(null);
@@ -454,88 +455,103 @@ export default function QRCodeDesigner({ onAddImage, onAddNode, initialData }: Q
                 </div>
             </div>
 
-            {/* 4. Logo Selection */}
+            {/* 4. Logo Selection - Collapsible */}
             <div className="space-y-2">
-                <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Logo (Optional)</label>
+                {/* Collapsible Header */}
+                <button
+                    onClick={() => setIsLogoExpanded(!isLogoExpanded)}
+                    className="w-full flex items-center justify-between text-xs font-bold text-gray-500 uppercase tracking-wider hover:text-gray-700 transition-colors"
+                >
+                    <span>Logo (Optional)</span>
+                    <ChevronDown
+                        size={16}
+                        className={`transition-transform duration-200 ${isLogoExpanded ? 'rotate-180' : ''}`}
+                    />
+                </button>
 
-                {/* Tab Selection */}
-                <div className="flex gap-2 border-b">
-                    <button
-                        onClick={() => setLogoTab('library')}
-                        className={`px-3 py-2 text-xs font-medium transition-colors ${logoTab === 'library'
-                            ? 'text-blue-600 border-b-2 border-blue-600'
-                            : 'text-gray-500 hover:text-gray-700'
-                            }`}
-                    >
-                        From Library
-                    </button>
-                    <button
-                        onClick={() => setLogoTab('upload')}
-                        className={`px-3 py-2 text-xs font-medium transition-colors ${logoTab === 'upload'
-                            ? 'text-blue-600 border-b-2 border-blue-600'
-                            : 'text-gray-500 hover:text-gray-700'
-                            }`}
-                    >
-                        Upload Custom
-                    </button>
-                </div>
-
-                {/* Tab Content */}
-                {logoTab === 'library' ? (
-                    <div className="space-y-2">
-                        <div className="max-h-48 overflow-y-auto border rounded p-2">
-                            <div className="grid grid-cols-6 gap-2">
-                                {AVAILABLE_LOGOS.map((logoFamily) => (
-                                    logoFamily.variants.slice(0, 1).map((variant) => (
-                                        <button
-                                            key={`${logoFamily.id}_${variant.color}`}
-                                            onClick={() => handleLogoFromLibrary(variant)}
-                                            className={`aspect-square p-1 bg-white border rounded hover:border-blue-500 hover:shadow-md transition-all ${logoFile === variant.path ? 'border-blue-500 ring-2 ring-blue-500' : 'border-gray-200'
-                                                }`}
-                                            title={logoFamily.name}
-                                        >
-                                            <img
-                                                src={variant.path}
-                                                alt={logoFamily.name}
-                                                className="w-full h-full object-contain"
-                                            />
-                                        </button>
-                                    ))
-                                ))}
-                            </div>
-                            <p className="text-[10px] text-gray-500 mt-2 text-center">
-                                Showing all {AVAILABLE_LOGOS.length} logos
-                            </p>
-                        </div>
-                        {/* Remove Logo Button */}
-                        {logoFile && logoSource === 'library' && (
+                {/* Collapsible Content */}
+                {isLogoExpanded && (
+                    <>
+                        {/* Tab Selection */}
+                        <div className="flex gap-2 border-b">
                             <button
-                                onClick={() => { setLogoFile(undefined); setLogoSource(null); }}
-                                className="w-full px-3 py-2 bg-red-50 hover:bg-red-100 text-red-600 rounded text-sm font-medium transition-colors"
+                                onClick={() => setLogoTab('library')}
+                                className={`px-3 py-2 text-xs font-medium transition-colors ${logoTab === 'library'
+                                    ? 'text-blue-600 border-b-2 border-blue-600'
+                                    : 'text-gray-500 hover:text-gray-700'
+                                    }`}
                             >
-                                Remove Logo
+                                From Library
                             </button>
-                        )}
-                    </div>
-                ) : (
-                    <div className="flex items-center gap-4">
-                        <label className="flex items-center gap-2 px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded cursor-pointer text-sm text-gray-700 transition-colors">
-                            <Upload size={16} />
-                            <span>Upload Image</span>
-                            <input type="file" accept="image/*" onChange={handleLogoUpload} className="hidden" />
-                        </label>
-                        {logoFile && logoSource === 'custom' && (
-                            <div className="relative group">
-                                <img src={logoFile} alt="Logo" className="w-10 h-10 object-contain border rounded bg-white" />
-                                <button
-                                    onClick={() => { setLogoFile(undefined); setLogoSource(null); }}
-                                    className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
-                                >
-                                    <Plus size={12} className="rotate-45" />
-                                </button>
+                            <button
+                                onClick={() => setLogoTab('upload')}
+                                className={`px-3 py-2 text-xs font-medium transition-colors ${logoTab === 'upload'
+                                    ? 'text-blue-600 border-b-2 border-blue-600'
+                                    : 'text-gray-500 hover:text-gray-700'
+                                    }`}
+                            >
+                                Upload Custom
+                            </button>
+                        </div>
+
+                        {/* Tab Content */}
+                        {logoTab === 'library' ? (
+                            <div className="space-y-2">
+                                <div className="max-h-48 overflow-y-auto border rounded p-2">
+                                    <div className="grid grid-cols-6 gap-2">
+                                        {AVAILABLE_LOGOS.map((logoFamily) => (
+                                            logoFamily.variants.slice(0, 1).map((variant) => (
+                                                <button
+                                                    key={`${logoFamily.id}_${variant.color}`}
+                                                    onClick={() => handleLogoFromLibrary(variant)}
+                                                    className={`aspect-square p-1 bg-white border rounded hover:border-blue-500 hover:shadow-md transition-all ${logoFile === variant.path ? 'border-blue-500 ring-2 ring-blue-500' : 'border-gray-200'
+                                                        }`}
+                                                    title={logoFamily.name}
+                                                >
+                                                    <img
+                                                        src={variant.path}
+                                                        alt={logoFamily.name}
+                                                        className="w-full h-full object-contain"
+                                                    />
+                                                </button>
+                                            ))
+                                        ))}
+                                    </div>
+                                    <p className="text-[10px] text-gray-500 mt-2 text-center">
+                                        Showing all {AVAILABLE_LOGOS.length} logos
+                                    </p>
+                                </div>
+                                {/* Remove Logo Button */}
+                                {logoFile && logoSource === 'library' && (
+                                    <button
+                                        onClick={() => { setLogoFile(undefined); setLogoSource(null); }}
+                                        className="w-full px-3 py-2 bg-red-50 hover:bg-red-100 text-red-600 rounded text-sm font-medium transition-colors"
+                                    >
+                                        Remove Logo
+                                    </button>
+                                )}
+                            </div>
+                        ) : (
+                            <div className="flex items-center gap-4">
+                                <label className="flex items-center gap-2 px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded cursor-pointer text-sm text-gray-700 transition-colors">
+                                    <Upload size={16} />
+                                    <span>Upload Image</span>
+                                    <input type="file" accept="image/*" onChange={handleLogoUpload} className="hidden" />
+                                </label>
+                                {logoFile && logoSource === 'custom' && (
+                                    <div className="relative group">
+                                        <img src={logoFile} alt="Logo" className="w-10 h-10 object-contain border rounded bg-white" />
+                                        <button
+                                            onClick={() => { setLogoFile(undefined); setLogoSource(null); }}
+                                            className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                                        >
+                                            <Plus size={12} className="rotate-45" />
+                                        </button>
+                                    </div>
+                                )}
                             </div>
                         )}
-                    </div>
+                    </>
                 )}
             </div>
 
