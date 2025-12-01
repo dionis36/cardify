@@ -214,8 +214,8 @@ const ImageLibraryPanel: React.FC<ImageLibraryPanelProps> = ({ onAddNode }) => {
             <button
                 onClick={() => setActiveTab(tab)}
                 className={`flex-1 py-2 px-4 text-sm font-medium rounded-md transition-all flex items-center justify-center gap-2 ${activeTab === tab
-                        ? 'bg-blue-500 text-white shadow-sm'
-                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                    ? 'bg-blue-500 text-white shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
                     }`}
             >
                 <Icon size={16} />
@@ -356,11 +356,31 @@ const ImageLibraryPanel: React.FC<ImageLibraryPanelProps> = ({ onAddNode }) => {
 
     return (
         <div className="flex flex-col h-full">
-            {/* Tab Navigation */}
-            <div className="flex gap-2 p-4 bg-gray-50 border-b border-gray-200">
-                {renderTabButton('upload', Upload, 'Upload')}
-                {renderTabButton('pexels', ImageIcon, 'Pexels')}
-                {renderTabButton('recent', Clock, 'Recent')}
+            {/* Tab Navigation - Compact Style */}
+            <div className="p-4 pb-3 bg-white border-b border-gray-200">
+                <div className="flex p-1 bg-gray-100 rounded-lg border border-gray-200">
+                    <button
+                        onClick={() => setActiveTab('upload')}
+                        className={`flex-1 py-2 text-xs font-medium rounded-md capitalize transition-all ${activeTab === 'upload' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'
+                            }`}
+                    >
+                        Upload
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('pexels')}
+                        className={`flex-1 py-2 text-xs font-medium rounded-md capitalize transition-all ${activeTab === 'pexels' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'
+                            }`}
+                    >
+                        Pexels
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('recent')}
+                        className={`flex-1 py-2 text-xs font-medium rounded-md capitalize transition-all ${activeTab === 'recent' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'
+                            }`}
+                    >
+                        Recent
+                    </button>
+                </div>
             </div>
 
             {/* Tab Content */}
