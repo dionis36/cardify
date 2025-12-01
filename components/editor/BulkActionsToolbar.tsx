@@ -6,20 +6,20 @@ import { Eye, EyeOff, Lock, Unlock, Trash2, Folder } from "lucide-react";
 
 interface BulkActionsToolbarProps {
     selectedCount: number;
-    onShowAll: () => void;
-    onHideAll: () => void;
-    onLockAll: () => void;
-    onUnlockAll: () => void;
+    isAllVisible: boolean;
+    isAllLocked: boolean;
+    onToggleVisibility: () => void;
+    onToggleLock: () => void;
     onDeleteAll: () => void;
     onGroupSelected?: () => void;
 }
 
 export default function BulkActionsToolbar({
     selectedCount,
-    onShowAll,
-    onHideAll,
-    onLockAll,
-    onUnlockAll,
+    isAllVisible,
+    isAllLocked,
+    onToggleVisibility,
+    onToggleLock,
     onDeleteAll,
     onGroupSelected,
 }: BulkActionsToolbarProps) {
@@ -33,32 +33,18 @@ export default function BulkActionsToolbar({
                 </span>
                 <div className="flex items-center gap-1">
                     <button
-                        onClick={onShowAll}
+                        onClick={onToggleVisibility}
                         className="p-1.5 hover:bg-blue-100 rounded text-blue-600"
-                        title="Show all selected"
+                        title={isAllVisible ? "Hide all selected" : "Show all selected"}
                     >
-                        <Eye className="w-4 h-4" />
+                        {isAllVisible ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
                     </button>
                     <button
-                        onClick={onHideAll}
+                        onClick={onToggleLock}
                         className="p-1.5 hover:bg-blue-100 rounded text-blue-600"
-                        title="Hide all selected"
+                        title={isAllLocked ? "Unlock all selected" : "Lock all selected"}
                     >
-                        <EyeOff className="w-4 h-4" />
-                    </button>
-                    <button
-                        onClick={onLockAll}
-                        className="p-1.5 hover:bg-blue-100 rounded text-blue-600"
-                        title="Lock all selected"
-                    >
-                        <Lock className="w-4 h-4" />
-                    </button>
-                    <button
-                        onClick={onUnlockAll}
-                        className="p-1.5 hover:bg-blue-100 rounded text-blue-600"
-                        title="Unlock all selected"
-                    >
-                        <Unlock className="w-4 h-4" />
+                        {isAllLocked ? <Lock className="w-4 h-4" /> : <Unlock className="w-4 h-4" />}
                     </button>
                     {onGroupSelected && (
                         <button

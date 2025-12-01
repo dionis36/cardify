@@ -165,31 +165,29 @@ export default function LayerList({
   };
 
   // Bulk operations
-  const handleBulkShowAll = () => {
+  const areAllSelectedVisible = bulkSelectedIndices.every(index => {
+    const layer = layers[index];
+    return layer.props.visible !== false;
+  });
+
+  const areAllSelectedLocked = bulkSelectedIndices.every(index => {
+    const layer = layers[index];
+    return layer.locked === true;
+  });
+
+  const handleBulkToggleVisibility = () => {
+    const newValue = !areAllSelectedVisible;
     bulkSelectedIndices.forEach(index => {
       onDefinitionChange(index, {
-        props: { ...layers[index].props, visible: true }
+        props: { ...layers[index].props, visible: newValue }
       } as Partial<KonvaNodeDefinition>);
     });
   };
 
-  const handleBulkHideAll = () => {
+  const handleBulkToggleLock = () => {
+    const newValue = !areAllSelectedLocked;
     bulkSelectedIndices.forEach(index => {
-      onDefinitionChange(index, {
-        props: { ...layers[index].props, visible: false }
-      } as Partial<KonvaNodeDefinition>);
-    });
-  };
-
-  const handleBulkLockAll = () => {
-    bulkSelectedIndices.forEach(index => {
-      onDefinitionChange(index, { locked: true });
-    });
-  };
-
-  const handleBulkUnlockAll = () => {
-    bulkSelectedIndices.forEach(index => {
-      onDefinitionChange(index, { locked: false });
+      onDefinitionChange(index, { locked: newValue });
     });
   };
 
@@ -316,10 +314,10 @@ export default function LayerList({
         {/* Bulk Actions Toolbar */}
         <BulkActionsToolbar
           selectedCount={bulkSelectedIndices.length}
-          onShowAll={handleBulkShowAll}
-          onHideAll={handleBulkHideAll}
-          onLockAll={handleBulkLockAll}
-          onUnlockAll={handleBulkUnlockAll}
+          isAllVisible={areAllSelectedVisible}
+          isAllLocked={areAllSelectedLocked}
+          onToggleVisibility={handleBulkToggleVisibility}
+          onToggleLock={handleBulkToggleLock}
           onDeleteAll={handleBulkDeleteAll}
           onGroupSelected={onCreateGroup ? handleBulkGroup : undefined}
         />
