@@ -10,18 +10,19 @@ import IconLibrary from "@/components/editor/IconLibrary";
 import BackgroundPanel from "@/components/editor/BackgroundPanel";
 import QRCodeDesigner from "@/components/editor/QRCodeDesigner";
 import ShortcutsReference from "@/components/editor/ShortcutsReference";
-import LogoLibraryPanel from "@/components/editor/LogoLibraryPanel"; // NEW IMPORT
+import LogoLibraryPanel from "@/components/editor/LogoLibraryPanel";
+import ImageLibraryPanel from "@/components/editor/ImageLibraryPanel"; // NEW IMPORT
 import { KonvaNodeDefinition, BackgroundPattern, LayerGroup } from "@/types/template";
-import { LogoVariant } from "@/lib/logoIndex"; // NEW IMPORT
+import { LogoVariant } from "@/lib/logoIndex";
 import {
     Move, Layers, Settings, Image, Trash2,
     ChevronLeft, ChevronRight, Plus,
     Sparkles, Palette, X, QrCode,
-    Hexagon, Type, // NEW ICON
+    Hexagon, Type,
 } from "lucide-react";
 
 // Update SidebarTab type to include new tabs
-export type SidebarTab = "layers" | "elements" | "icons" | "logos" | "background" | "qrcode" | "settings";
+export type SidebarTab = "layers" | "elements" | "icons" | "logos" | "images" | "background" | "qrcode" | "settings";
 type EditorMode = "FULL_EDIT" | "DATA_ONLY";
 
 interface EditorSidebarProps {
@@ -192,6 +193,14 @@ export default function EditorSidebar({
                     </div>
                 );
 
+            case "images":
+                return (
+                    <div className="flex flex-col h-full">
+                        <PanelHeader title="Images" icon={Image} />
+                        <ImageLibraryPanel onAddNode={onAddNode} />
+                    </div>
+                );
+
             case "background":
                 return (
                     <div className="flex flex-col h-full">
@@ -284,6 +293,7 @@ export default function EditorSidebar({
                     {renderPaletteButton("elements", Move, "Shapes", isDataOnlyMode)}
                     {renderPaletteButton("icons", Sparkles, "Icons", isDataOnlyMode)}
                     {renderPaletteButton("logos", Hexagon, "Logos", isDataOnlyMode)}
+                    {renderPaletteButton("images", Image, "Images", isDataOnlyMode)}
                     {renderPaletteButton("background", Palette, "Bg", isDataOnlyMode)}
                     {renderPaletteButton("qrcode", QrCode, "QR Code", isDataOnlyMode)}
                 </div>

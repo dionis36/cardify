@@ -118,6 +118,18 @@ export interface ImageProps extends NodeCommonProps {
     contentType: 'Website' | 'Email' | 'Phone' | 'SMS' | 'Contact' | 'Event';
     inputs: Record<string, string>;
   };
+  // Image editing properties
+  filters?: {
+    grayscale?: number;      // 0-100
+    sepia?: number;          // 0-100
+    brightness?: number;     // 0-200
+    contrast?: number;       // 0-200
+    saturate?: number;       // 0-200
+    blur?: number;           // 0-20 (px)
+    hueRotate?: number;      // 0-360 (degrees)
+  };
+  flipHorizontal?: boolean;
+  flipVertical?: boolean;
 }
 
 // --- SPECIFIC PROPERTIES: SHAPES & ICONS ---
