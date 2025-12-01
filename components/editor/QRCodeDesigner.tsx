@@ -482,29 +482,40 @@ export default function QRCodeDesigner({ onAddImage, onAddNode, initialData }: Q
 
                 {/* Tab Content */}
                 {logoTab === 'library' ? (
-                    <div className="max-h-48 overflow-y-auto border rounded p-2">
-                        <div className="grid grid-cols-6 gap-2">
-                            {AVAILABLE_LOGOS.slice(0, 12).map((logoFamily) => (
-                                logoFamily.variants.slice(0, 1).map((variant) => (
-                                    <button
-                                        key={`${logoFamily.id}_${variant.color}`}
-                                        onClick={() => handleLogoFromLibrary(variant)}
-                                        className={`aspect-square p-1 bg-white border rounded hover:border-blue-500 hover:shadow-md transition-all ${logoFile === variant.path ? 'border-blue-500 ring-2 ring-blue-500' : 'border-gray-200'
-                                            }`}
-                                        title={logoFamily.name}
-                                    >
-                                        <img
-                                            src={variant.path}
-                                            alt={logoFamily.name}
-                                            className="w-full h-full object-contain"
-                                        />
-                                    </button>
-                                ))
-                            ))}
+                    <div className="space-y-2">
+                        <div className="max-h-48 overflow-y-auto border rounded p-2">
+                            <div className="grid grid-cols-6 gap-2">
+                                {AVAILABLE_LOGOS.map((logoFamily) => (
+                                    logoFamily.variants.slice(0, 1).map((variant) => (
+                                        <button
+                                            key={`${logoFamily.id}_${variant.color}`}
+                                            onClick={() => handleLogoFromLibrary(variant)}
+                                            className={`aspect-square p-1 bg-white border rounded hover:border-blue-500 hover:shadow-md transition-all ${logoFile === variant.path ? 'border-blue-500 ring-2 ring-blue-500' : 'border-gray-200'
+                                                }`}
+                                            title={logoFamily.name}
+                                        >
+                                            <img
+                                                src={variant.path}
+                                                alt={logoFamily.name}
+                                                className="w-full h-full object-contain"
+                                            />
+                                        </button>
+                                    ))
+                                ))}
+                            </div>
+                            <p className="text-[10px] text-gray-500 mt-2 text-center">
+                                Showing all {AVAILABLE_LOGOS.length} logos
+                            </p>
                         </div>
-                        <p className="text-[10px] text-gray-500 mt-2 text-center">
-                            Showing 12 of {AVAILABLE_LOGOS.length} logos
-                        </p>
+                        {/* Remove Logo Button */}
+                        {logoFile && logoSource === 'library' && (
+                            <button
+                                onClick={() => { setLogoFile(undefined); setLogoSource(null); }}
+                                className="w-full px-3 py-2 bg-red-50 hover:bg-red-100 text-red-600 rounded text-sm font-medium transition-colors"
+                            >
+                                Remove Logo
+                            </button>
+                        )}
                     </div>
                 ) : (
                     <div className="flex items-center gap-4">
