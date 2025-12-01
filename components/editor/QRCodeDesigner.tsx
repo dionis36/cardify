@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { QRCode } from 'react-qrcode-logo';
 import { Download, Upload, Plus, RefreshCw } from 'lucide-react';
 import { KonvaNodeDefinition } from '@/types/template';
+import { AVAILABLE_LOGOS, LogoVariant } from '@/lib/logoIndex';
 
 interface QRCodeDesignerProps {
     onAddImage: (file: File) => void;
@@ -12,6 +13,8 @@ interface QRCodeDesignerProps {
 type ContentType = 'Website' | 'Email' | 'Phone' | 'SMS' | 'Contact' | 'Event';
 type DotStyle = 'squares' | 'dots';
 type EyeStyle = 'square' | 'round';
+type ECLevel = 'L' | 'M' | 'Q' | 'H'; // Error correction: L=7%, M=15%, Q=25%, H=30%
+type LogoSource = 'library' | 'custom' | null;
 
 export default function QRCodeDesigner({ onAddImage, onAddNode, initialData }: QRCodeDesignerProps) {
     // --- State ---
@@ -34,10 +37,14 @@ export default function QRCodeDesigner({ onAddImage, onAddNode, initialData }: Q
 
     const [fgColor, setFgColor] = useState('#000000');
     const [bgColor, setBgColor] = useState('#FFFFFF');
-    const [transparentBg, setTransparentBg] = useState(false);
+    const [transparentBg, setTransparentBg] = useState(true); // Default to transparent
     const [dotStyle, setDotStyle] = useState<DotStyle>('squares');
     const [eyeStyle, setEyeStyle] = useState<EyeStyle>('square');
+    const [eyeRadius, setEyeRadius] = useState<number | [number, number, number]>(0);
     const [logoFile, setLogoFile] = useState<string | undefined>(undefined);
+    const [logoSource, setLogoSource] = useState<LogoSource>(null);
+    const [ecLevel, setEcLevel] = useState<ECLevel>('Q'); // Q = 25% error correction, good for logos
+    const [logoTab, setLogoTab] = useState<'library' | 'upload'>('library');
     const [error, setError] = useState<string>('');
 
     const qrRef = useRef<any>(null);
@@ -60,9 +67,10 @@ export default function QRCodeDesigner({ onAddImage, onAddNode, initialData }: Q
             }
             if (initialData.dotStyle) setDotStyle(initialData.dotStyle);
             if (initialData.eyeStyle) setEyeStyle(initialData.eyeStyle);
+            if (initialData.eyeRadius !== undefined) setEyeRadius(initialData.eyeRadius);
             if (initialData.logoUrl) setLogoFile(initialData.logoUrl);
-            // cornerRadius is usually on the node props, not metadata, but we can store it in metadata too for consistency
-            // or pass it separately. For now, let's assume it's in metadata or we default to 0.
+            if (initialData.logoSource) setLogoSource(initialData.logoSource);
+            if (initialData.ecLevel) setEcLevel(initialData.ecLevel);
         }
     }, [initialData]);
 
@@ -102,13 +110,35 @@ export default function QRCodeDesigner({ onAddImage, onAddNode, initialData }: Q
         setInputs(prev => ({ ...prev, [field]: value }));
     };
 
+    // Calculate brightness of foreground color to determine adaptive preview background
+    const getPreviewBgColor = () => {
+        // Convert hex to RGB
+        const hex = fgColor.replace('#', '');
+        const r = parseInt(hex.substring(0, 2), 16);
+        const g = parseInt(hex.substring(2, 4), 16);
+        const b = parseInt(hex.substring(4, 6), 16);
+
+        // Calculate relative luminance (perceived brightness)
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+
+        // If foreground is light (brightness > 128), use dark background
+        // If foreground is dark, use light background
+        return brightness > 128 ? '#1f2937' : '#f9fafb';
+    };
+
     // --- Logo Handling ---
+    const handleLogoFromLibrary = (logoVariant: LogoVariant) => {
+        setLogoFile(logoVariant.path);
+        setLogoSource('library');
+    };
+
     const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
             const reader = new FileReader();
             reader.onload = (e) => {
                 setLogoFile(e.target?.result as string);
+                setLogoSource('custom');
             };
             reader.readAsDataURL(file);
         }
@@ -140,7 +170,10 @@ export default function QRCodeDesigner({ onAddImage, onAddNode, initialData }: Q
                                 bgColor: transparentBg ? 'transparent' : bgColor,
                                 dotStyle,
                                 eyeStyle,
+                                eyeRadius,
                                 logoUrl: logoFile,
+                                logoSource,
+                                ecLevel,
                                 contentType,
                                 inputs
                             };
@@ -339,25 +372,46 @@ export default function QRCodeDesigner({ onAddImage, onAddNode, initialData }: Q
                 {/* Style Presets */}
                 <div className="grid grid-cols-3 gap-2">
                     <button
-                        onClick={() => { setDotStyle('squares'); setEyeStyle('square'); }}
-                        className={`p-2 border rounded flex flex-col items-center gap-1 hover:bg-gray-50 ${dotStyle === 'squares' && eyeStyle === 'square' ? 'border-blue-500 ring-1 ring-blue-500' : ''}`}
+                        onClick={() => { setDotStyle('squares'); setEyeStyle('square'); setEyeRadius(0); }}
+                        className={`p-2 border rounded flex flex-col items-center gap-1 hover:bg-gray-50 ${dotStyle === 'squares' && eyeRadius === 0 ? 'border-blue-500 ring-1 ring-blue-500' : ''}`}
                     >
                         <div className="w-6 h-6 bg-black"></div>
-                        <span className="text-[10px]">Square</span>
+                        <span className="text-[10px]">Classic</span>
                     </button>
                     <button
-                        onClick={() => { setDotStyle('dots'); setEyeStyle('square'); }}
-                        className={`p-2 border rounded flex flex-col items-center gap-1 hover:bg-gray-50 ${dotStyle === 'dots' && eyeStyle === 'square' ? 'border-blue-500 ring-1 ring-blue-500' : ''}`}
+                        onClick={() => { setDotStyle('dots'); setEyeStyle('square'); setEyeRadius(0); }}
+                        className={`p-2 border rounded flex flex-col items-center gap-1 hover:bg-gray-50 ${dotStyle === 'dots' && eyeRadius === 0 ? 'border-blue-500 ring-1 ring-blue-500' : ''}`}
                     >
                         <div className="w-6 h-6 bg-black rounded-full"></div>
                         <span className="text-[10px]">Dots</span>
                     </button>
                     <button
-                        onClick={() => { setDotStyle('dots'); setEyeStyle('round'); }}
-                        className={`p-2 border rounded flex flex-col items-center gap-1 hover:bg-gray-50 ${dotStyle === 'dots' && eyeStyle === 'round' ? 'border-blue-500 ring-1 ring-blue-500' : ''}`}
+                        onClick={() => { setDotStyle('squares'); setEyeStyle('round'); setEyeRadius([10, 10, 10]); }}
+                        className={`p-2 border rounded flex flex-col items-center gap-1 hover:bg-gray-50 ${dotStyle === 'squares' && Array.isArray(eyeRadius) && eyeRadius[0] === 10 ? 'border-blue-500 ring-1 ring-blue-500' : ''}`}
+                    >
+                        <div className="w-6 h-6 bg-black rounded-md"></div>
+                        <span className="text-[10px]">Rounded</span>
+                    </button>
+                    <button
+                        onClick={() => { setDotStyle('dots'); setEyeStyle('round'); setEyeRadius([10, 10, 10]); }}
+                        className={`p-2 border rounded flex flex-col items-center gap-1 hover:bg-gray-50 ${dotStyle === 'dots' && Array.isArray(eyeRadius) && eyeRadius[0] === 10 ? 'border-blue-500 ring-1 ring-blue-500' : ''}`}
                     >
                         <div className="w-6 h-6 bg-black rounded-lg"></div>
-                        <span className="text-[10px]">Rounded</span>
+                        <span className="text-[10px]">Smooth</span>
+                    </button>
+                    <button
+                        onClick={() => { setDotStyle('squares'); setEyeStyle('round'); setEyeRadius([15, 15, 15]); }}
+                        className={`p-2 border rounded flex flex-col items-center gap-1 hover:bg-gray-50 ${dotStyle === 'squares' && Array.isArray(eyeRadius) && eyeRadius[0] === 15 ? 'border-blue-500 ring-1 ring-blue-500' : ''}`}
+                    >
+                        <div className="w-6 h-6 bg-black" style={{ borderRadius: '20%' }}></div>
+                        <span className="text-[10px]">Soft</span>
+                    </button>
+                    <button
+                        onClick={() => { setDotStyle('dots'); setEyeStyle('round'); setEyeRadius([15, 15, 15]); }}
+                        className={`p-2 border rounded flex flex-col items-center gap-1 hover:bg-gray-50 ${dotStyle === 'dots' && Array.isArray(eyeRadius) && eyeRadius[0] === 15 ? 'border-blue-500 ring-1 ring-blue-500' : ''}`}
+                    >
+                        <div className="w-6 h-6 bg-black rounded-xl"></div>
+                        <span className="text-[10px]">Fluid</span>
                     </button>
                 </div>
 
@@ -400,32 +454,86 @@ export default function QRCodeDesigner({ onAddImage, onAddNode, initialData }: Q
                 </div>
             </div>
 
-            {/* 4. Logo Upload */}
+            {/* 4. Logo Selection */}
             <div className="space-y-2">
-                <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Logo</label>
-                <div className="flex items-center gap-4">
-                    <label className="flex items-center gap-2 px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded cursor-pointer text-sm text-gray-700 transition-colors">
-                        <Upload size={16} />
-                        <span>Upload Image</span>
-                        <input type="file" accept="image/*" onChange={handleLogoUpload} className="hidden" />
-                    </label>
-                    {logoFile && (
-                        <div className="relative group">
-                            <img src={logoFile} alt="Logo" className="w-10 h-10 object-contain border rounded bg-white" />
-                            <button
-                                onClick={() => setLogoFile(undefined)}
-                                className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
-                            >
-                                <Plus size={12} className="rotate-45" />
-                            </button>
-                        </div>
-                    )}
+                <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Logo (Optional)</label>
+
+                {/* Tab Selection */}
+                <div className="flex gap-2 border-b">
+                    <button
+                        onClick={() => setLogoTab('library')}
+                        className={`px-3 py-2 text-xs font-medium transition-colors ${logoTab === 'library'
+                            ? 'text-blue-600 border-b-2 border-blue-600'
+                            : 'text-gray-500 hover:text-gray-700'
+                            }`}
+                    >
+                        From Library
+                    </button>
+                    <button
+                        onClick={() => setLogoTab('upload')}
+                        className={`px-3 py-2 text-xs font-medium transition-colors ${logoTab === 'upload'
+                            ? 'text-blue-600 border-b-2 border-blue-600'
+                            : 'text-gray-500 hover:text-gray-700'
+                            }`}
+                    >
+                        Upload Custom
+                    </button>
                 </div>
+
+                {/* Tab Content */}
+                {logoTab === 'library' ? (
+                    <div className="max-h-48 overflow-y-auto border rounded p-2">
+                        <div className="grid grid-cols-6 gap-2">
+                            {AVAILABLE_LOGOS.slice(0, 12).map((logoFamily) => (
+                                logoFamily.variants.slice(0, 1).map((variant) => (
+                                    <button
+                                        key={`${logoFamily.id}_${variant.color}`}
+                                        onClick={() => handleLogoFromLibrary(variant)}
+                                        className={`aspect-square p-1 bg-white border rounded hover:border-blue-500 hover:shadow-md transition-all ${logoFile === variant.path ? 'border-blue-500 ring-2 ring-blue-500' : 'border-gray-200'
+                                            }`}
+                                        title={logoFamily.name}
+                                    >
+                                        <img
+                                            src={variant.path}
+                                            alt={logoFamily.name}
+                                            className="w-full h-full object-contain"
+                                        />
+                                    </button>
+                                ))
+                            ))}
+                        </div>
+                        <p className="text-[10px] text-gray-500 mt-2 text-center">
+                            Showing 12 of {AVAILABLE_LOGOS.length} logos
+                        </p>
+                    </div>
+                ) : (
+                    <div className="flex items-center gap-4">
+                        <label className="flex items-center gap-2 px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded cursor-pointer text-sm text-gray-700 transition-colors">
+                            <Upload size={16} />
+                            <span>Upload Image</span>
+                            <input type="file" accept="image/*" onChange={handleLogoUpload} className="hidden" />
+                        </label>
+                        {logoFile && logoSource === 'custom' && (
+                            <div className="relative group">
+                                <img src={logoFile} alt="Logo" className="w-10 h-10 object-contain border rounded bg-white" />
+                                <button
+                                    onClick={() => { setLogoFile(undefined); setLogoSource(null); }}
+                                    className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                                >
+                                    <Plus size={12} className="rotate-45" />
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                )}
             </div>
 
             {/* 5. Preview & Actions */}
             <div className="space-y-4 pt-4 border-t">
-                <div className="flex justify-center bg-gray-50 p-4 rounded-lg border">
+                <div
+                    className="flex justify-center p-4 rounded-lg border transition-colors"
+                    style={{ backgroundColor: getPreviewBgColor() }}
+                >
                     <QRCode
                         ref={qrRef}
                         value={qrValue}
@@ -434,9 +542,11 @@ export default function QRCodeDesigner({ onAddImage, onAddNode, initialData }: Q
                         bgColor={transparentBg ? 'transparent' : bgColor}
                         qrStyle={dotStyle}
                         logoImage={logoFile}
-                        logoWidth={50}
-                        logoHeight={50}
-                        eyeRadius={eyeStyle === 'round' ? [10, 10, 10] : 0}
+                        logoWidth={30}
+                        logoHeight={30}
+                        removeQrCodeBehindLogo={true}
+                        ecLevel={ecLevel}
+                        eyeRadius={eyeRadius}
                         id="react-qrcode-logo"
                     />
                 </div>
