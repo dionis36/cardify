@@ -1,340 +1,272 @@
 "use client";
 
+import React, { useState } from "react";
 import {
-  KonvaNodeDefinition,
-  KonvaNodeProps,
-  TextProps,
-  RectProps,
-  ImageProps,
-  CircleProps,
-  EllipseProps,
-  StarProps,
-  RegularPolygonProps,
-  LineProps,
-  ArrowProps,
-  PathProps,
-  IconProps,
-  FontName
-} from "@/types/template";
-import React, { useCallback } from "react";
-import ColorPicker from "./ColorPicker";
-import {
-  AlignLeft, AlignCenter, AlignRight, AlignJustify, Type, Underline, Bold,
-  ArrowUp, ArrowDown, ChevronsUp, ChevronsDown, Lock, Unlock,
-  Eye, EyeOff, Edit, Move, RotateCw, Settings, Layout, Layers, Trash2,
-  Crop
+  Type,
+  Layout,
+  Move,
+  Layers,
+  Trash2,
+  Lock,
+  Unlock,
+  Eye,
+  EyeOff,
+  ChevronDown,
+  ChevronRight,
+  Bold,
+  Italic,
+  Underline,
+  AlignLeft,
+  AlignCenter,
+  AlignRight,
+  AlignJustify,
+  RotateCw,
+  Crop,
+  Settings,
+  ArrowUp,
+  ArrowDown,
+  ChevronsUp,
+  ChevronsDown
 } from "lucide-react";
+import { KonvaNodeDefinition, TextProps, IconProps, ImageProps } from "@/types/template";
 import { getNodeCapabilities } from "@/lib/capabilities";
 
-// --- FONT OPTIONS LIST ---
-const FONT_OPTIONS: FontName[] = [
-  "Arial", "Verdana", "Helvetica", "Inter", "Roboto", "Open Sans", "Lato", "Montserrat", "Poppins", "sans-serif",
-  "Times New Roman", "Georgia", "Palatino", "serif", "Playfair Display", "Merriweather",
-  "Courier New", "Lucida Console", "monospace",
-  "Garamond", "Impact", "Comic Sans MS", "Pacifico", "Bebas Neue",
-];
+// --- Helper Components ---
 
-type EditorMode = "FULL_EDIT" | "DATA_ONLY";
-
-interface InputGroupProps {
-  label: string;
-  value: string | number;
-  onChange: (value: string) => void;
-  type?: 'text' | 'number' | 'range';
-  step?: number;
-  min?: number;
-  max?: number;
-  unit?: string;
-  disabled?: boolean;
-}
-
-const InputGroup: React.FC<InputGroupProps> = ({ label, value, onChange, type = "number", step, min, max, unit = 'px', disabled = false }) => (
-  <div className="flex flex-col">
-    <label className="text-xs font-semibold text-gray-700 mb-1">{label}</label>
-    <div className="relative flex items-center">
-      <input
-        type={type}
-        value={typeof value === 'number' ? value.toString() : value}
-        onChange={(e) => onChange(e.target.value)}
-        className={`w-full border border-gray-300 p-2 pr-8 rounded-md text-sm transition-all focus:ring-blue-500 focus:border-blue-500 ${disabled ? 'bg-gray-100 text-gray-500 cursor-not-allowed' : 'bg-white text-gray-900'}`}
-        step={step}
-        min={min}
-        max={max}
-        disabled={disabled}
-      />
-      {type === 'number' && (
-        <span className="absolute right-2 text-xs font-medium text-gray-400 pointer-events-none">
-          {unit === 'px' ? 'px' : unit === '%' ? '%' : unit}
-        </span>
-      )}
-    </div>
-  </div>
-);
-
-interface StyleButtonProps {
-  icon: React.ElementType;
-  active: boolean;
-  onClick: () => void;
+const SectionContainer = ({
+  title,
+  icon: Icon,
+  children,
+  defaultOpen = true,
+  disabled = false
+}: {
   title: string;
-  disabled?: boolean;
-  className?: string;
-}
-
-const StyleButton: React.FC<StyleButtonProps> = ({ icon: Icon, active, onClick, title, disabled = false, className = '' }) => (
-  <button
-    onClick={onClick}
-    title={title}
-    disabled={disabled}
-    className={`p-2 rounded transition-colors duration-150 flex items-center justify-center text-gray-600 ${active
-      ? 'bg-blue-500 text-white hover:bg-blue-600'
-      : 'bg-white hover:bg-gray-100'
-      } ${disabled ? 'opacity-50 cursor-not-allowed' : ''} ${className}`}
-  >
-    <Icon size={16} strokeWidth={2} />
-  </button>
-);
-
-interface CustomColorPickerProps {
-  label?: string;
-  color: string;
-  onChange: (color: string) => void;
-  disabled?: boolean;
-  showLabel?: boolean;
-}
-
-const ColorPickerWithSwatch: React.FC<CustomColorPickerProps> = ({ label, color, onChange, disabled = false, showLabel = true }) => (
-  <div className="flex flex-col">
-    {showLabel && label && (
-      <label className="text-xs font-semibold text-gray-700 mb-1">{label}</label>
-    )}
-    <ColorPicker
-      color={color}
-      onChange={onChange}
-      disabled={disabled}
-    />
-  </div>
-);
-
-interface SectionContainerProps {
-  title: string;
-  icon: React.ElementType;
+  icon: any;
   children: React.ReactNode;
   defaultOpen?: boolean;
   disabled?: boolean;
-}
-
-const SectionContainer: React.FC<SectionContainerProps> = ({ title, icon: Icon, children, defaultOpen = true, disabled = false }) => {
-  const [isOpen, setIsOpen] = React.useState(defaultOpen);
+}) => {
+  const [isOpen, setIsOpen] = useState(defaultOpen);
 
   return (
-    <div className={`border-t border-gray-200 pt-4 transition-opacity ${disabled ? 'opacity-60' : ''}`}>
+    <div className={`border border-gray-200 rounded-lg overflow-hidden bg-white ${disabled ? 'opacity-60 pointer-events-none' : ''}`}>
       <button
-        className="w-full flex justify-between items-center text-left pb-3 focus:outline-none"
         onClick={() => setIsOpen(!isOpen)}
-        disabled={disabled}
+        className="w-full flex items-center justify-between p-3 bg-gray-50 hover:bg-gray-100 transition-colors"
       >
-        <h3 className="flex items-center text-sm font-bold text-gray-800 uppercase tracking-wider">
-          <Icon size={16} className="mr-2 text-blue-500" />
-          {title}
-        </h3>
-        <ArrowUp size={14} className={`text-gray-500 transition-transform ${isOpen ? '' : 'rotate-180'}`} />
+        <div className="flex items-center gap-2 text-gray-700">
+          <Icon size={16} />
+          <span className="text-xs font-bold uppercase tracking-wide">{title}</span>
+        </div>
+        {isOpen ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
       </button>
-      {isOpen && <div className="space-y-4">{children}</div>}
+      {isOpen && <div className="p-4 space-y-4">{children}</div>}
     </div>
   );
 };
 
+const InputGroup = ({
+  label,
+  value,
+  onChange,
+  type = "number",
+  min,
+  max,
+  step,
+  unit,
+  disabled = false
+}: {
+  label: string;
+  value: number | string;
+  onChange: (val: string | number) => void;
+  type?: "text" | "number" | "range";
+  min?: number;
+  max?: number;
+  step?: number;
+  unit?: string;
+  disabled?: boolean;
+}) => (
+  <div className="flex flex-col space-y-1">
+    <div className="flex justify-between">
+      <label className="text-xs font-semibold text-gray-600">{label}</label>
+      {type === "range" && <span className="text-xs text-gray-500">{value}{unit}</span>}
+    </div>
+    <div className="flex items-center gap-2">
+      <input
+        type={type}
+        value={value}
+        min={min}
+        max={max}
+        step={step}
+        onChange={(e) => onChange(e.target.value)}
+        disabled={disabled}
+        className={`w-full border border-gray-300 rounded-md px-2 py-1.5 text-sm transition-all focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none ${disabled ? 'bg-gray-100' : 'bg-white'}`}
+      />
+      {unit && type !== "range" && <span className="text-xs text-gray-500 font-medium">{unit}</span>}
+    </div>
+  </div>
+);
+
+const ColorPickerWithSwatch = ({
+  label,
+  color,
+  onChange,
+  disabled = false
+}: {
+  label: string;
+  color: string;
+  onChange: (val: string) => void;
+  disabled?: boolean;
+}) => (
+  <div className="flex flex-col space-y-1">
+    <label className="text-xs font-semibold text-gray-600">{label}</label>
+    <div className={`flex items-center gap-2 border border-gray-300 p-1 rounded-md ${disabled ? 'bg-gray-100' : 'bg-white'}`}>
+      <div
+        className="w-6 h-6 rounded border border-gray-200 shadow-sm"
+        style={{ backgroundColor: color }}
+      />
+      <input
+        type="text"
+        value={color}
+        onChange={(e) => onChange(e.target.value)}
+        disabled={disabled}
+        className="flex-1 text-xs font-mono uppercase outline-none bg-transparent"
+      />
+      <input
+        type="color"
+        value={color}
+        onChange={(e) => onChange(e.target.value)}
+        disabled={disabled}
+        className="w-6 h-6 opacity-0 absolute cursor-pointer"
+      />
+    </div>
+  </div>
+);
+
+const StyleButton = ({
+  icon: Icon,
+  title,
+  active,
+  onClick,
+  disabled = false
+}: {
+  icon: any;
+  title: string;
+  active: boolean;
+  onClick: () => void;
+  disabled?: boolean;
+}) => (
+  <button
+    onClick={onClick}
+    disabled={disabled}
+    title={title}
+    className={`p-2 rounded-md transition-all ${active
+      ? "bg-blue-100 text-blue-700 border border-blue-200 shadow-sm"
+      : "text-gray-600 hover:bg-gray-100 border border-transparent"
+      } ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+  >
+    <Icon size={16} />
+  </button>
+);
+
+const FONT_OPTIONS = [
+  "Inter", "Roboto", "Open Sans", "Lato", "Montserrat", // Sans
+  "Playfair Display", "Merriweather", // Serif
+  "Pacifico", "Bebas Neue" // Display
+];
+
+// --- Main Component ---
+
 interface PropertyPanelProps {
   node: KonvaNodeDefinition | null;
-  onPropChange: (updates: Partial<KonvaNodeProps>) => void;
-  onDefinitionChange: (updates: Partial<KonvaNodeDefinition & { visible: boolean }>) => void;
-  mode: EditorMode;
-  onMoveToFront: () => void;
-  onMoveToBack: () => void;
+  onPropChange: (nodeId: string, updates: Partial<any>) => void;
+  onDefinitionChange: (nodeId: string, updates: Partial<KonvaNodeDefinition>) => void;
+  onDelete: () => void;
   onMoveUp: () => void;
   onMoveDown: () => void;
-  onAddNode?: (node: KonvaNodeDefinition) => void;
-  onDelete?: () => void;
+  onMoveToFront: () => void;
+  onMoveToBack: () => void;
+  // New prop for entering crop mode
+  onEnterCropMode?: () => void;
 }
 
 export default function PropertyPanel({
   node,
   onPropChange,
   onDefinitionChange,
-  mode,
-  onMoveToFront, onMoveToBack, onMoveUp, onMoveDown,
-  onAddNode,
-  onDelete
+  onDelete,
+  onMoveUp,
+  onMoveDown,
+  onMoveToFront,
+  onMoveToBack,
+  onEnterCropMode
 }: PropertyPanelProps) {
-
-  type AllKonvaPropKeys = keyof TextProps | keyof RectProps | keyof ImageProps | keyof CircleProps | keyof EllipseProps | keyof StarProps | keyof RegularPolygonProps | keyof LineProps | keyof ArrowProps | keyof PathProps | keyof IconProps;
-
-  const handlePropChange = useCallback((key: string, value: any) => {
-    let finalValue = value;
-    if (typeof finalValue === 'number' && isNaN(finalValue)) {
-      return;
-    }
-    if (key === 'opacity' && typeof finalValue === 'number') {
-      finalValue = finalValue / 100;
-    }
-    onPropChange({ [key as AllKonvaPropKeys]: finalValue } as Partial<KonvaNodeProps>);
-  }, [onPropChange]);
-
-  const handleDefinitionChange = useCallback((key: 'locked' | 'editable' | 'visible', value: boolean) => {
-    onDefinitionChange({ [key]: value } as Partial<KonvaNodeDefinition & { visible: boolean }>);
-  }, [onDefinitionChange]);
-
-  const handleToggleLock = useCallback(() => {
-    handleDefinitionChange('locked', !node?.locked);
-  }, [handleDefinitionChange, node]);
-
   if (!node) {
     return (
-      <div className="property-panel w-80 border-l bg-white p-6 shrink-0 h-full shadow-lg z-10 flex flex-col justify-center items-center text-center">
-        <div className="p-8 border border-dashed border-gray-300 rounded-lg bg-gray-50/50 w-full max-w-xs">
-          <Settings size={32} className="mx-auto mb-4 text-gray-300" />
-          <p className="text-sm font-medium text-gray-500 mb-6">
-            Select an element on the canvas to view and edit its properties.
-          </p>
-
-          {/* Quick Actions */}
-          {onAddNode && (
-            <div className="space-y-3">
-              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Quick Actions</p>
-              <button
-                onClick={() => {
-                  const id = `node_text_${Date.now()}`;
-                  onAddNode({
-                    id,
-                    type: 'Text',
-                    props: {
-                      id,
-                      x: 100,
-                      y: 100,
-                      text: "New Text",
-                      fontSize: 28,
-                      fill: '#000000',
-                      fontFamily: 'Inter',
-                      rotation: 0,
-                      opacity: 1,
-                      width: 250,
-                      height: 40,
-                    } as any,
-                    editable: true,
-                    locked: false,
-                  });
-                }}
-                className="w-full py-2 px-4 bg-white border border-gray-200 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors flex items-center justify-center gap-2"
-              >
-                <Type size={16} />
-                Add Text
-              </button>
-            </div>
-          )}
-        </div>
+      <div className="property-panel w-80 border-l bg-gray-50 flex flex-col items-center justify-center h-full text-gray-400">
+        <Layout size={48} className="mb-4 opacity-20" />
+        <p className="text-sm font-medium">Select an element to edit</p>
       </div>
     );
   }
 
-  const props = node.props;
-  const isVisible = (node as any).visible ?? true;
+  const {
+    id,
+    props: {
+      x, y, width, height, rotation, opacity, visible,
+      fill, stroke, strokeWidth, cornerRadius,
+      shadowColor, shadowBlur, shadowOffsetX, shadowOffsetY,
+      text, fontSize, fontFamily, align, lineHeight, letterSpacing, textDecoration, fontStyle,
+      // Image specific
+      filters, flipHorizontal, flipVertical
+    },
+    locked: isLocked
+  } = node as any; // Using any for easier access to union props, but types are safe via guards
 
-  const x = props.x ?? 0;
-  const y = props.y ?? 0;
-  const width = props.width ?? 0;
-  const height = props.height ?? 0;
-  const rotation = props.rotation ?? 0;
-  const opacity = (props.opacity ?? 1) * 100;
-  const shadowColor = props.shadowColor ?? "#000000";
-  const shadowBlur = props.shadowBlur ?? 0;
-  const shadowOffsetX = props.shadowOffsetX ?? 0;
-  const shadowOffsetY = props.shadowOffsetY ?? 0;
+  // Helper to update props
+  const handlePropChange = (key: string, value: any) => {
+    onPropChange(id, { [key]: value });
+  };
 
-  let text = "";
-  let fontSize = 16;
-  let fontFamily = "Arial";
-  let align: TextProps['align'] = 'left';
-  let lineHeight = 1.2;
-  let letterSpacing = 0;
-  let textColor = "#000000";
-  let textDecoration: TextProps['textDecoration'] = '';
-  let fontStyle: TextProps['fontStyle'] = 'normal';
-  let isBold = false;
-  let isItalic = false;
-  let isUnderline = false;
+  // Helper to update definition (locked, visible, etc.)
+  const handleDefinitionChange = (key: string, value: any) => {
+    onDefinitionChange(id, { [key]: value });
+  };
 
-  let fill = "#000000";
-  let stroke = "#000000";
-  let strokeWidth = 0;
-  let cornerRadius = 0;
+  // Text Style Helpers
+  const isBold = fontStyle?.includes('bold');
+  const isItalic = fontStyle?.includes('italic');
+  const isUnderline = textDecoration === 'underline';
 
-  if (node.type === "Text") {
-    const textProps = node.props as TextProps;
-    text = textProps.text ?? text;
-    fontSize = textProps.fontSize ?? fontSize;
-    fontFamily = (textProps.fontFamily ?? fontFamily) as FontName;
-    align = textProps.align ?? align;
-    lineHeight = textProps.lineHeight ?? lineHeight;
-    letterSpacing = textProps.letterSpacing ?? letterSpacing;
-    textColor = textProps.fill ?? textColor;
-    textDecoration = textProps.textDecoration ?? textDecoration;
-    fontStyle = textProps.fontStyle ?? fontStyle;
-    isBold = fontStyle?.includes('bold') || false;
-    isItalic = fontStyle?.includes('italic') || false;
-    isUnderline = textDecoration?.includes('underline') || false;
-  } else if (["Rect", "Circle", "Ellipse", "Star", "RegularPolygon", "Path"].includes(node.type)) {
-    const shapeProps = node.props as RectProps | CircleProps | EllipseProps | StarProps | RegularPolygonProps | PathProps;
-    fill = shapeProps.fill ?? fill;
-    stroke = shapeProps.stroke ?? stroke;
-    strokeWidth = shapeProps.strokeWidth ?? strokeWidth;
-    if (node.type === "Rect") {
-      cornerRadius = (shapeProps as RectProps).cornerRadius ?? cornerRadius;
-    }
-  } else if (["Image", "Line", "Arrow"].includes(node.type)) {
-    const lineProps = node.props as ImageProps | LineProps | ArrowProps;
-    stroke = lineProps.stroke ?? stroke;
-    strokeWidth = lineProps.strokeWidth ?? strokeWidth;
-    if (node.type === "Image") {
-      cornerRadius = (lineProps as ImageProps).cornerRadius ?? cornerRadius;
-    }
-  }
-
-  const toggleFontStyle = (style: 'bold' | 'italic') => {
-    let newStyle: string = fontStyle || 'normal';
-    const styleKey = style === 'italic' ? 'italic' : 'bold';
-    const isSet = newStyle.includes(styleKey);
-    if (isSet) {
-      newStyle = newStyle.replace(styleKey, '').trim();
-      if (newStyle === '') newStyle = 'normal';
+  const toggleFontStyle = (style: string) => {
+    let currentStyle = fontStyle || 'normal';
+    if (currentStyle.includes(style)) {
+      currentStyle = currentStyle.replace(style, '').trim();
     } else {
-      if (newStyle === 'normal') newStyle = styleKey;
-      else {
-        const otherStyle = style === 'italic' ? 'bold' : 'italic';
-        if (newStyle.includes(otherStyle)) newStyle = `${otherStyle} ${styleKey}`;
-        else newStyle = styleKey;
-      }
+      currentStyle = `${currentStyle} ${style}`.trim();
     }
-    handlePropChange('fontStyle', newStyle.trim());
-  }
+    handlePropChange('fontStyle', currentStyle);
+  };
 
-  const toggleTextDecoration = (decoration: 'underline') => {
-    const isSet = textDecoration?.includes(decoration) || false;
-    handlePropChange('textDecoration', isSet ? '' : decoration);
-  }
+  const toggleTextDecoration = (decoration: string) => {
+    handlePropChange('textDecoration', textDecoration === decoration ? '' : decoration);
+  };
 
-  const isLocked = !!node.locked;
-  const isLayoutDisabled = mode === "DATA_ONLY";
-  const layoutControlsDisabled = isLocked || isLayoutDisabled;
+  const textColor = fill || "#000000";
+  const isVisible = visible ?? true;
+  const layoutControlsDisabled = isLocked;
+
+  // --- Render Sections ---
 
   const panels = [];
 
+  // 1. Quick Actions (Always Visible)
   panels.push(
-    <div key="config" className="space-y-4">
-      <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider">Configuration</h3>
-      <div className="grid grid-cols-4 gap-2">
+    <div key="quick-actions" className="grid grid-cols-2 gap-2 mb-2">
+      <div className="col-span-2 grid grid-cols-4 gap-2">
         <button
-          onClick={handleToggleLock}
-          className={`p-2 rounded-md text-sm font-medium transition-colors flex flex-col items-center justify-center gap-1 ${isLocked ? 'bg-red-50 text-red-600 hover:bg-red-100' : 'bg-green-50 text-green-600 hover:bg-green-100'}`}
+          onClick={() => handleDefinitionChange('locked', !isLocked)}
+          className={`p-2 rounded-md text-sm font-medium transition-colors flex flex-col items-center justify-center gap-1 ${isLocked ? 'bg-red-50 text-red-600 hover:bg-red-100' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
           title={isLocked ? "Unlock Element" : "Lock Element"}
         >
           {isLocked ? <Unlock size={14} /> : <Lock size={14} />}
@@ -369,6 +301,7 @@ export default function PropertyPanel({
     </div>
   );
 
+  // 2. Layer Order
   panels.push(
     <SectionContainer key="layers" title="Layer Order" icon={Layers} disabled={isLocked}>
       <div className="grid grid-cols-4 gap-2">
@@ -392,6 +325,7 @@ export default function PropertyPanel({
     </SectionContainer>
   );
 
+  // 3. Text Style
   if (node.type === "Text") {
     panels.push(
       <SectionContainer key="text" title="Text Style" icon={Type}>
@@ -408,7 +342,7 @@ export default function PropertyPanel({
         <div className="space-y-2 w-fit mx-auto bg-gray-50 p-2 rounded-lg border border-gray-200">
           <div className="flex space-x-2 justify-center">
             <StyleButton icon={Bold} title="Bold" active={isBold} onClick={() => toggleFontStyle('bold')} />
-            <StyleButton icon={Type} title="Italic" active={isItalic} onClick={() => toggleFontStyle('italic')} />
+            <StyleButton icon={Italic} title="Italic" active={isItalic} onClick={() => toggleFontStyle('italic')} />
             <StyleButton icon={Underline} title="Underline" active={isUnderline} onClick={() => toggleTextDecoration('underline')} />
           </div>
           <div className="w-full bg-gray-300 h-px"></div>
@@ -444,6 +378,7 @@ export default function PropertyPanel({
     );
   }
 
+  // 4. Icon Appearance
   if (node.type === "Icon") {
     const iconProps = node.props as IconProps;
     const iconFill = iconProps.fill ?? '#000000';
@@ -503,7 +438,77 @@ export default function PropertyPanel({
     );
   }
 
-  // Use capabilities for generic shape/image properties
+  // 5. Image Adjustments (Filters & Flip)
+  if (node.type === "Image") {
+    const imageProps = node.props as ImageProps;
+    const filters = imageProps.filters || {};
+    const flipHorizontal = imageProps.flipHorizontal || false;
+    const flipVertical = imageProps.flipVertical || false;
+
+    panels.push(
+      <SectionContainer key="image-adjustments" title="Image Adjustments" icon={Settings}>
+        {/* Flip Controls */}
+        <div className="flex flex-col mb-4">
+          <label className="text-xs font-semibold text-gray-700 mb-2">Flip</label>
+          <div className="flex gap-2">
+            <button
+              onClick={() => handlePropChange('flipHorizontal', !flipHorizontal)}
+              className={`flex-1 py-2 px-3 rounded-md text-xs font-medium border transition-colors ${flipHorizontal ? 'bg-blue-50 border-blue-200 text-blue-700' : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'}`}
+            >
+              Flip Horizontal
+            </button>
+            <button
+              onClick={() => handlePropChange('flipVertical', !flipVertical)}
+              className={`flex-1 py-2 px-3 rounded-md text-xs font-medium border transition-colors ${flipVertical ? 'bg-blue-50 border-blue-200 text-blue-700' : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'}`}
+            >
+              Flip Vertical
+            </button>
+          </div>
+        </div>
+
+        {/* Filter Sliders */}
+        <div className="space-y-3 border-t border-gray-100 pt-3">
+          <InputGroup
+            label="Brightness"
+            type="range"
+            min={0} max={200}
+            value={filters.brightness ?? 100}
+            onChange={(v) => handlePropChange('filters', { ...filters, brightness: Number(v) })}
+          />
+          <InputGroup
+            label="Contrast"
+            type="range"
+            min={0} max={200}
+            value={filters.contrast ?? 100}
+            onChange={(v) => handlePropChange('filters', { ...filters, contrast: Number(v) })}
+          />
+          <InputGroup
+            label="Saturation"
+            type="range"
+            min={0} max={200}
+            value={filters.saturate ?? 100}
+            onChange={(v) => handlePropChange('filters', { ...filters, saturate: Number(v) })}
+          />
+          <InputGroup
+            label="Blur"
+            type="range"
+            min={0} max={20}
+            value={filters.blur ?? 0}
+            onChange={(v) => handlePropChange('filters', { ...filters, blur: Number(v) })}
+          />
+          <InputGroup
+            label="Grayscale"
+            type="range"
+            min={0} max={100}
+            value={filters.grayscale ?? 0}
+            onChange={(v) => handlePropChange('filters', { ...filters, grayscale: Number(v) })}
+          />
+        </div>
+      </SectionContainer>
+    );
+  }
+
+  // 6. Generic Appearance (Fill, Stroke, Corner Radius, Crop)
   const capabilities = getNodeCapabilities(node);
 
   if (capabilities.hasFill || capabilities.hasStroke || capabilities.hasCrop) {
@@ -515,8 +520,12 @@ export default function PropertyPanel({
             <button
               className="w-full py-2 px-4 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md flex items-center justify-center gap-2 transition-colors text-sm font-medium"
               onClick={() => {
-                // Placeholder for crop mode trigger
-                alert("Double-click the image on canvas to crop.");
+                if (onEnterCropMode) {
+                  onEnterCropMode();
+                } else {
+                  // Fallback if prop not provided yet
+                  alert("Double-click the image on canvas to crop.");
+                }
               }}
             >
               <Crop size={16} />
@@ -549,6 +558,7 @@ export default function PropertyPanel({
     );
   }
 
+  // 7. Transform
   panels.push(
     <SectionContainer key="transform" title="Transform" icon={Move} disabled={layoutControlsDisabled}>
       <div className="grid grid-cols-2 gap-3">
@@ -562,6 +572,7 @@ export default function PropertyPanel({
     </SectionContainer>
   );
 
+  // 8. Shadow
   panels.push(
     <SectionContainer key="shadow" title="Shadow" icon={RotateCw} defaultOpen={false}>
       <ColorPickerWithSwatch label="Shadow Color" color={shadowColor || "#000000"} onChange={(v) => handlePropChange('shadowColor', v)} />
@@ -585,4 +596,9 @@ export default function PropertyPanel({
       </div>
     </div>
   );
+}
+
+// Missing icons import fix
+function Edit({ size, className }: { size: number, className?: string }) {
+  return <Type size={size} className={className} />; // Placeholder if Edit icon is missing or use Lucide's Edit
 }

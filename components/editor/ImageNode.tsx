@@ -3,7 +3,7 @@
 import React, { useRef, useState, useEffect, memo } from "react";
 import { Image as KonvaImage } from "react-konva";
 import Konva from "konva";
-import { ImageProps, KonvaNodeDefinition } from "@/types/template"; // Import ImageProps
+import { ImageProps, KonvaNodeDefinition } from "@/types/template";
 
 // Simple image cache (Helps prevent unnecessary reloads)
 const imageCache: Record<string, HTMLImageElement> = {};
@@ -42,12 +42,11 @@ function useCachedImage(src?: string | null): HTMLImageElement | undefined {
 }
 
 interface ImageNodeProps {
-  // Use a narrowed type for strict type-checking
   node: KonvaNodeDefinition & { type: "Image"; props: ImageProps };
-  nodeRef?: React.RefObject<Konva.Image>; // Added prop
+  nodeRef?: React.RefObject<Konva.Image>;
   isSelected: boolean;
   onSelect: () => void;
-  onNodeChange: (updates: Partial<ImageProps>) => void; // ImageProps here
+  onNodeChange: (updates: Partial<ImageProps>) => void;
   isLocked: boolean;
   isLayoutDisabled: boolean;
   onDragStart?: (e: Konva.KonvaEventObject<DragEvent>) => void;
@@ -58,7 +57,7 @@ interface ImageNodeProps {
 
 const ImageNode: React.FC<ImageNodeProps> = memo(({
   node,
-  nodeRef, // Destructure
+  nodeRef,
   isSelected,
   onSelect,
   onNodeChange,
@@ -72,14 +71,30 @@ const ImageNode: React.FC<ImageNodeProps> = memo(({
   const internalRef = useRef<Konva.Image>(null);
   const konvaNodeRef = nodeRef || internalRef;
 
-  // FIX APPLIED: strokeWidth is now safe to destructure from node.props because ImageProps extends BaseNodeProps and explicitly includes strokeWidth
   const {
     x, y, width, height, rotation, opacity, visible, src,
     stroke, strokeWidth, cornerRadius,
-    cropX, cropY, cropWidth, cropHeight
+    cropX, cropY, cropWidth, cropHeight,
+    filters, flipHorizontal, flipVertical
   } = node.props;
 
   const image = useCachedImage(src);
+
+  // Apply filters when image loads or props change
+  useEffect(() => {
+    if (image && konvaNodeRef.current) {
+      konvaNodeRef.current.cache();
+    }
+  }, [image, filters, width, height, cornerRadius, stroke, strokeWidth, flipHorizontal, flipVertical]);
+
+  const activeFilters = [];
+  if (filters) {
+    if (filters.blur && filters.blur > 0) activeFilters.push(Konva.Filters.Blur);
+    if (filters.brightness && filters.brightness !== 100) activeFilters.push(Konva.Filters.Brighten);
+    if (filters.contrast && filters.contrast !== 100) activeFilters.push(Konva.Filters.Contrast);
+    if (filters.grayscale && filters.grayscale > 0) activeFilters.push(Konva.Filters.Grayscale);
+    if (filters.sepia && filters.sepia > 0) activeFilters.push(Konva.Filters.Sepia);
+  }
 
   const handleDragEnd = (e: Konva.KonvaEventObject<DragEvent>) => {
     onNodeChange({
@@ -93,7 +108,7 @@ const ImageNode: React.FC<ImageNodeProps> = memo(({
       key={node.id}
       ref={konvaNodeRef}
       id={node.id}
-      image={image} // Konva prop for the loaded image
+      image={image}
       x={x}
       y={y}
       width={width}
@@ -119,6 +134,20 @@ const ImageNode: React.FC<ImageNodeProps> = memo(({
         width: cropWidth || 0,
         height: cropHeight || 0,
       }}
+
+      // Filters
+      filters={activeFilters}
+      blurRadius={filters?.blur || 0}
+      // Map 0-200 to -1 to 1. 100 is 0.
+      brightness={(filters?.brightness !== undefined ? filters.brightness - 100 : 0) / 100}
+      // Map 0-200 to -100 to 100. 100 is 0.
+      contrast={filters?.contrast !== undefined ? filters.contrast - 100 : 0}
+
+      // Flip (Scale -1)
+      scaleX={flipHorizontal ? -1 : 1}
+      scaleY={flipVertical ? -1 : 1}
+      offsetX={flipHorizontal ? width : 0}
+      offsetY={flipVertical ? height : 0}
     />
   );
 });

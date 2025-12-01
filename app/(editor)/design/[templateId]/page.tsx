@@ -858,10 +858,10 @@ export default function Editor() {
                     <PropertyPanel
                         node={selectedNode}
 
-                        onPropChange={(updates: Partial<KonvaNodeProps>) =>
+                        onPropChange={(_id: string, updates: Partial<KonvaNodeProps>) =>
                             selectedIndices.length === 1 && onNodeChange(selectedIndices[0], updates)
                         }
-                        onDefinitionChange={(updates: Partial<KonvaNodeDefinition>) =>
+                        onDefinitionChange={(_id: string, updates: Partial<KonvaNodeDefinition>) =>
                             selectedIndices.length === 1 && onNodeDefinitionChange(selectedIndices[0], updates)
                         }
                         mode={mode}
