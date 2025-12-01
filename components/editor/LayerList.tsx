@@ -56,7 +56,7 @@ export default function LayerList({
     message: string;
     onConfirm: () => void;
     variant?: 'danger' | 'warning' | 'info';
-  }>({ isOpen: false, title: '', message: '', onConfirm: () => {} });
+  }>({ isOpen: false, title: '', message: '', onConfirm: () => { } });
 
   // Group expansion state
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(
@@ -302,149 +302,151 @@ export default function LayerList({
 
   return (
     <div className="flex-1 h-full bg-white flex flex-col gap-0 overflow-hidden">
-      {/* Header removed as it is now handled by EditorSidebar */}
-
-      {/* Search Bar */}
-      <LayerSearchBar
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
-        filterType={filterType}
-        onFilterTypeChange={setFilterType}
-      />
-
-      {/* Bulk Actions Toolbar */}
-      <BulkActionsToolbar
-        selectedCount={bulkSelectedIndices.length}
-        onShowAll={handleBulkShowAll}
-        onHideAll={handleBulkHideAll}
-        onLockAll={handleBulkLockAll}
-        onUnlockAll={handleBulkUnlockAll}
-        onDeleteAll={handleBulkDeleteAll}
-        onGroupSelected={onCreateGroup ? handleBulkGroup : undefined}
-      />
-
-      {/* Select All / Deselect All */}
-      {layers.length > 0 && (
-        <div className="px-4 py-2 border-b border-gray-200 shrink-0 bg-gray-50/50">
-          <button
-            onClick={bulkSelectedIndices.length === layers.length ? handleDeselectAll : handleSelectAll}
-            className="text-xs text-blue-600 hover:text-blue-700 font-medium transition-colors"
-          >
-            {bulkSelectedIndices.length === layers.length ? "Deselect All" : "Select All"}
-          </button>
+      <div className="flex-1 overflow-y-auto custom-scrollbar flex flex-col">
+        {/* Search Bar */}
+        <div className="pt-2 bg-white">
+          <LayerSearchBar
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+            filterType={filterType}
+            onFilterTypeChange={setFilterType}
+          />
         </div>
-      )}
 
-      {/* Layers List */}
-      <div className="space-y-1 flex-1 overflow-y-auto px-4 py-2 custom-scrollbar">
-        {/* Render Groups */}
-        {groups.map(group => {
-          const groupLayers = layersByGroup.grouped[group.id] || [];
-          const isExpanded = expandedGroups.has(group.id);
+        {/* Bulk Actions Toolbar */}
+        <BulkActionsToolbar
+          selectedCount={bulkSelectedIndices.length}
+          onShowAll={handleBulkShowAll}
+          onHideAll={handleBulkHideAll}
+          onLockAll={handleBulkLockAll}
+          onUnlockAll={handleBulkUnlockAll}
+          onDeleteAll={handleBulkDeleteAll}
+          onGroupSelected={onCreateGroup ? handleBulkGroup : undefined}
+        />
 
-          return (
-            <div key={group.id} className="mb-2">
-              {/* Group Header */}
-              <div className="flex items-center gap-2 p-2 bg-gray-100 rounded hover:bg-gray-150 border border-gray-200 group">
-                <button
-                  onClick={() => toggleGroupExpansion(group.id)}
-                  className="p-0.5 hover:bg-gray-200 rounded text-gray-500"
-                >
+        {/* Select All / Deselect All */}
+        {layers.length > 0 && (
+          <div className="px-4 py-2 border-b border-gray-200 bg-gray-50/50">
+            <button
+              onClick={bulkSelectedIndices.length === layers.length ? handleDeselectAll : handleSelectAll}
+              className="text-xs text-blue-600 hover:text-blue-700 font-medium transition-colors"
+            >
+              {bulkSelectedIndices.length === layers.length ? "Deselect All" : "Select All"}
+            </button>
+          </div>
+        )}
+
+        {/* Layers List */}
+        <div className="space-y-1 px-4 py-2">
+          {/* Render Groups */}
+          {groups.map(group => {
+            const groupLayers = layersByGroup.grouped[group.id] || [];
+            const isExpanded = expandedGroups.has(group.id);
+
+            return (
+              <div key={group.id} className="mb-2">
+                {/* Group Header */}
+                <div className="flex items-center gap-2 p-2 bg-gray-100 rounded hover:bg-gray-150 border border-gray-200 group">
+                  <button
+                    onClick={() => toggleGroupExpansion(group.id)}
+                    className="p-0.5 hover:bg-gray-200 rounded text-gray-500"
+                  >
+                    {isExpanded ? (
+                      <ChevronDown className="w-4 h-4" />
+                    ) : (
+                      <ChevronRight className="w-4 h-4" />
+                    )}
+                  </button>
                   {isExpanded ? (
-                    <ChevronDown className="w-4 h-4" />
+                    <FolderOpen className="w-4 h-4 text-blue-500" />
                   ) : (
-                    <ChevronRight className="w-4 h-4" />
+                    <Folder className="w-4 h-4 text-blue-500" />
                   )}
-                </button>
-                {isExpanded ? (
-                  <FolderOpen className="w-4 h-4 text-blue-500" />
-                ) : (
-                  <Folder className="w-4 h-4 text-blue-500" />
+                  <span className="flex-1 font-medium text-sm text-gray-700">{group.name}</span>
+                  <span className="text-xs text-gray-400">({groupLayers.length})</span>
+
+                  {/* Group Controls - Visible on Hover */}
+                  <div className="flex items-center opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button
+                      onClick={() => handleGroupVisibilityToggle(group.id)}
+                      className="p-1 rounded hover:bg-gray-200 text-gray-400 hover:text-gray-700"
+                      title={group.visible ? "Hide group" : "Show group"}
+                    >
+                      {group.visible ? (
+                        <Eye className="w-3.5 h-3.5" />
+                      ) : (
+                        <EyeOff className="w-3.5 h-3.5" />
+                      )}
+                    </button>
+                    <button
+                      onClick={() => handleGroupLockToggle(group.id)}
+                      className="p-1 rounded hover:bg-gray-200 text-gray-400 hover:text-gray-700"
+                      title={group.locked ? "Unlock group" : "Lock group"}
+                    >
+                      {group.locked ? (
+                        <Lock className="w-3.5 h-3.5" />
+                      ) : (
+                        <Unlock className="w-3.5 h-3.5" />
+                      )}
+                    </button>
+                    <button
+                      onClick={() => handleGroupDelete(group.id)}
+                      className="p-1 rounded hover:bg-red-50 text-gray-400 hover:text-red-500"
+                      title="Delete group"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Group Layers */}
+                {isExpanded && (
+                  <div className="ml-6 mt-1 space-y-1">
+                    {groupLayers.map((layer) => {
+                      const listIndex = reversedLayers.indexOf(layer);
+                      const konvaIndex = mapListIndexToKonvaIndex(listIndex);
+                      const isSelected = selectedIndex === konvaIndex;
+                      const isBulkSelected = bulkSelectedIndices.includes(konvaIndex);
+                      const isLocked = layer.locked ?? false;
+                      const isVisible = layer.props.visible ?? true;
+
+                      return renderLayerItem(layer, listIndex, konvaIndex, isSelected, isBulkSelected, isLocked, isVisible);
+                    })}
+                  </div>
                 )}
-                <span className="flex-1 font-medium text-sm text-gray-700">{group.name}</span>
-                <span className="text-xs text-gray-400">({groupLayers.length})</span>
-
-                {/* Group Controls - Visible on Hover */}
-                <div className="flex items-center opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button
-                    onClick={() => handleGroupVisibilityToggle(group.id)}
-                    className="p-1 rounded hover:bg-gray-200 text-gray-400 hover:text-gray-700"
-                    title={group.visible ? "Hide group" : "Show group"}
-                  >
-                    {group.visible ? (
-                      <Eye className="w-3.5 h-3.5" />
-                    ) : (
-                      <EyeOff className="w-3.5 h-3.5" />
-                    )}
-                  </button>
-                  <button
-                    onClick={() => handleGroupLockToggle(group.id)}
-                    className="p-1 rounded hover:bg-gray-200 text-gray-400 hover:text-gray-700"
-                    title={group.locked ? "Unlock group" : "Lock group"}
-                  >
-                    {group.locked ? (
-                      <Lock className="w-3.5 h-3.5" />
-                    ) : (
-                      <Unlock className="w-3.5 h-3.5" />
-                    )}
-                  </button>
-                  <button
-                    onClick={() => handleGroupDelete(group.id)}
-                    className="p-1 rounded hover:bg-red-50 text-gray-400 hover:text-red-500"
-                    title="Delete group"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
-                </div>
               </div>
+            );
+          })}
 
-              {/* Group Layers */}
-              {isExpanded && (
-                <div className="ml-6 mt-1 space-y-1">
-                  {groupLayers.map((layer) => {
-                    const listIndex = reversedLayers.indexOf(layer);
-                    const konvaIndex = mapListIndexToKonvaIndex(listIndex);
-                    const isSelected = selectedIndex === konvaIndex;
-                    const isBulkSelected = bulkSelectedIndices.includes(konvaIndex);
-                    const isLocked = layer.locked ?? false;
-                    const isVisible = layer.props.visible ?? true;
+          {/* Render Ungrouped Layers */}
+          {layersByGroup.ungrouped.map((layer) => {
+            const listIndex = reversedLayers.indexOf(layer);
+            const konvaIndex = mapListIndexToKonvaIndex(listIndex);
+            const isSelected = selectedIndex === konvaIndex;
+            const isBulkSelected = bulkSelectedIndices.includes(konvaIndex);
+            const isLocked = layer.locked ?? false;
+            const isVisible = layer.props.visible ?? true;
 
-                    return renderLayerItem(layer, listIndex, konvaIndex, isSelected, isBulkSelected, isLocked, isVisible);
-                  })}
-                </div>
-              )}
-            </div>
-          );
-        })}
-
-        {/* Render Ungrouped Layers */}
-        {layersByGroup.ungrouped.map((layer) => {
-          const listIndex = reversedLayers.indexOf(layer);
-          const konvaIndex = mapListIndexToKonvaIndex(listIndex);
-          const isSelected = selectedIndex === konvaIndex;
-          const isBulkSelected = bulkSelectedIndices.includes(konvaIndex);
-          const isLocked = layer.locked ?? false;
-          const isVisible = layer.props.visible ?? true;
-
-          // Apply search filter
-          if (searchQuery || filterType !== "all") {
-            if (!filteredLayers.includes(layer)) {
-              return null;
+            // Apply search filter
+            if (searchQuery || filterType !== "all") {
+              if (!filteredLayers.includes(layer)) {
+                return null;
+              }
             }
-          }
 
-          return renderLayerItem(layer, listIndex, konvaIndex, isSelected, isBulkSelected, isLocked, isVisible);
-        })}
-      </div>
-
-      {layers.length === 0 && (
-        <div className="flex-1 flex flex-col items-center justify-center px-4 text-gray-400">
-          <Layers className="w-12 h-12 mb-2 opacity-20" />
-          <p className="text-center text-sm">
-            No layers yet.
-          </p>
+            return renderLayerItem(layer, listIndex, konvaIndex, isSelected, isBulkSelected, isLocked, isVisible);
+          })}
         </div>
-      )}
+
+        {layers.length === 0 && (
+          <div className="flex-1 flex flex-col items-center justify-center px-4 text-gray-400">
+            <Layers className="w-12 h-12 mb-2 opacity-20" />
+            <p className="text-center text-sm">
+              No layers yet.
+            </p>
+          </div>
+        )}
+      </div>
 
       {/* Confirmation Modal */}
       <ConfirmationModal
