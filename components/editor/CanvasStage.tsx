@@ -15,7 +15,7 @@ import { getSnappingLines, getSnapAndAlignLines, SnappingLine } from "../../lib/
 import { getNodesInRect, normalizeRect, SelectionRect } from "../../lib/selectionHelpers";
 import { useSelectionManager } from "../../hooks/useSelectionManager";
 import CropOverlay from "./CropOverlay";
-import PrintSpecsOverlay from "./PrintSpecsOverlay";
+
 
 /**
  * Define print-production constants in pixels.
@@ -236,9 +236,7 @@ interface CanvasStageProps {
 
     mode: "FULL_EDIT" | "DATA_ONLY";
 
-    // Print Guide Props (NEW)
-    showPrintGuide?: boolean;
-    bleedSizeMm?: number;
+
 }
 
 const CanvasStage = forwardRef<KonvaStageType, CanvasStageProps>(
@@ -247,8 +245,7 @@ const CanvasStage = forwardRef<KonvaStageType, CanvasStageProps>(
         onNodeChange, onBatchNodeChange, onStartEditing, onEditQRCode, onEditLogo, parentRef,
         zoom: externalZoom = 1, onZoomChange, panOffset: externalPanOffset = { x: 0, y: 0 }, onPanChange,
         mode,
-        showPrintGuide = false,
-        bleedSizeMm = 3
+
     }, ref) => {
 
         const { width: templateWidth, height: templateHeight, layers } = template;
@@ -814,13 +811,7 @@ const CanvasStage = forwardRef<KonvaStageType, CanvasStageProps>(
 
                     {/* 3. OVERLAYS (Crop, Print Specs, etc.) */}
                     {/* Print Specs Overlay - Renders ON TOP of content but BELOW Transformer */}
-                    <PrintSpecsOverlay
-                        visible={showPrintGuide}
-                        templateWidth={templateWidth}
-                        templateHeight={templateHeight}
-                        bleedMm={bleedSizeMm}
-                        dpi={300} // Default display DPI
-                    />
+
 
                     {/* Transformer Layer - Always on top */}
                     <Layer name="transformer-layer">

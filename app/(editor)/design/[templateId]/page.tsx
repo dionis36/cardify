@@ -275,7 +275,7 @@ export default function Editor() {
 
     // Export & Print State
     const [exportModalOpen, setExportModalOpen] = useState(false);
-    const [printGuideVisible, setPrintGuideVisible] = useState(false);
+
 
 
     const selectedNode = selectedIndices.length === 1 ? currentPage.layers[selectedIndices[0]] : null;
@@ -685,20 +685,10 @@ export default function Editor() {
         setExportModalOpen(false);
     }, []);
 
-    const handleTogglePrintGuide = useCallback(() => {
-        setPrintGuideVisible(prev => !prev);
-    }, []);
+
 
     const handleExport = useCallback(async (options: ExportOptions) => {
         if (!stageRef.current) return;
-
-        // Hide print guide during export if it's visible
-        const wasPrintGuideVisible = printGuideVisible;
-        if (wasPrintGuideVisible) {
-            setPrintGuideVisible(false);
-            // Give React a moment to re-render and remove the guide
-            await new Promise(resolve => setTimeout(resolve, 50));
-        }
 
         try {
             // Add template dimensions to options for accurate cropping
@@ -711,10 +701,8 @@ export default function Editor() {
             await exportWithOptions(stageRef.current, enhancedOptions);
         } catch (error) {
             console.error("Export failed:", error);
-        } finally {
-            if (wasPrintGuideVisible) setPrintGuideVisible(true);
         }
-    }, [currentPage, printGuideVisible]);
+    }, [currentPage]);
 
     // Handle Logo Selection - ONLY changes the logo, NOT the theme
     const onSelectLogo = useCallback((logoVariant: LogoVariant) => {
@@ -798,8 +786,7 @@ export default function Editor() {
                 onSave={() => { }}
                 onBack={() => { }}
                 onReset={handleReset}
-                onTogglePrintGuide={handleTogglePrintGuide}
-                printGuideVisible={printGuideVisible}
+
             />
 
             <div className="flex flex-1 pt-14 overflow-hidden">
@@ -867,7 +854,7 @@ export default function Editor() {
                         mode={mode}
 
                         // Print Guide
-                        showPrintGuide={printGuideVisible}
+
                         bleedSizeMm={3}
                     />
 
@@ -892,7 +879,7 @@ export default function Editor() {
                         onDefinitionChange={(_id: string, updates: Partial<KonvaNodeDefinition>) =>
                             selectedIndices.length === 1 && onNodeDefinitionChange(selectedIndices[0], updates)
                         }
-                        mode={mode}
+
 
                         // NEW PROPS for Layer Ordering
                         onMoveToFront={moveLayerToFront}
@@ -900,8 +887,7 @@ export default function Editor() {
                         onMoveUp={moveLayerUp}
                         onMoveDown={moveLayerDown}
 
-                        // NEW: Allow adding nodes from property panel (e.g. empty state)
-                        onAddNode={onAddNode}
+
 
                         // NEW: Allow deleting nodes from property panel
                         onDelete={handleDelete}

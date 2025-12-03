@@ -59,15 +59,16 @@ export async function exportAsPDF(
   stage: Konva.Stage,
   options: ExportOptions
 ): Promise<void> {
-  // Enforce High Quality for PDF
-  const dpi = 300;
+  // Enforce Ultra-High Quality for PDF (effectively 1200 DPI for crisp text)
+  const dpi = 1200;
   const fileName = options.fileName || "card.pdf";
   const bleedMm = 3; // Standard 3mm bleed
 
   // Create canvas with bleed zone for Print
   // We pass baseDpi=300 because our template is defined at 300 DPI
+  // This will result in a 4x pixel ratio (1200/300)
   const bleedCanvas = await createBleedCanvas(stage, bleedMm, dpi, 300);
-  const dataURL = bleedCanvas.toDataURL("image/png");
+  const dataURL = bleedCanvas.toDataURL("image/png", 1.0); // Use max quality for PNG encoding
 
   // Calculate dimensions for PDF
   // We assume the template pixels correspond to 300 DPI

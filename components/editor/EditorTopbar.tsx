@@ -2,7 +2,7 @@
 
 "use client";
 
-import { Download, Undo, Redo, Save, ArrowLeft, Loader, Shuffle, RotateCcw, Eye, EyeOff } from "lucide-react";
+import { Download, Undo, Redo, Save, ArrowLeft, Loader, Shuffle, RotateCcw } from "lucide-react";
 import Link from "next/link";
 
 interface EditorTopbarProps {
@@ -22,10 +22,6 @@ interface EditorTopbarProps {
     // Logo Shuffle
     onShuffleLogo?: () => void;
     hasLogo?: boolean;
-
-    // Print Guide (NEW)
-    onTogglePrintGuide?: () => void;
-    printGuideVisible?: boolean;
 }
 
 export default function EditorTopbar({
@@ -41,8 +37,6 @@ export default function EditorTopbar({
     onBack,
     onShuffleLogo,
     hasLogo = false,
-    onTogglePrintGuide,
-    printGuideVisible = false
 }: EditorTopbarProps) {
     return (
         <div className="absolute top-0 left-0 right-0 h-14 bg-white border-b border-gray-200 flex items-center justify-between px-4 z-50 shadow-sm">
@@ -107,7 +101,7 @@ export default function EditorTopbar({
                 )}
             </div>
 
-            {/* 3. Right: Actions (Save, Print Guide, Export) */}
+            {/* 3. Right: Actions (Save, Export) */}
             <div className="flex items-center space-x-3">
                 {/* Save Button */}
                 <button
@@ -118,21 +112,6 @@ export default function EditorTopbar({
                     {saving ? <Loader size={16} className="animate-spin mr-2" /> : <Save size={16} className="mr-2" />}
                     Save
                 </button>
-
-                {/* Print Guide Toggle */}
-                {onTogglePrintGuide && (
-                    <button
-                        onClick={onTogglePrintGuide}
-                        className={`flex items-center px-3 py-2 text-sm font-medium rounded-md transition ${printGuideVisible
-                                ? 'text-white bg-purple-600 hover:bg-purple-700'
-                                : 'text-gray-600 bg-white border border-gray-300 hover:bg-gray-50'
-                            }`}
-                        title="Toggle Print Guide"
-                    >
-                        {printGuideVisible ? <Eye size={16} className="mr-2" /> : <EyeOff size={16} className="mr-2" />}
-                        Print Guide
-                    </button>
-                )}
 
                 {/* Export Button */}
                 <button
