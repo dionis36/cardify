@@ -82,9 +82,9 @@ export default function ConfirmationModal({
             className="fixed inset-0 z-[9999] flex items-center justify-center animate-fadeIn"
             onClick={handleBackdropClick}
             style={{
-                backgroundColor: 'rgba(0, 0, 0, 0.4)',
-                backdropFilter: 'blur(8px)',
-                WebkitBackdropFilter: 'blur(8px)'
+                backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                backdropFilter: 'blur(4px)',
+                WebkitBackdropFilter: 'blur(4px)'
             }}
         >
             <div
@@ -121,34 +121,34 @@ export default function ConfirmationModal({
             </div>
 
             <style jsx>{`
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-          }
-          to {
-            opacity: 1;
-          }
-        }
+                @keyframes fadeIn {
+                    from {
+                        opacity: 0;
+                    }
+                    to {
+                        opacity: 1;
+                    }
+                }
 
-        @keyframes scaleIn {
-          from {
-            opacity: 0;
-            transform: scale(0.95);
-          }
-          to {
-            opacity: 1;
-            transform: scale(1);
-          }
-        }
+                @keyframes scaleIn {
+                    from {
+                        opacity: 0;
+                        transform: scale(0.95);
+                    }
+                    to {
+                        opacity: 1;
+                        transform: scale(1);
+                    }
+                }
 
-        .animate-fadeIn {
-          animation: fadeIn 0.2s ease-out;
-        }
+                .animate-fadeIn {
+                    animation: fadeIn 0.2s ease-out;
+                }
 
-        .animate-scaleIn {
-          animation: scaleIn 0.2s ease-out;
-        }
-      `}</style>
+                .animate-scaleIn {
+                    animation: scaleIn 0.2s ease-out;
+                }
+            `}</style>
         </div>,
         document.body
     );

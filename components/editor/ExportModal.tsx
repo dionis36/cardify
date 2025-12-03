@@ -67,11 +67,16 @@ export default function ExportModal({
 
     return (
         <div
-            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm"
+            className="fixed inset-0 z-[100] flex items-center justify-center animate-fadeIn"
             onClick={onClose}
+            style={{
+                backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                backdropFilter: 'blur(4px)',
+                WebkitBackdropFilter: 'blur(4px)'
+            }}
         >
             <div
-                className="relative w-full max-w-md bg-white rounded-xl shadow-2xl overflow-hidden"
+                className="relative w-full max-w-md mx-4 bg-white rounded-xl shadow-2xl overflow-hidden animate-scaleIn"
                 onClick={(e) => e.stopPropagation()}
             >
                 {/* Header */}
@@ -97,7 +102,7 @@ export default function ExportModal({
                             <button
                                 onClick={() => setFormat("PNG")}
                                 className={`
-                                    flex flex-col items-center justify-center p-4 rounded-lg border-2 transition-all
+                                    flex flex-col items-center justify-center p-4 rounded-lg border-2 transition-all duration-150
                                     ${format === "PNG"
                                         ? "border-blue-500 bg-blue-50 text-blue-700"
                                         : "border-gray-200 hover:border-gray-300 text-gray-600"
@@ -112,7 +117,7 @@ export default function ExportModal({
                             <button
                                 onClick={() => setFormat("PDF")}
                                 className={`
-                                    flex flex-col items-center justify-center p-4 rounded-lg border-2 transition-all
+                                    flex flex-col items-center justify-center p-4 rounded-lg border-2 transition-all duration-150
                                     ${format === "PDF"
                                         ? "border-blue-500 bg-blue-50 text-blue-700"
                                         : "border-gray-200 hover:border-gray-300 text-gray-600"
@@ -136,35 +141,23 @@ export default function ExportModal({
                             value={fileName}
                             onChange={(e) => setFileName(e.target.value)}
                             placeholder="card"
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-150"
                         />
                     </div>
-
-                    {/* Info 
-                    <div className="text-center text-sm text-gray-500 bg-gray-50 p-3 rounded-lg">
-                        <p>High Quality Export (300 DPI)</p>
-                        <p className="text-xs mt-1">Estimated Size: {fileSize}</p>
-                        {format === "PDF" && (
-                            <p className="text-xs text-blue-600 mt-1 font-medium">
-                                Includes 3mm Bleed for Professional Printing
-                            </p>
-                        )}
-                    </div>
-                    */}
                 </div>
 
                 {/* Footer */}
                 <div className="bg-gray-50 border-t border-gray-200 px-6 py-4 flex items-center justify-end gap-3">
                     <button
                         onClick={onClose}
-                        className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+                        className="px-5 py-2.5 rounded-lg font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 transition-colors duration-150"
                     >
                         Cancel
                     </button>
                     <button
                         onClick={handleExport}
                         disabled={exporting}
-                        className="px-6 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                        className="px-6 py-2.5 rounded-lg font-medium text-white bg-blue-600 hover:bg-blue-700 transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                     >
                         {exporting ? (
                             <>
@@ -180,6 +173,36 @@ export default function ExportModal({
                     </button>
                 </div>
             </div>
+
+            <style jsx>{`
+                @keyframes fadeIn {
+                    from {
+                        opacity: 0;
+                    }
+                    to {
+                        opacity: 1;
+                    }
+                }
+
+                @keyframes scaleIn {
+                    from {
+                        opacity: 0;
+                        transform: scale(0.95);
+                    }
+                    to {
+                        opacity: 1;
+                        transform: scale(1);
+                    }
+                }
+
+                .animate-fadeIn {
+                    animation: fadeIn 0.2s ease-out;
+                }
+
+                .animate-scaleIn {
+                    animation: scaleIn 0.2s ease-out;
+                }
+            `}</style>
         </div>
     );
 }
