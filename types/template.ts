@@ -59,6 +59,22 @@ export interface BackgroundPattern {
   overlayColor?: string; // Color to tint the texture
 }
 
+// --- EXPORT OPTIONS (NEW) ---
+
+export type ExportFormat = "PNG" | "PDF";
+export type ExportPreset = "web" | "print" | "social"; // Deprecated but kept for compatibility
+
+export interface ExportOptions {
+  format: ExportFormat;
+  fileName?: string;
+  // Internal options
+  dpi?: number;
+  includeBleed?: boolean;
+  bleedSize?: number;
+  templateWidth?: number;
+  templateHeight?: number;
+}
+
 // --- BASE PROPERTIES (Common to ALL Konva Nodes) ---
 export interface NodeCommonProps {
   id: string;

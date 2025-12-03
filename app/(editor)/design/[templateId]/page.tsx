@@ -11,15 +11,17 @@ import EditorSidebar, { SidebarTab } from "@/components/editor/EditorSidebar";
 import EditorTopbar from "@/components/editor/EditorTopbar";
 import PropertyPanel from "@/components/editor/PropertyPanel";
 import ZoomControls from "@/components/editor/ZoomControls";
+
 import ConfirmationModal from "@/components/ui/ConfirmationModal";
+import ExportModal from "@/components/editor/ExportModal";
 
 
 // Types/Libs
-import { CardTemplate, KonvaNodeDefinition, KonvaNodeProps, BackgroundPattern, BackgroundType, LayerGroup } from "@/types/template";
+import { CardTemplate, KonvaNodeDefinition, KonvaNodeProps, BackgroundPattern, BackgroundType, LayerGroup, ExportOptions } from "@/types/template";
 import { LogoVariant } from "@/lib/logoIndex";
 import { trackLogoUsage } from "@/lib/logoAssignments";
 import { loadTemplate } from "@/lib/templates";
-import { downloadPNG, downloadPDF } from "@/lib/pdf";
+import { exportWithOptions } from "@/lib/pdf";
 import { useKeyboardShortcuts } from "@/lib/useKeyboardShortcuts";
 
 // Define the editor modes
@@ -270,6 +272,10 @@ export default function Editor() {
     const [clipboard, setClipboard] = useState<KonvaNodeDefinition[]>([]); // NEW: Clipboard for copy/paste
     const currentPage = state.pages[state.current];
     const [showResetConfirm, setShowResetConfirm] = useState(false);
+
+    // Export & Print State
+    const [exportModalOpen, setExportModalOpen] = useState(false);
+    const [printGuideVisible, setPrintGuideVisible] = useState(false);
 
 
     const selectedNode = selectedIndices.length === 1 ? currentPage.layers[selectedIndices[0]] : null;
@@ -669,28 +675,46 @@ export default function Editor() {
 
     // --- OUTPUT / EXPORT HANDLERS ---
 
-    const handleDownload = useCallback((format: 'PNG' | 'PDF') => {
-        if (!stageRef.current) return;
-        const stage = stageRef.current;
+    // --- OUTPUT / EXPORT HANDLERS ---
 
-        // Hide Transformer before export
-        const transformer = stage.findOne('Transformer');
-        transformer?.visible(false);
+    const handleOpenExportModal = useCallback(() => {
+        setExportModalOpen(true);
+    }, []);
+
+    const handleCloseExportModal = useCallback(() => {
+        setExportModalOpen(false);
+    }, []);
+
+    const handleTogglePrintGuide = useCallback(() => {
+        setPrintGuideVisible(prev => !prev);
+    }, []);
+
+    const handleExport = useCallback(async (options: ExportOptions) => {
+        if (!stageRef.current) return;
+
+        // Hide print guide during export if it's visible
+        const wasPrintGuideVisible = printGuideVisible;
+        if (wasPrintGuideVisible) {
+            setPrintGuideVisible(false);
+            // Give React a moment to re-render and remove the guide
+            await new Promise(resolve => setTimeout(resolve, 50));
+        }
 
         try {
-            if (format === 'PNG') {
-                downloadPNG(stage, currentPage.name);
-            } else if (format === 'PDF') {
-                downloadPDF(stage as any, currentPage as any);
-            }
+            // Add template dimensions to options for accurate cropping
+            const enhancedOptions = {
+                ...options,
+                templateWidth: currentPage.width,
+                templateHeight: currentPage.height
+            };
+
+            await exportWithOptions(stageRef.current, enhancedOptions);
         } catch (error) {
-            console.error(`Error during ${format} export:`, error);
+            console.error("Export failed:", error);
         } finally {
-            // Restore visibility
-            transformer?.visible(true);
-            stage.batchDraw();
+            if (wasPrintGuideVisible) setPrintGuideVisible(true);
         }
-    }, [currentPage]);
+    }, [currentPage, printGuideVisible]);
 
     // Handle Logo Selection - ONLY changes the logo, NOT the theme
     const onSelectLogo = useCallback((logoVariant: LogoVariant) => {
@@ -765,7 +789,7 @@ export default function Editor() {
         <div className="flex h-screen w-screen bg-gray-900 overflow-hidden">
             <EditorTopbar
                 templateName={currentPage.name}
-                onDownload={handleDownload}
+                onDownload={handleOpenExportModal}
                 onUndo={() => dispatch({ type: 'UNDO' })}
                 onRedo={() => dispatch({ type: 'REDO' })}
                 canUndo={state.history.length > 0}
@@ -774,6 +798,8 @@ export default function Editor() {
                 onSave={() => { }}
                 onBack={() => { }}
                 onReset={handleReset}
+                onTogglePrintGuide={handleTogglePrintGuide}
+                printGuideVisible={printGuideVisible}
             />
 
             <div className="flex flex-1 pt-14 overflow-hidden">
@@ -839,6 +865,10 @@ export default function Editor() {
                         panOffset={panOffset}
                         onPanChange={setPanOffset}
                         mode={mode}
+
+                        // Print Guide
+                        showPrintGuide={printGuideVisible}
+                        bleedSizeMm={3}
                     />
 
                     {/* Zoom Controls */}
@@ -852,8 +882,6 @@ export default function Editor() {
                 </main>
 
                 {/* C. RIGHT SIDEBAR (Fixed Width - Property Panel) */}
-                {/* FIX LAYER 2: Ensure panel DOM stays above the canvas */}
-                {/* FIX SCROLL: Add h-full and shrink-0 to ensuring it fits container and doesn't squash */}
                 <div className="property-panel relative z-50 h-full shrink-0">
                     <PropertyPanel
                         node={selectedNode}
@@ -890,10 +918,16 @@ export default function Editor() {
                 variant="danger"
                 confirmText="Reset"
             />
+
+            <ExportModal
+                isOpen={exportModalOpen}
+                onClose={handleCloseExportModal}
+                onExport={handleExport}
+                templateWidth={currentPage.width}
+                templateHeight={currentPage.height}
+            />
         </div>
     );
 }
-
-
 
 

@@ -15,6 +15,7 @@ import { getSnappingLines, getSnapAndAlignLines, SnappingLine } from "../../lib/
 import { getNodesInRect, normalizeRect, SelectionRect } from "../../lib/selectionHelpers";
 import { useSelectionManager } from "../../hooks/useSelectionManager";
 import CropOverlay from "./CropOverlay";
+import PrintSpecsOverlay from "./PrintSpecsOverlay";
 
 /**
  * Define print-production constants in pixels.
@@ -234,6 +235,10 @@ interface CanvasStageProps {
     onPanChange?: (offset: { x: number; y: number }) => void; // Callback when pan changes
 
     mode: "FULL_EDIT" | "DATA_ONLY";
+
+    // Print Guide Props (NEW)
+    showPrintGuide?: boolean;
+    bleedSizeMm?: number;
 }
 
 const CanvasStage = forwardRef<KonvaStageType, CanvasStageProps>(
@@ -241,7 +246,9 @@ const CanvasStage = forwardRef<KonvaStageType, CanvasStageProps>(
         template, selectedNodeIndices, onSelectNodes, onDeselectNode,
         onNodeChange, onBatchNodeChange, onStartEditing, onEditQRCode, onEditLogo, parentRef,
         zoom: externalZoom = 1, onZoomChange, panOffset: externalPanOffset = { x: 0, y: 0 }, onPanChange,
-        mode
+        mode,
+        showPrintGuide = false,
+        bleedSizeMm = 3
     }, ref) => {
 
         const { width: templateWidth, height: templateHeight, layers } = template;
@@ -796,18 +803,29 @@ const CanvasStage = forwardRef<KonvaStageType, CanvasStageProps>(
 
                                 // Event handlers
                                 onSelect={() => onSelectNodes([index])}
-                                onNodeChange={(idx, updates) => onNodeChange(idx, updates)} // Fix: onNodeChange signature match
+                                onNodeChange={(idx, updates) => onNodeChange(idx, updates)}
                                 onStartEditing={onStartEditing}
-
-                                onDragStart={() => { }} // Optional?
+                                onDragStart={() => { }}
                                 onDragMove={(e) => handleDragMove(e, index)}
                                 onDragEnd={(e) => handleDragEnd(e, index)}
-                            // onTransformEnd is handled via KonvaNodeRenderer props? 
-                            // KonvaNodeRenderer has its own onTransformEnd handling that calls onNodeChange.
-                            // So we don't need to pass handleTransformEnd explicitly to it if it handles it internally.
-                            // But we need to pass onNodeChange which we did.
                             />
                         ))}
+                    </Layer>
+
+                    {/* 3. OVERLAYS (Crop, Print Specs, etc.) */}
+                    {/* Print Specs Overlay - Renders ON TOP of content but BELOW Transformer */}
+                    <PrintSpecsOverlay
+                        visible={showPrintGuide}
+                        templateWidth={templateWidth}
+                        templateHeight={templateHeight}
+                        bleedMm={bleedSizeMm}
+                        dpi={300} // Default display DPI
+                    />
+
+                    {/* Transformer Layer - Always on top */}
+                    <Layer name="transformer-layer">
+
+
 
                         {/* Transformer - Visible for single or multi-selection in full edit mode */}
                         {selectedNodeIndices.length > 0 && (() => {

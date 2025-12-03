@@ -2,16 +2,15 @@
 
 "use client";
 
-import { Download, Undo, Redo, Save, ArrowLeft, Loader, Shuffle, RotateCcw, ChevronDown, FileImage, FileText } from "lucide-react";
+import { Download, Undo, Redo, Save, ArrowLeft, Loader, Shuffle, RotateCcw, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
-import { useState, useRef, useEffect } from "react";
 
 interface EditorTopbarProps {
     templateName: string;
-    onDownload: (format: 'PNG' | 'PDF') => void;
+    onDownload: () => void; // Changed to open export modal
     onUndo: () => void;
     onRedo: () => void;
-    onReset?: () => void; // Added Reset prop
+    onReset?: () => void;
     canUndo: boolean;
     canRedo: boolean;
 
@@ -23,6 +22,10 @@ interface EditorTopbarProps {
     // Logo Shuffle
     onShuffleLogo?: () => void;
     hasLogo?: boolean;
+
+    // Print Guide (NEW)
+    onTogglePrintGuide?: () => void;
+    printGuideVisible?: boolean;
 }
 
 export default function EditorTopbar({
@@ -37,29 +40,10 @@ export default function EditorTopbar({
     onSave,
     onBack,
     onShuffleLogo,
-    hasLogo = false
+    hasLogo = false,
+    onTogglePrintGuide,
+    printGuideVisible = false
 }: EditorTopbarProps) {
-    const [isExportOpen, setIsExportOpen] = useState(false);
-    const exportRef = useRef<HTMLDivElement>(null);
-
-    // Close dropdown when clicking outside
-    useEffect(() => {
-        function handleClickOutside(event: MouseEvent) {
-            if (exportRef.current && !exportRef.current.contains(event.target as Node)) {
-                setIsExportOpen(false);
-            }
-        }
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => {
-            document.removeEventListener("mousedown", handleClickOutside);
-        };
-    }, []);
-
-    const handleDownload = (format: 'PNG' | 'PDF') => {
-        onDownload(format);
-        setIsExportOpen(false);
-    };
-
     return (
         <div className="absolute top-0 left-0 right-0 h-14 bg-white border-b border-gray-200 flex items-center justify-between px-4 z-50 shadow-sm">
 
@@ -123,7 +107,7 @@ export default function EditorTopbar({
                 )}
             </div>
 
-            {/* 3. Right: Actions (Save, Export) */}
+            {/* 3. Right: Actions (Save, Print Guide, Export) */}
             <div className="flex items-center space-x-3">
                 {/* Save Button */}
                 <button
@@ -135,36 +119,29 @@ export default function EditorTopbar({
                     Save
                 </button>
 
-                {/* Export Dropdown */}
-                <div className="relative" ref={exportRef}>
+                {/* Print Guide Toggle */}
+                {onTogglePrintGuide && (
                     <button
-                        onClick={() => setIsExportOpen(!isExportOpen)}
-                        className="flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition shadow-sm"
+                        onClick={onTogglePrintGuide}
+                        className={`flex items-center px-3 py-2 text-sm font-medium rounded-md transition ${printGuideVisible
+                                ? 'text-white bg-purple-600 hover:bg-purple-700'
+                                : 'text-gray-600 bg-white border border-gray-300 hover:bg-gray-50'
+                            }`}
+                        title="Toggle Print Guide"
                     >
-                        <Download size={16} className="mr-2" />
-                        Export
-                        <ChevronDown size={14} className={`ml-2 transition-transform ${isExportOpen ? 'rotate-180' : ''}`} />
+                        {printGuideVisible ? <Eye size={16} className="mr-2" /> : <EyeOff size={16} className="mr-2" />}
+                        Print Guide
                     </button>
+                )}
 
-                    {isExportOpen && (
-                        <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-100 py-1 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
-                            <button
-                                onClick={() => handleDownload('PNG')}
-                                className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
-                            >
-                                <FileImage size={16} className="text-blue-500" />
-                                <span>Download as PNG</span>
-                            </button>
-                            <button
-                                onClick={() => handleDownload('PDF')}
-                                className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
-                            >
-                                <FileText size={16} className="text-red-500" />
-                                <span>Download as PDF</span>
-                            </button>
-                        </div>
-                    )}
-                </div>
+                {/* Export Button */}
+                <button
+                    onClick={onDownload}
+                    className="flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition shadow-sm"
+                >
+                    <Download size={16} className="mr-2" />
+                    Export
+                </button>
             </div>
         </div>
     );

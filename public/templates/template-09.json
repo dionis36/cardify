@@ -1,0 +1,414 @@
+{
+  "$schema": "./schema.json",
+  "id": "template_09",
+  "name": "Elegant Gradient",
+  "width": 1050,
+  "height": 600,
+  "orientation": "horizontal",
+  "category": "Luxury",
+  "tags": [
+    "Luxury",
+    "Minimal",
+    "Gradient",
+    "Gold",
+    "Premium"
+  ],
+  "colors": [
+    "#0A0F1C",
+    "#1A1F2C",
+    "#D4AF37",
+    "#FFFFFF"
+  ],
+  "features": [
+    "Logo",
+    "Gradient Background",
+    "Premium Finish",
+    "Contact Details"
+  ],
+  "thumbnail": "",
+  "preview": "",
+  "background": {
+    "type": "gradient",
+    "color1": "#0A0F1C",
+    "color2": "#1A1F2C",
+    "gradientType": "linear",
+    "rotation": 135
+  },
+  "layers": [
+    {
+      "id": "gold_accent_line",
+      "type": "Rect",
+      "props": {
+        "id": "gold_accent_line",
+        "x": 525,
+        "y": 0,
+        "width": 4,
+        "height": 600,
+        "fill": "#D4AF37",
+        "rotation": 0,
+        "opacity": 0.7
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "geometric_pattern",
+      "type": "Path",
+      "props": {
+        "id": "geometric_pattern",
+        "x": 100,
+        "y": 150,
+        "width": 300,
+        "height": 300,
+        "data": "M0,0 L150,150 L0,300 L-150,150 Z M300,0 L150,150 L300,300 L450,150 Z M150,150 L300,300 L150,450 L0,300 Z",
+        "fill": "#D4AF37",
+        "stroke": "#FFFFFF",
+        "strokeWidth": 1,
+        "rotation": 0,
+        "opacity": 0.15
+      },
+      "editable": true,
+      "locked": true
+    },
+    {
+      "id": "logo_icon",
+      "type": "Icon",
+      "props": {
+        "id": "logo_icon",
+        "x": 212,
+        "y": 180,
+        "width": 100,
+        "height": 100,
+        "data": "M12 2L2 7l10 5 10-5L12 2zM2 17l10 5 10-5M2 12l10 5 10-5",
+        "iconName": "Diamond",
+        "category": "Icon",
+        "fill": "#D4AF37",
+        "stroke": "#FFFFFF",
+        "strokeWidth": 1,
+        "rotation": 0,
+        "opacity": 1,
+        "shadowColor": "#D4AF37",
+        "shadowBlur": 15,
+        "shadowOffsetX": 0,
+        "shadowOffsetY": 0
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "company_name",
+      "type": "Text",
+      "props": {
+        "id": "company_name",
+        "x": 62,
+        "y": 310,
+        "width": 400,
+        "height": 50,
+        "text": "COMPANY NAME",
+        "fontSize": 32,
+        "fontFamily": "Garamond",
+        "fill": "#FFFFFF",
+        "rotation": 0,
+        "opacity": 1,
+        "align": "center",
+        "fontStyle": "bold",
+        "letterSpacing": 2,
+        "lineHeight": 1.2
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "company_slogan",
+      "type": "Text",
+      "props": {
+        "id": "company_slogan",
+        "x": 62,
+        "y": 365,
+        "width": 400,
+        "height": 30,
+        "text": "COMPANY SLOGAN HERE",
+        "fontSize": 16,
+        "fontFamily": "Garamond",
+        "fill": "#D4AF37",
+        "rotation": 0,
+        "opacity": 0.9,
+        "align": "center",
+        "letterSpacing": 1,
+        "fontStyle": "italic"
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "full_name",
+      "type": "Text",
+      "props": {
+        "id": "full_name",
+        "x": 610,
+        "y": 170,
+        "width": 400,
+        "height": 70,
+        "text": "FULL NAME",
+        "fontSize": 52,
+        "fontFamily": "Playfair Display",
+        "fill": "#FFFFFF",
+        "rotation": 0,
+        "opacity": 1,
+        "align": "left",
+        "fontStyle": "bold",
+        "letterSpacing": 1.5
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "job_title",
+      "type": "Text",
+      "props": {
+        "id": "job_title",
+        "x": 610,
+        "y": 250,
+        "width": 400,
+        "height": 40,
+        "text": "JOB TITLE",
+        "fontSize": 22,
+        "fontFamily": "Merriweather",
+        "fill": "#D4AF37",
+        "rotation": 0,
+        "opacity": 1,
+        "align": "left",
+        "letterSpacing": 1
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "gold_divider",
+      "type": "Rect",
+      "props": {
+        "id": "gold_divider",
+        "x": 610,
+        "y": 310,
+        "width": 200,
+        "height": 2,
+        "fill": "#D4AF37",
+        "rotation": 0,
+        "opacity": 0.8
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "phone_label",
+      "type": "Text",
+      "props": {
+        "id": "phone_label",
+        "x": 610,
+        "y": 340,
+        "width": 180,
+        "height": 30,
+        "text": "Phone",
+        "fontSize": 14,
+        "fontFamily": "Inter",
+        "fill": "#D4AF37",
+        "rotation": 0,
+        "opacity": 1,
+        "align": "left",
+        "fontStyle": "bold"
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "phone_value",
+      "type": "Text",
+      "props": {
+        "id": "phone_value",
+        "x": 700,
+        "y": 340,
+        "width": 310,
+        "height": 30,
+        "text": "+1 (555) 123-4567",
+        "fontSize": 16,
+        "fontFamily": "Inter",
+        "fill": "#FFFFFF",
+        "rotation": 0,
+        "opacity": 1,
+        "align": "left"
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "email_label",
+      "type": "Text",
+      "props": {
+        "id": "email_label",
+        "x": 610,
+        "y": 380,
+        "width": 180,
+        "height": 30,
+        "text": "Email",
+        "fontSize": 14,
+        "fontFamily": "Inter",
+        "fill": "#D4AF37",
+        "rotation": 0,
+        "opacity": 1,
+        "align": "left",
+        "fontStyle": "bold"
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "email_value",
+      "type": "Text",
+      "props": {
+        "id": "email_value",
+        "x": 700,
+        "y": 380,
+        "width": 310,
+        "height": 30,
+        "text": "contact@company.com",
+        "fontSize": 16,
+        "fontFamily": "Inter",
+        "fill": "#FFFFFF",
+        "rotation": 0,
+        "opacity": 1,
+        "align": "left"
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "address_label",
+      "type": "Text",
+      "props": {
+        "id": "address_label",
+        "x": 610,
+        "y": 420,
+        "width": 180,
+        "height": 30,
+        "text": "Address",
+        "fontSize": 14,
+        "fontFamily": "Inter",
+        "fill": "#D4AF37",
+        "rotation": 0,
+        "opacity": 1,
+        "align": "left",
+        "fontStyle": "bold"
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "address_value",
+      "type": "Text",
+      "props": {
+        "id": "address_value",
+        "x": 700,
+        "y": 420,
+        "width": 310,
+        "height": 30,
+        "text": "123 Business Avenue",
+        "fontSize": 16,
+        "fontFamily": "Inter",
+        "fill": "#FFFFFF",
+        "rotation": 0,
+        "opacity": 1,
+        "align": "left"
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "website_label",
+      "type": "Text",
+      "props": {
+        "id": "website_label",
+        "x": 610,
+        "y": 460,
+        "width": 180,
+        "height": 30,
+        "text": "Website",
+        "fontSize": 14,
+        "fontFamily": "Inter",
+        "fill": "#D4AF37",
+        "rotation": 0,
+        "opacity": 1,
+        "align": "left",
+        "fontStyle": "bold"
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "website_value",
+      "type": "Text",
+      "props": {
+        "id": "website_value",
+        "x": 700,
+        "y": 460,
+        "width": 310,
+        "height": 30,
+        "text": "www.company.com",
+        "fontSize": 16,
+        "fontFamily": "Inter",
+        "fill": "#FFFFFF",
+        "rotation": 0,
+        "opacity": 1,
+        "align": "left"
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "qr_code_bg",
+      "type": "Rect",
+      "props": {
+        "id": "qr_code_bg",
+        "x": 850,
+        "y": 450,
+        "width": 150,
+        "height": 150,
+        "fill": "#FFFFFF",
+        "stroke": "#D4AF37",
+        "strokeWidth": 2,
+        "cornerRadius": 10,
+        "rotation": 0,
+        "opacity": 0.1
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "qr_code",
+      "type": "Image",
+      "props": {
+        "id": "qr_code",
+        "x": 860,
+        "y": 460,
+        "width": 130,
+        "height": 130,
+        "src": "qrcode_placeholder.png",
+        "cornerRadius": 8,
+        "rotation": 0,
+        "opacity": 1,
+        "qrMetadata": {
+          "value": "https://company.com/contact",
+          "fgColor": "#0A0F1C",
+          "bgColor": "#FFFFFF",
+          "dotStyle": "squares",
+          "eyeStyle": "round",
+          "logoUrl": "",
+          "contentType": "Website",
+          "inputs": {}
+        }
+      },
+      "editable": true,
+      "locked": false
+    }
+  ],
+  "groups": []
+}

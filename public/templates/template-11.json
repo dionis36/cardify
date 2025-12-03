@@ -1,0 +1,402 @@
+{
+  "$schema": "./schema.json",
+  "id": "template_11",
+  "name": "Gradient Horizon",
+  "width": 1050,
+  "height": 600,
+  "orientation": "horizontal",
+  "category": "Modern",
+  "tags": [
+    "Gradient",
+    "Modern",
+    "Colorful",
+    "Vibrant",
+    "Creative"
+  ],
+  "colors": [
+    "#667EEA",
+    "#764BA2",
+    "#F093FB",
+    "#F5576C"
+  ],
+  "features": [
+    "Gradient Background",
+    "Modern Design",
+    "Contact Info",
+    "Visual Impact"
+  ],
+  "thumbnail": "",
+  "preview": "",
+  "background": {
+    "type": "gradient",
+    "color1": "#667EEA",
+    "color2": "#764BA2",
+    "gradientType": "linear",
+    "rotation": 45,
+    "gradientStops": [
+      {
+        "offset": 0,
+        "color": "#667EEA"
+      },
+      {
+        "offset": 0.5,
+        "color": "#764BA2"
+      },
+      {
+        "offset": 1,
+        "color": "#F093FB"
+      }
+    ]
+  },
+  "layers": [
+    {
+      "id": "gradient_overlay",
+      "type": "Rect",
+      "props": {
+        "id": "gradient_overlay",
+        "x": 0,
+        "y": 0,
+        "width": 1050,
+        "height": 600,
+        "fill": "linear-gradient(135deg, rgba(102,126,234,0.8) 0%, rgba(118,75,162,0.6) 50%, rgba(240,147,251,0.4) 100%)",
+        "rotation": 0,
+        "opacity": 0.5
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "circle_gradient_1",
+      "type": "Circle",
+      "props": {
+        "id": "circle_gradient_1",
+        "x": 800,
+        "y": 150,
+        "width": 300,
+        "height": 300,
+        "radius": 150,
+        "fill": "radial-gradient(circle, #F093FB 0%, #764BA2 100%)",
+        "rotation": 0,
+        "opacity": 0.3
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "circle_gradient_2",
+      "type": "Circle",
+      "props": {
+        "id": "circle_gradient_2",
+        "x": 200,
+        "y": 400,
+        "width": 200,
+        "height": 200,
+        "radius": 100,
+        "fill": "radial-gradient(circle, #667EEA 0%, rgba(102,126,234,0) 70%)",
+        "rotation": 0,
+        "opacity": 0.4
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "content_background",
+      "type": "Rect",
+      "props": {
+        "id": "content_background",
+        "x": 100,
+        "y": 100,
+        "width": 850,
+        "height": 400,
+        "fill": "rgba(255, 255, 255, 0.1)",
+        "stroke": "rgba(255, 255, 255, 0.2)",
+        "strokeWidth": 1,
+        "cornerRadius": 20,
+        "rotation": 0,
+        "opacity": 0.9
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "full_name",
+      "type": "Text",
+      "props": {
+        "id": "full_name",
+        "x": 150,
+        "y": 150,
+        "width": 350,
+        "height": 80,
+        "text": "FULL NAME",
+        "fontSize": 56,
+        "fontFamily": "Montserrat",
+        "fill": "#FFFFFF",
+        "rotation": 0,
+        "opacity": 1,
+        "align": "left",
+        "fontStyle": "bold",
+        "letterSpacing": 1,
+        "shadowColor": "rgba(0, 0, 0, 0.2)",
+        "shadowBlur": 10,
+        "shadowOffsetX": 2,
+        "shadowOffsetY": 2
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "job_title",
+      "type": "Text",
+      "props": {
+        "id": "job_title",
+        "x": 150,
+        "y": 240,
+        "width": 350,
+        "height": 40,
+        "text": "FOUNDER & CEO",
+        "fontSize": 22,
+        "fontFamily": "Lato",
+        "fill": "#E3E3E3",
+        "rotation": 0,
+        "opacity": 0.9,
+        "align": "left",
+        "letterSpacing": 2,
+        "fontStyle": "normal"
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "accent_line",
+      "type": "Rect",
+      "props": {
+        "id": "accent_line",
+        "x": 150,
+        "y": 300,
+        "width": 100,
+        "height": 3,
+        "fill": "#FFFFFF",
+        "rotation": 0,
+        "opacity": 0.8
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "contact_container",
+      "type": "Rect",
+      "props": {
+        "id": "contact_container",
+        "x": 150,
+        "y": 320,
+        "width": 350,
+        "height": 150,
+        "fill": "rgba(255, 255, 255, 0.05)",
+        "cornerRadius": 10,
+        "rotation": 0,
+        "opacity": 0.8
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "phone_section",
+      "type": "Text",
+      "props": {
+        "id": "phone_section",
+        "x": 170,
+        "y": 340,
+        "width": 310,
+        "height": 40,
+        "text": "PHONE +1 (555) 123-4567",
+        "fontSize": 16,
+        "fontFamily": "Inter",
+        "fill": "#FFFFFF",
+        "rotation": 0,
+        "opacity": 0.9,
+        "align": "left"
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "email_section",
+      "type": "Text",
+      "props": {
+        "id": "email_section",
+        "x": 170,
+        "y": 390,
+        "width": 310,
+        "height": 40,
+        "text": "EMAIL CONTACT@COMPANY.COM",
+        "fontSize": 16,
+        "fontFamily": "Inter",
+        "fill": "#FFFFFF",
+        "rotation": 0,
+        "opacity": 0.9,
+        "align": "left"
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "website_section",
+      "type": "Text",
+      "props": {
+        "id": "website_section",
+        "x": 170,
+        "y": 440,
+        "width": 310,
+        "height": 40,
+        "text": "WEBSITE WWW.COMPANY.COM",
+        "fontSize": 16,
+        "fontFamily": "Inter",
+        "fill": "#FFFFFF",
+        "rotation": 0,
+        "opacity": 0.9,
+        "align": "left"
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "company_section",
+      "type": "Rect",
+      "props": {
+        "id": "company_section",
+        "x": 600,
+        "y": 150,
+        "width": 300,
+        "height": 320,
+        "fill": "rgba(255, 255, 255, 0.08)",
+        "stroke": "rgba(255, 255, 255, 0.15)",
+        "strokeWidth": 1,
+        "cornerRadius": 15,
+        "rotation": 0,
+        "opacity": 0.9
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "logo_icon",
+      "type": "Icon",
+      "props": {
+        "id": "logo_icon",
+        "x": 650,
+        "y": 180,
+        "width": 80,
+        "height": 80,
+        "data": "M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm4.59-12.42L10 14.17l-2.59-2.58L6 13l4 4 8-8z",
+        "iconName": "GradientIcon",
+        "category": "Icon",
+        "fill": "linear-gradient(45deg, #667EEA, #F093FB)",
+        "rotation": 0,
+        "opacity": 1
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "company_name",
+      "type": "Text",
+      "props": {
+        "id": "company_name",
+        "x": 620,
+        "y": 280,
+        "width": 260,
+        "height": 50,
+        "text": "COMPANY NAME",
+        "fontSize": 28,
+        "fontFamily": "Poppins",
+        "fill": "#FFFFFF",
+        "rotation": 0,
+        "opacity": 1,
+        "align": "center",
+        "fontStyle": "bold",
+        "letterSpacing": 1
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "company_tagline",
+      "type": "Text",
+      "props": {
+        "id": "company_tagline",
+        "x": 620,
+        "y": 340,
+        "width": 260,
+        "height": 40,
+        "text": "Innovating Tomorrow",
+        "fontSize": 16,
+        "fontFamily": "Roboto",
+        "fill": "#E3E3E3",
+        "rotation": 0,
+        "opacity": 0.8,
+        "align": "center",
+        "letterSpacing": 1
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "qr_code_background",
+      "type": "Rect",
+      "props": {
+        "id": "qr_code_background",
+        "x": 650,
+        "y": 400,
+        "width": 200,
+        "height": 50,
+        "fill": "rgba(255, 255, 255, 0.1)",
+        "cornerRadius": 25,
+        "rotation": 0,
+        "opacity": 0.7
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "qr_code_text",
+      "type": "Text",
+      "props": {
+        "id": "qr_code_text",
+        "x": 650,
+        "y": 410,
+        "width": 200,
+        "height": 30,
+        "text": "SCAN FOR MORE INFO",
+        "fontSize": 12,
+        "fontFamily": "Inter",
+        "fill": "#FFFFFF",
+        "rotation": 0,
+        "opacity": 0.8,
+        "align": "center",
+        "letterSpacing": 1
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "gradient_accent",
+      "type": "Rect",
+      "props": {
+        "id": "gradient_accent",
+        "x": 50,
+        "y": 50,
+        "width": 950,
+        "height": 500,
+        "stroke": "linear-gradient(45deg, #667EEA, #F093FB)",
+        "strokeWidth": 2,
+        "fill": "transparent",
+        "cornerRadius": 30,
+        "rotation": 0,
+        "opacity": 0.3
+      },
+      "editable": true,
+      "locked": false
+    }
+  ],
+  "groups": []
+}
