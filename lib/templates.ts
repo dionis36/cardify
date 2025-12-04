@@ -1,7 +1,7 @@
 // lib/templates.ts (MODIFIED - Enforcing standard dimensions + Logo Injection)
 
 // CardTemplate now reflects the new enhanced structure from @/types/template
-import { CardTemplate } from "@/types/template";
+import { CardTemplate, TemplateExportMetadata } from "@/types/template";
 // Assuming a new constants file defines the standard size:
 import {
     STANDARD_CARD_WIDTH,
@@ -19,6 +19,9 @@ import template05JSON from "../public/templates/template-05.json";
 import template06JSON from "../public/templates/template-06.json";
 import template07JSON from "../public/templates/template-07.json";
 import template08JSON from "../public/templates/template-08.json";
+import template09JSON from "../public/templates/template-09.json";
+import template10JSON from "../public/templates/template-10.json";
+import template11JSON from "../public/templates/template-11.json";
 
 // Map for individual lookup - all templates must conform to the new CardTemplate type
 // NOTE: We keep the raw JSON imported here.
@@ -31,6 +34,9 @@ const templateMap: Record<string, CardTemplate> = {
     template_06: template06JSON as CardTemplate,
     template_07: template07JSON as CardTemplate,
     template_08: template08JSON as CardTemplate,
+    template_09: template09JSON as CardTemplate,
+    template_10: template10JSON as CardTemplate,
+    template_11: template11JSON as CardTemplate,
 };
 
 /**
@@ -120,4 +126,83 @@ export function loadTemplate(id: string): CardTemplate {
     }
 
     throw new Error(`Template with id "${id}" not found`);
+}
+
+// --- TEMPLATE EXPORT UTILITIES (NEW) ---
+/**
+ * Generate a unique template ID
+ */
+export function generateTemplateId(): string {
+    const timestamp = Date.now();
+    const random = Math.random().toString(36).substring(2, 7);
+    return `template_${timestamp}_${random}`;
+}
+/**
+ * Extract colors from template layers
+ */
+function extractColorsFromLayers(layers: any[]): string[] {
+    const colors = new Set<string>();
+    
+    layers.forEach(layer => {
+        if (layer.props.fill) colors.add(layer.props.fill);
+        if (layer.props.stroke) colors.add(layer.props.stroke);
+    });
+    
+    return Array.from(colors).slice(0, 5); // Limit to 5 colors
+}
+/**
+ * Prepare a template for export with metadata
+ */
+export function prepareTemplateForExport(
+    currentPage: CardTemplate,
+    metadata: TemplateExportMetadata
+): CardTemplate {
+    const templateId = generateTemplateId();
+    const colors = metadata.colors || extractColorsFromLayers(currentPage.layers);
+    
+    return {
+        id: templateId,
+        name: metadata.name,
+        width: currentPage.width,
+        height: currentPage.height,
+        orientation: currentPage.orientation,
+        background: currentPage.background,
+        layers: currentPage.layers,
+        groups: currentPage.groups || [],
+        thumbnail: "", // Empty for live rendering
+        preview: "", // Empty for live rendering
+        tags: metadata.tags,
+        category: metadata.category,
+        colors: colors,
+        features: metadata.features
+    };
+}
+/**
+ * Validate template structure
+ */
+export function validateTemplate(template: CardTemplate): { valid: boolean; errors: string[] } {
+    const errors: string[] = [];
+    
+    if (!template.id) errors.push("Template ID is required");
+    if (!template.name) errors.push("Template name is required");
+    if (!template.width || template.width <= 0) errors.push("Valid width is required");
+    if (!template.height || template.height <= 0) errors.push("Valid height is required");
+    if (!template.orientation) errors.push("Orientation is required");
+    if (!template.background) errors.push("Background is required");
+    if (!Array.isArray(template.layers)) errors.push("Layers must be an array");
+    if (!template.category) errors.push("Category is required");
+    if (!Array.isArray(template.tags)) errors.push("Tags must be an array");
+    
+    if (Array.isArray(template.layers)) {
+        template.layers.forEach((layer, index) => {
+            if (!layer.id) errors.push(`Layer ${index} is missing an ID`);
+            if (!layer.type) errors.push(`Layer ${index} is missing a type`);
+            if (!layer.props) errors.push(`Layer ${index} is missing props`);
+        });
+    }
+    
+    return {
+        valid: errors.length === 0,
+        errors
+    };
 }

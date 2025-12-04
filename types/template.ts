@@ -289,3 +289,35 @@ export interface CardTemplate {
   colors: string[];
   features: string[];
 }
+
+// --- TEMPLATE EXPORT TYPES (NEW) ---
+
+/**
+ * Metadata for exporting a template
+ */
+export interface TemplateExportMetadata {
+  name: string;
+  category: TemplateCategoryKey;
+  tags: string[];
+  features: string[];
+  colors?: string[]; // Optional, can be auto-extracted from layers
+}
+
+/**
+ * Request body for template export API
+ */
+export interface TemplateExportRequest {
+  template: CardTemplate;
+  metadata: TemplateExportMetadata;
+  filename?: string; // Optional custom filename
+}
+
+/**
+ * Response from template export API
+ */
+export interface TemplateExportResponse {
+  success: boolean;
+  filename?: string;
+  templateId?: string;
+  error?: string;
+}

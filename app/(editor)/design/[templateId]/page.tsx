@@ -17,10 +17,10 @@ import ExportModal from "@/components/editor/ExportModal";
 
 
 // Types/Libs
-import { CardTemplate, KonvaNodeDefinition, KonvaNodeProps, BackgroundPattern, BackgroundType, LayerGroup, ExportOptions } from "@/types/template";
+import { CardTemplate, KonvaNodeDefinition, KonvaNodeProps, BackgroundPattern, BackgroundType, LayerGroup, ExportOptions, TemplateExportMetadata, TemplateExportResponse } from "@/types/template";
 import { LogoVariant } from "@/lib/logoIndex";
 import { trackLogoUsage } from "@/lib/logoAssignments";
-import { loadTemplate } from "@/lib/templates";
+import { loadTemplate, prepareTemplateForExport } from "@/lib/templates";
 import { exportWithOptions } from "@/lib/pdf";
 import { useKeyboardShortcuts } from "@/lib/useKeyboardShortcuts";
 
@@ -704,6 +704,32 @@ export default function Editor() {
         }
     }, [currentPage]);
 
+    const handleExportAsTemplate = useCallback(async (metadata: TemplateExportMetadata) => {
+        try {
+            const templateData = prepareTemplateForExport(currentPage, metadata);
+
+            const response = await fetch('/api/templates/export', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    template: templateData,
+                    metadata,
+                }),
+            });
+
+            const result: TemplateExportResponse = await response.json();
+
+            if (result.success) {
+                alert(`✅ Template saved successfully as "${result.filename}"!`);
+            } else {
+                alert(`❌ Failed to save template: ${result.error}`);
+            }
+        } catch (error) {
+            console.error("Template export failed:", error);
+            alert('❌ Failed to save template. Check console for details.');
+        }
+    }, [currentPage]);
+
     // Handle Logo Selection - ONLY changes the logo, NOT the theme
     const onSelectLogo = useCallback((logoVariant: LogoVariant) => {
         // Find existing logo layer (Image with isLogo=true, or legacy Icon)
@@ -852,10 +878,6 @@ export default function Editor() {
                         panOffset={panOffset}
                         onPanChange={setPanOffset}
                         mode={mode}
-
-                        // Print Guide
-
-                        bleedSizeMm={3}
                     />
 
                     {/* Zoom Controls */}
@@ -909,6 +931,7 @@ export default function Editor() {
                 isOpen={exportModalOpen}
                 onClose={handleCloseExportModal}
                 onExport={handleExport}
+                onExportAsTemplate={handleExportAsTemplate}
                 templateWidth={currentPage.width}
                 templateHeight={currentPage.height}
             />

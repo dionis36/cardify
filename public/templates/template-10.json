@@ -1,48 +1,28 @@
 {
   "$schema": "./schema.json",
   "id": "template_10",
-  "name": "Minimal Elegance",
+  "name": "Creative and Artistic Card",
   "width": 1050,
   "height": 600,
   "orientation": "horizontal",
-  "category": "Minimal",
-  "tags": [
-    "Minimal",
-    "Clean",
-    "Elegant",
-    "Simple",
-    "Modern"
-  ],
-  "colors": [
-    "#FFFFFF",
-    "#000000",
-    "#666666",
-    "#F5F5F5"
-  ],
-  "features": [
-    "Minimal Design",
-    "Clean Layout",
-    "Negative Space",
-    "Typography Focus"
-  ],
-  "thumbnail": "",
-  "preview": "",
   "background": {
     "type": "solid",
-    "color1": "#FFFFFF"
+    "color1": "#0F172A",
+    "opacity": 1
   },
   "layers": [
     {
-      "id": "vertical_line",
+      "id": "node_rect_1764867957515",
       "type": "Rect",
       "props": {
-        "id": "vertical_line",
-        "x": 525,
-        "y": 100,
-        "width": 1,
-        "height": 400,
-        "fill": "#E5E5E5",
-        "rotation": 0,
+        "id": "node_rect_1764867957515",
+        "x": 352.121212121212,
+        "y": -422.12121212121207,
+        "width": 722,
+        "height": 989,
+        "fill": "#fff",
+        "cornerRadius": 70,
+        "rotation": 45,
         "opacity": 1
       },
       "editable": true,
@@ -53,19 +33,19 @@
       "type": "Text",
       "props": {
         "id": "full_name",
-        "x": 100,
-        "y": 180,
-        "width": 400,
-        "height": 80,
-        "text": "FULL NAME",
-        "fontSize": 56,
-        "fontFamily": "Helvetica",
-        "fill": "#000000",
+        "x": 673.9393939393933,
+        "y": 399.090909090909,
+        "width": 500,
+        "height": 70,
+        "text": "Full Name",
+        "fontSize": 75,
+        "fontFamily": "Impact",
+        "fill": "#FFFFFF",
         "rotation": 0,
         "opacity": 1,
-        "align": "right",
-        "fontStyle": "normal",
-        "letterSpacing": 0
+        "align": "left",
+        "fontStyle": "bold",
+        "letterSpacing": 1
       },
       "editable": true,
       "locked": false
@@ -75,36 +55,51 @@
       "type": "Text",
       "props": {
         "id": "job_title",
-        "x": 100,
-        "y": 270,
-        "width": 400,
-        "height": 30,
-        "text": "FOUNDER & CEO",
-        "fontSize": 18,
-        "fontFamily": "Helvetica",
-        "fill": "#666666",
+        "x": 718.4848484848479,
+        "y": 487.5757575757574,
+        "width": 500,
+        "height": 45,
+        "text": "CEO & Founder",
+        "fontSize": 34,
+        "fontFamily": "Poppins",
+        "fill": "#FFFFFF",
         "rotation": 0,
         "opacity": 1,
-        "align": "right",
-        "letterSpacing": 2,
-        "fontStyle": "normal"
+        "align": "left"
       },
       "editable": true,
       "locked": false
     },
     {
-      "id": "accent_dot",
-      "type": "Circle",
+      "id": "divider_line",
+      "type": "Rect",
       "props": {
-        "id": "accent_dot",
-        "x": 430,
-        "y": 275,
-        "width": 10,
-        "height": 10,
-        "radius": 5,
-        "fill": "#000000",
+        "id": "divider_line",
+        "x": 718.4848484848479,
+        "y": 549.5454545454543,
+        "width": 230,
+        "height": 7,
+        "fill": "#ffffff",
         "rotation": 0,
         "opacity": 1
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "main_logo",
+      "type": "Image",
+      "props": {
+        "id": "main_logo",
+        "x": 177.87878787878782,
+        "y": 142.72727272727263,
+        "width": 120,
+        "height": 120,
+        "src": "/logos/LogoTaco_Logo-09/SVG/Logo9_Blue.svg",
+        "rotation": 0,
+        "opacity": 1,
+        "category": "Image",
+        "isLogo": true
       },
       "editable": true,
       "locked": false
@@ -114,213 +109,110 @@
       "type": "Text",
       "props": {
         "id": "company_name",
-        "x": 550,
-        "y": 180,
+        "x": 37.878787878787826,
+        "y": 282.4242424242424,
         "width": 400,
-        "height": 50,
-        "text": "COMPANY",
-        "fontSize": 36,
-        "fontFamily": "Helvetica",
-        "fill": "#000000",
+        "height": 60,
+        "text": "LOGO TEXT HERE",
+        "fontSize": 48,
+        "fontFamily": "Impact",
+        "fill": "#0F172A",
         "rotation": 0,
         "opacity": 1,
-        "align": "left",
-        "fontStyle": "normal",
-        "letterSpacing": 2
-      },
-      "editable": true,
-      "locked": false
-    },
-    {
-      "id": "company_subtitle",
-      "type": "Text",
-      "props": {
-        "id": "company_subtitle",
-        "x": 550,
-        "y": 230,
-        "width": 400,
-        "height": 30,
-        "text": "NAME HERE",
-        "fontSize": 20,
-        "fontFamily": "Helvetica",
-        "fill": "#666666",
-        "rotation": 0,
-        "opacity": 1,
-        "align": "left",
-        "letterSpacing": 1,
-        "fontStyle": "normal"
-      },
-      "editable": true,
-      "locked": false
-    },
-    {
-      "id": "horizontal_line_1",
-      "type": "Rect",
-      "props": {
-        "id": "horizontal_line_1",
-        "x": 550,
-        "y": 280,
-        "width": 150,
-        "height": 1,
-        "fill": "#000000",
-        "rotation": 0,
-        "opacity": 1
-      },
-      "editable": true,
-      "locked": false
-    },
-    {
-      "id": "contact_info",
-      "type": "Text",
-      "props": {
-        "id": "contact_info",
-        "x": 550,
-        "y": 300,
-        "width": 400,
-        "height": 120,
-        "text": "PHONE +1 555 123 4567\nEMAIL CONTACT@COMPANY.COM\nWEBSITE WWW.COMPANY.COM",
-        "fontSize": 14,
-        "fontFamily": "Helvetica",
-        "fill": "#666666",
-        "rotation": 0,
-        "opacity": 1,
-        "align": "left",
-        "lineHeight": 1.8,
+        "align": "center",
+        "fontStyle": "bold",
         "letterSpacing": 1
       },
       "editable": true,
       "locked": false
     },
     {
-      "id": "top_left_marker",
-      "type": "Rect",
+      "id": "company_slogan",
+      "type": "Text",
       "props": {
-        "id": "top_left_marker",
-        "x": 50,
-        "y": 50,
-        "width": 20,
-        "height": 1,
-        "fill": "#000000",
+        "id": "company_slogan",
+        "x": 37.878787878787826,
+        "y": 348.78787878787875,
+        "width": 400,
+        "height": 40,
+        "text": "SLOGAN HERE",
+        "fontSize": 25,
+        "fontFamily": "Inter",
+        "fill": "#0F172A",
         "rotation": 0,
-        "opacity": 0.5
+        "opacity": 1,
+        "align": "center"
       },
       "editable": true,
       "locked": false
     },
     {
-      "id": "top_right_marker",
+      "id": "node_rect_1764868398131",
       "type": "Rect",
       "props": {
-        "id": "top_right_marker",
-        "x": 980,
-        "y": 50,
+        "id": "node_rect_1764868398131",
+        "x": 1104.5454545454534,
+        "y": -109.09090909090959,
         "width": 20,
-        "height": 1,
-        "fill": "#000000",
-        "rotation": 0,
-        "opacity": 0.5
-      },
-      "editable": true,
-      "locked": false
-    },
-    {
-      "id": "bottom_left_marker",
-      "type": "Rect",
-      "props": {
-        "id": "bottom_left_marker",
-        "x": 50,
-        "y": 550,
-        "width": 20,
-        "height": 1,
-        "fill": "#000000",
-        "rotation": 0,
-        "opacity": 0.5
-      },
-      "editable": true,
-      "locked": false
-    },
-    {
-      "id": "bottom_right_marker",
-      "type": "Rect",
-      "props": {
-        "id": "bottom_right_marker",
-        "x": 980,
-        "y": 550,
-        "width": 20,
-        "height": 1,
-        "fill": "#000000",
-        "rotation": 0,
-        "opacity": 0.5
-      },
-      "editable": true,
-      "locked": false
-    },
-    {
-      "id": "qr_minimal",
-      "type": "Rect",
-      "props": {
-        "id": "qr_minimal",
-        "x": 850,
-        "y": 400,
-        "width": 150,
-        "height": 150,
-        "fill": "#F5F5F5",
-        "stroke": "#E5E5E5",
-        "strokeWidth": 1,
-        "rotation": 0,
+        "height": 422.424242424241,
+        "fill": "#FFFFFF",
+        "cornerRadius": 4,
+        "rotation": 45,
         "opacity": 1
       },
       "editable": true,
       "locked": false
     },
     {
-      "id": "qr_pattern_1",
+      "id": "node_rect_1764868458987",
       "type": "Rect",
       "props": {
-        "id": "qr_pattern_1",
-        "x": 870,
-        "y": 420,
-        "width": 30,
-        "height": 30,
-        "fill": "#000000",
-        "rotation": 0,
-        "opacity": 0.8
-      },
-      "editable": true,
-      "locked": false
-    },
-    {
-      "id": "qr_pattern_2",
-      "type": "Rect",
-      "props": {
-        "id": "qr_pattern_2",
-        "x": 910,
-        "y": 420,
+        "id": "node_rect_1764868458987",
+        "x": 529.3939393939387,
+        "y": 463.63636363636317,
         "width": 20,
-        "height": 20,
-        "fill": "#000000",
-        "rotation": 0,
-        "opacity": 0.6
+        "height": 382.12121212121156,
+        "fill": "#FFFFFF",
+        "cornerRadius": 5,
+        "rotation": 45,
+        "opacity": 1
       },
       "editable": true,
       "locked": false
     },
     {
-      "id": "qr_pattern_3",
+      "id": "node_rect_1764868548142",
       "type": "Rect",
       "props": {
-        "id": "qr_pattern_3",
-        "x": 870,
-        "y": 460,
-        "width": 15,
-        "height": 15,
-        "fill": "#000000",
-        "rotation": 0,
-        "opacity": 0.4
+        "id": "node_rect_1764868548142",
+        "x": 1053.3333333333328,
+        "y": 47.878787878787755,
+        "width": 189.09090909090932,
+        "height": 189.0909090909092,
+        "fill": "#FFFFFF",
+        "cornerRadius": 33,
+        "rotation": 45,
+        "opacity": 1
       },
       "editable": true,
       "locked": false
     }
   ],
-  "groups": []
+  "groups": [],
+  "thumbnail": "",
+  "preview": "",
+  "tags": [
+    "creative",
+    "artistic",
+    "modern",
+    "proffesional"
+  ],
+  "category": "creative",
+  "colors": [
+    "#fff",
+    "#FFFFFF",
+    "#ffffff",
+    "#0F172A"
+  ],
+  "features": []
 }
