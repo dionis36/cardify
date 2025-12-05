@@ -549,7 +549,7 @@ export default function PropertyPanel({
         </div>
 
         {capabilities.hasStroke && node.type !== "Icon" && (
-          <div className="grid grid-cols-2 gap-3 border-t border-gray-100 pt-3">
+          <div className="border-t border-gray-100 pt-3 space-y-3">
             <ColorPickerWithSwatch label={node.type === "Image" ? "Border Color" : "Stroke Color"} color={stroke || "#000000"} onChange={(v) => handlePropChange('stroke', v)} />
             <InputGroup label={node.type === "Image" ? "Border Width" : "Stroke Width"} value={strokeWidth} min={0} onChange={(v) => handlePropChange('strokeWidth', Number(v))} />
           </div>
@@ -559,27 +559,18 @@ export default function PropertyPanel({
   }
 
   // 7. Transform
-  // Add aspect ratio lock state for Path shapes
-  const [aspectRatioLocked, setAspectRatioLocked] = useState(node.type === 'Path');
-  const aspectRatio = width / height;
+  // For Path shapes, get scaleX/scaleY (they're the source of truth)
+  const pathScaleX = node.type === 'Path' ? ((node.props as any).scaleX || 1) : 1;
+  const pathScaleY = node.type === 'Path' ? ((node.props as any).scaleY || 1) : 1;
 
-  // Handle width change with aspect ratio lock
-  const handleWidthChange = (newWidth: number) => {
-    if (aspectRatioLocked && node.type === 'Path') {
-      const newHeight = newWidth / aspectRatio;
-      onPropChange(id, { width: newWidth, height: newHeight });
-    } else {
-      handlePropChange('width', newWidth);
-    }
-  };
+  // Use average scale for display (they should be equal for aspect ratio lock)
+  const currentScale = node.type === 'Path' ? pathScaleX : 1;
 
-  // Handle height change with aspect ratio lock
-  const handleHeightChange = (newHeight: number) => {
-    if (aspectRatioLocked && node.type === 'Path') {
-      const newWidth = newHeight * aspectRatio;
-      onPropChange(id, { width: newWidth, height: newHeight });
-    } else {
-      handlePropChange('height', newHeight);
+  // Handle scale change for Path shapes
+  const handleScaleChange = (newScale: number) => {
+    if (node.type === 'Path') {
+      // Update both scaleX and scaleY to maintain aspect ratio
+      onPropChange(id, { scaleX: newScale, scaleY: newScale });
     }
   };
 
@@ -592,22 +583,36 @@ export default function PropertyPanel({
         <InputGroup label="Opacity" unit="%" type="number" value={Math.round(opacity)} min={0} max={100} onChange={(v) => handlePropChange('opacity', Number(v))} disabled={layoutControlsDisabled} />
       </div>
 
-      {/* Width/Height with Aspect Ratio Lock for Path shapes */}
+      {/* Scale slider for Path shapes */}
       {node.type === 'Path' && (
         <div className="mt-3 pt-3 border-t border-gray-100">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-semibold text-gray-600">Size</span>
-            <button
-              onClick={() => setAspectRatioLocked(!aspectRatioLocked)}
-              className={`p-1.5 rounded transition-colors ${aspectRatioLocked ? 'bg-blue-50 text-blue-600' : 'bg-gray-100 text-gray-500'}`}
-              title={aspectRatioLocked ? "Aspect ratio locked" : "Aspect ratio unlocked"}
-            >
-              {aspectRatioLocked ? <Lock size={14} /> : <Unlock size={14} />}
-            </button>
+            <span className="text-xs font-semibold text-gray-600">Scale</span>
+            <span className="text-xs text-gray-500">{(currentScale * 100).toFixed(0)}%</span>
           </div>
-          <div className="grid grid-cols-2 gap-3">
-            <InputGroup label="Width" value={Math.round(width)} min={1} step={1} onChange={(v) => handleWidthChange(Number(v))} disabled={layoutControlsDisabled} />
-            <InputGroup label="Height" value={Math.round(height)} min={1} step={1} onChange={(v) => handleHeightChange(Number(v))} disabled={layoutControlsDisabled} />
+          <div className="space-y-2">
+            <input
+              type="range"
+              min="0.1"
+              max="3"
+              step="0.01"
+              value={currentScale}
+              onChange={(e) => handleScaleChange(Number(e.target.value))}
+              disabled={layoutControlsDisabled}
+              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+            />
+            <div className="flex items-center gap-2">
+              <InputGroup
+                label="Precise"
+                value={currentScale.toFixed(2)}
+                min={0.1}
+                max={3}
+                step={0.01}
+                type="number"
+                onChange={(v) => handleScaleChange(Number(v))}
+                disabled={layoutControlsDisabled}
+              />
+            </div>
           </div>
         </div>
       )}
