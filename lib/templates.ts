@@ -100,30 +100,32 @@ export function loadTemplate(id: string): CardTemplate {
         return enforceStandardDimensions(templateMap[id]);
     }
 
-    // Check if it's a variation (format: baseId_paletteId)
-    // We iterate through palettes to see if the ID ends with a palette ID
-    // This is safer than splitting by underscore since IDs might contain underscores
-    const { PALETTES, generateVariations } = require("./templateVariations"); // Lazy import to avoid circular dependency issues if any
+    // Check if it's a generated variation (format: baseId_gen_seed)
+    // We check for the 'gen_' marker
+    if (id.includes('_gen_')) {
+        const parts = id.split('_gen_');
+        // Reconstruct base ID (might contain underscores) and Seed
+        const baseId = parts[0];
+        const seedStr = parts[1]; // The part after gen_
 
-    for (const palette of PALETTES) {
-        if (id.endsWith(`_${palette.id}`)) {
-            const baseId = id.slice(0, -(palette.id.length + 1)); // +1 for the underscore
-            const baseTemplate = templateMap[baseId];
+        // Load base template
+        const baseTemplate = templateMap[baseId];
 
-            if (baseTemplate) {
-                // Generate variations for this base template
-                // This is slightly inefficient as it generates all variations to find one, 
-                // but robust given the current structure.
-                // Optimization: We could export a specific 'applyPalette' function.
-                const variations = generateVariations(baseTemplate);
-                const match = variations.find((v: CardTemplate) => v.id === id);
+        if (baseTemplate && seedStr) {
+            const { generateRandomPalette } = require("./colorGenerator");
+            const { applyPalette } = require("./templateVariations");
 
-                if (match) {
-                    return enforceStandardDimensions(match);
-                }
-            }
+            // Re-generate the specific palette using the seed
+            const palette = generateRandomPalette(seedStr);
+
+            // Apply it
+            const variant = applyPalette(baseTemplate, palette);
+            return enforceStandardDimensions(variant);
         }
     }
+
+    // Legacy fallback (shouldn't be hit with new logic but kept for safety)
+    // If we have other variants logic.
 
     throw new Error(`Template with id "${id}" not found`);
 }
@@ -142,12 +144,12 @@ export function generateTemplateId(): string {
  */
 function extractColorsFromLayers(layers: any[]): string[] {
     const colors = new Set<string>();
-    
+
     layers.forEach(layer => {
         if (layer.props.fill) colors.add(layer.props.fill);
         if (layer.props.stroke) colors.add(layer.props.stroke);
     });
-    
+
     return Array.from(colors).slice(0, 5); // Limit to 5 colors
 }
 /**
@@ -159,7 +161,7 @@ export function prepareTemplateForExport(
 ): CardTemplate {
     const templateId = generateTemplateId();
     const colors = metadata.colors || extractColorsFromLayers(currentPage.layers);
-    
+
     return {
         id: templateId,
         name: metadata.name,
@@ -182,7 +184,7 @@ export function prepareTemplateForExport(
  */
 export function validateTemplate(template: CardTemplate): { valid: boolean; errors: string[] } {
     const errors: string[] = [];
-    
+
     if (!template.id) errors.push("Template ID is required");
     if (!template.name) errors.push("Template name is required");
     if (!template.width || template.width <= 0) errors.push("Valid width is required");
@@ -192,7 +194,7 @@ export function validateTemplate(template: CardTemplate): { valid: boolean; erro
     if (!Array.isArray(template.layers)) errors.push("Layers must be an array");
     if (!template.category) errors.push("Category is required");
     if (!Array.isArray(template.tags)) errors.push("Tags must be an array");
-    
+
     if (Array.isArray(template.layers)) {
         template.layers.forEach((layer, index) => {
             if (!layer.id) errors.push(`Layer ${index} is missing an ID`);
@@ -200,7 +202,7 @@ export function validateTemplate(template: CardTemplate): { valid: boolean; erro
             if (!layer.props) errors.push(`Layer ${index} is missing props`);
         });
     }
-    
+
     return {
         valid: errors.length === 0,
         errors

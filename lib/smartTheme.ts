@@ -36,7 +36,7 @@ function getHexForColorName(name: string): string {
 }
 
 // Helper to calculate luminance
-function getLuminance(hex: string): number {
+export function getLuminance(hex: string): number {
     const c = hex.substring(1);      // strip #
     const rgb = parseInt(c, 16);   // convert rrggbb to decimal
     const r = (rgb >> 16) & 0xff;  // extract red
@@ -45,6 +45,13 @@ function getLuminance(hex: string): number {
 
     const luma = 0.2126 * r + 0.7152 * g + 0.0722 * b; // per ITU-R BT.709
     return luma;
+}
+
+// Helper to calculate contrast ratio (1-21)
+export function getContrastRatio(c1: string, c2: string): number {
+    const l1 = (getLuminance(c1) / 255) + 0.05;
+    const l2 = (getLuminance(c2) / 255) + 0.05;
+    return Math.max(l1, l2) / Math.min(l1, l2);
 }
 
 // 1. Get Best Logo Variant
@@ -111,33 +118,44 @@ function adjustBrightness(hex: string, percent: number): string {
 
 // 3. Apply Theme to Template
 export function applyThemeToTemplate(template: CardTemplate, theme: Theme): CardTemplate {
-    const newLayers = template.layers.map(layer => {
-        const newProps = { ...layer.props };
-
-        // Apply primary color to main text (names, titles) if they were colored
+    const newLayers: KonvaNodeDefinition[] = template.layers.map((layer): KonvaNodeDefinition => {
+        // Handle Text Layers
         if (layer.type === 'Text') {
-            // Heuristic: if text is large, use primary. If small, use secondary.
+            const newProps = { ...layer.props };
             if (newProps.fontSize && newProps.fontSize > 30) {
                 newProps.fill = theme.primary;
             } else {
                 newProps.fill = theme.secondary;
             }
+            return { ...layer, props: newProps };
         }
 
-        // Apply accent to shapes/lines
-        if (layer.type === 'Rect' || layer.type === 'Circle') {
-            // Don't change white backgrounds
+        // Handle Rect Layers
+        if (layer.type === 'Rect') {
+            const newProps = { ...layer.props };
             if (newProps.fill !== '#FFFFFF' && newProps.fill !== '#ffffff') {
                 newProps.fill = theme.accent;
             }
+            return { ...layer, props: newProps };
         }
 
-        // Apply primary to icons
+        // Handle Circle Layers
+        if (layer.type === 'Circle') {
+            const newProps = { ...layer.props };
+            if (newProps.fill !== '#FFFFFF' && newProps.fill !== '#ffffff') {
+                newProps.fill = theme.accent;
+            }
+            return { ...layer, props: newProps };
+        }
+
+        // Handle Icons
         if (layer.type === 'Icon') {
+            const newProps = { ...layer.props };
             newProps.fill = theme.primary;
+            return { ...layer, props: newProps };
         }
 
-        return { ...layer, props: newProps };
+        return layer;
     });
 
     return {

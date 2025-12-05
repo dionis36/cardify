@@ -42,22 +42,41 @@ export function getLogoForTemplate(templateId: string, backgroundColor: string):
     // If this is a template variation (has palette suffix), offset the logo
     // This gives each color variation a DIFFERENT logo
     if (parts.length > 2) {
-        const paletteId = parts.slice(2).join('_');
+        // CHECK FOR GENERATED VARIANTS FIRST
+        if (templateId.includes('_gen_')) {
+            const seedStr = parts[parts.indexOf('gen') + 1];
+            if (seedStr) {
+                // Simple hash of seed string
+                let hash = 0;
+                for (let i = 0; i < seedStr.length; i++) {
+                    hash = (hash << 5) - hash + seedStr.charCodeAt(i);
+                    hash |= 0;
+                }
+                // Use hash to pick a random offset
+                const offset = Math.abs(hash) % AVAILABLE_LOGOS.length;
+                const baseLogoIndex = AVAILABLE_LOGOS.findIndex(l => l.id === logoFamily.id);
+                const newLogoIndex = (baseLogoIndex + offset) % AVAILABLE_LOGOS.length;
+                logoFamily = AVAILABLE_LOGOS[newLogoIndex];
+            }
+        } else {
+            // Legacy handling for old palette IDs (if any exist)
+            const paletteId = parts.slice(2).join('_');
 
-        // Import PALETTES to find which variation this is
-        const { PALETTES } = require('./templateVariations');
-        const paletteIndex = PALETTES.findIndex((p: any) => p.id === paletteId);
+            // Import PALETTES to find which variation this is
+            const { PALETTES } = require('./templateVariations');
+            const paletteIndex = PALETTES.findIndex((p: any) => p.id === paletteId);
 
-        if (paletteIndex !== -1) {
-            // Get base logo index in AVAILABLE_LOGOS
-            const baseLogoIndex = AVAILABLE_LOGOS.findIndex(l => l.id === logoFamily.id);
+            if (paletteIndex !== -1) {
+                // Get base logo index in AVAILABLE_LOGOS
+                const baseLogoIndex = AVAILABLE_LOGOS.findIndex(l => l.id === logoFamily.id);
 
-            // Offset by palette index + 1 to get a different logo
-            // Use modulo to wrap around if we exceed available logos
-            const newLogoIndex = (baseLogoIndex + paletteIndex + 1) % AVAILABLE_LOGOS.length;
-            logoFamily = AVAILABLE_LOGOS[newLogoIndex];
+                // Offset by palette index + 1 to get a different logo
+                // Use modulo to wrap around if we exceed available logos
+                const newLogoIndex = (baseLogoIndex + paletteIndex + 1) % AVAILABLE_LOGOS.length;
+                logoFamily = AVAILABLE_LOGOS[newLogoIndex];
 
-            console.log(`Template variation ${templateId}: Using Logo ${logoFamily.name} (offset from base)`);
+                console.log(`Template variation ${templateId}: Using Logo ${logoFamily.name} (offset from base)`);
+            }
         }
     }
 
