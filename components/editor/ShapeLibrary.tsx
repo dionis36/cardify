@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useCallback, useState, useMemo } from 'react';
-import { Square, Circle, ChevronDown, ChevronRight } from 'lucide-react';
+import { Square, Circle, ChevronDown, ChevronRight, Star, Flower2, Shapes, Grid3x3, Sparkles } from 'lucide-react';
 
 // Import definitions from our new libraries
 import { KonvaNodeDefinition, KonvaNodeType } from '@/types/template';
@@ -63,13 +63,21 @@ const SHAPE_DEFINITIONS: ShapeButton[] = [
   }),
 ];
 
-// Category display names
+// Category display names and icons
 const CATEGORY_NAMES: Record<string, string> = {
-  stars: '⭐ Stars & Sparkles',
-  organic: '🌿 Organic Shapes',
-  simple: '⬜ Simple Shapes',
-  geometric: '🔷 Geometric Patterns',
-  misc: '🎨 Miscellaneous'
+  stars: 'Stars & Bursts',
+  organic: 'Organic Shapes',
+  simple: 'Simple Shapes',
+  geometric: 'Geometric Patterns',
+  misc: 'Decorative Elements'
+};
+
+const CATEGORY_ICONS: Record<string, React.FC<any>> = {
+  stars: Star,
+  organic: Flower2,
+  simple: Shapes,
+  geometric: Grid3x3,
+  misc: Sparkles
 };
 
 // --- Component Props ---
@@ -244,9 +252,15 @@ export function ShapeLibrary({ onAddNode }: ShapeLibraryProps) {
                     onClick={() => toggleCategory(category)}
                     className="w-full flex items-center justify-between p-3 bg-gray-50 hover:bg-gray-100 transition-colors"
                   >
-                    <span className="text-sm font-medium text-gray-700">
-                      {displayName} ({shapes.length})
-                    </span>
+                    <div className="flex items-center gap-2">
+                      {React.createElement(CATEGORY_ICONS[category] || Shapes, {
+                        size: 16,
+                        className: "text-gray-600"
+                      })}
+                      <span className="text-sm font-medium text-gray-700">
+                        {displayName} ({shapes.length})
+                      </span>
+                    </div>
                     {isExpanded ? (
                       <ChevronDown size={16} className="text-gray-500" />
                     ) : (
