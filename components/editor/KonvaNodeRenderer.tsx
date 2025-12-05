@@ -96,10 +96,6 @@ const KonvaNodeRendererBase: React.FC<KonvaNodeRendererProps> = ({
    * Handles the end of a transform (resize or rotation) event.
    * Calculates the new dimensions and resets the scale on the Konva object to 1.
    */
-  /**
-   * Handles the end of a transform (resize or rotation) event.
-   * Calculates the new dimensions and resets the scale on the Konva object to 1.
-   */
   const handleTransformEnd = useCallback(() => {
     if (!nodeRef.current) return;
 
@@ -108,10 +104,6 @@ const KonvaNodeRendererBase: React.FC<KonvaNodeRendererProps> = ({
     // Calculate new width/height based on current scale and initial size
     const scaleX = node.scaleX();
     const scaleY = node.scaleY();
-
-    // Reset scale to 1 on the Konva object to perform the "bake" of the transform
-    node.scaleX(1);
-    node.scaleY(1);
 
     const updates: Partial<KonvaNodeProps> = {
       x: node.x(),
@@ -122,18 +114,44 @@ const KonvaNodeRendererBase: React.FC<KonvaNodeRendererProps> = ({
     // Special handling for Circle: radius is the source of truth
     if (node.getClassName() === 'Circle') {
       // Use max scale to keep it growing if user dragged corner
-      // (Konva Circle is always a circle, so if user dragged unconstrained, we just pick one dimension or max)
       const maxScale = Math.max(Math.abs(scaleX), Math.abs(scaleY));
       const oldRadius = (node as Konva.Circle).radius();
 
-      // Fix: Cast to any to avoid TS union error (radius exists on CircleProps but not all props)
+      // Reset scale to 1 and bake into radius
+      node.scaleX(1);
+      node.scaleY(1);
+
+      // Fix: Cast to any to avoid TS union error
       (updates as any).radius = oldRadius * maxScale;
 
       // Also update width/height metadata if used elsewhere, keeping it square
       updates.width = (oldRadius * maxScale) * 2;
       updates.height = (oldRadius * maxScale) * 2;
-    } else {
-      // Standard Rect/Image/Text handling
+    }
+    // Special handling for Path (Group): DON'T reset scale - keep it as source of truth
+    else if (node.getClassName() === 'Group' && (node as any).children?.[0]?.className === 'Path') {
+      // For Path shapes, scaleX/scaleY ARE the source of truth
+      // Don't reset scale - just update the scale properties
+      // Use uniform scaling to maintain aspect ratio
+      const uniformScale = Math.max(Math.abs(scaleX), Math.abs(scaleY));
+
+      // Set both scales to uniform value for aspect ratio lock
+      node.scaleX(uniformScale);
+      node.scaleY(uniformScale);
+
+      // Update the stored scale values
+      (updates as any).scaleX = uniformScale;
+      (updates as any).scaleY = uniformScale;
+
+      // Width/height remain unchanged - they're just metadata for Path
+      updates.width = node.width();
+      updates.height = node.height();
+    }
+    else {
+      // Standard Rect/Image/Text handling - reset scale and bake into width/height
+      node.scaleX(1);
+      node.scaleY(1);
+
       updates.width = node.width() * scaleX;
       updates.height = node.height() * scaleY;
     }
@@ -151,6 +169,8 @@ const KonvaNodeRendererBase: React.FC<KonvaNodeRendererProps> = ({
     y: node.props.y,
     rotation: node.props.rotation,
     opacity: node.props.opacity,
+    scaleX: (node.props as any).scaleX || 1, // CRITICAL: Include scale properties (cast to any for TS)
+    scaleY: (node.props as any).scaleY || 1,
     draggable: !isLocked && !isLayoutDisabled, // Locked nodes and layout disabled nodes cannot be dragged
 
     // Event handlers

@@ -830,6 +830,7 @@ const CanvasStage = forwardRef<KonvaStageType, CanvasStageProps>(
                             const isMultiSelection = selectedNodeIndices.length > 1;
                             const shouldKeepRatio = isMultiSelection ? false : (
                                 selectedNodeDef?.type === 'Icon' ||
+                                selectedNodeDef?.type === 'Path' || // ADDED: Keep aspect ratio for custom SVG shapes
                                 (selectedNodeDef?.type === 'Image' && !!(selectedNodeDef.props as any).qrMetadata) ||
                                 (selectedNodeDef?.type === 'Image' && !!(selectedNodeDef.props as any).isLogo)
                             );
@@ -848,7 +849,7 @@ const CanvasStage = forwardRef<KonvaStageType, CanvasStageProps>(
                                     visible={!!(mode === 'FULL_EDIT' && hasTransformableNodes)}
                                     ignoreStroke={false}
                                     flipEnabled={false}
-                                    // CRITICAL: Enable keepRatio for Icon nodes and QR Codes to maintain aspect ratio
+                                    // CRITICAL: Enable keepRatio for Icon nodes, Path shapes (custom SVG), and QR/Logo images to maintain aspect ratio
                                     keepRatio={shouldKeepRatio}
 
                                     // ADDED bounding box check for minimum size and template bounds

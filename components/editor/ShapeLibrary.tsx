@@ -25,7 +25,7 @@ interface CustomShape {
   pathData: string;
   viewBox: string;
   transform: string;
-  scaleValue: number; // Numeric scale value for easy access
+  scaleValue: number;
   originalFill: string;
   displayFill: string;
   originalStroke: string;
@@ -116,21 +116,11 @@ export function ShapeLibrary({ onAddNode }: ShapeLibraryProps) {
   const handleAddCustomShape = useCallback((shape: CustomShape) => {
     const id = `node_path_${Date.now()}`;
 
-    // For shapes with scale transform, we need to apply the scale to the canvas rendering
-    // Shapes with scale(0.417) have path data in 480x480 but should display at ~200x200
-    const hasScaleTransform = shape.transform.includes('scale');
-    let scaleX = 1;
-    let scaleY = 1;
-
-    if (hasScaleTransform) {
-      // Extract scale value from transform string (e.g., "scale(0.417)")
-      const scaleMatch = shape.transform.match(/scale\(([0-9.]+)\)/);
-      if (scaleMatch) {
-        const scaleValue = parseFloat(scaleMatch[1]);
-        scaleX = scaleValue;
-        scaleY = scaleValue;
-      }
-    }
+    // For shapes with scale transform, calculate the actual display size
+    // Instead of using scaleX/scaleY, we multiply the default size by the scale value
+    // This ensures the Path renders at the correct size without transform issues
+    const displayWidth = shape.defaultWidth * (shape.scaleValue || 1);
+    const displayHeight = shape.defaultHeight * (shape.scaleValue || 1);
 
     const newNode: KonvaNodeDefinition = {
       id,
@@ -139,16 +129,17 @@ export function ShapeLibrary({ onAddNode }: ShapeLibraryProps) {
         id,
         x: START_POS,
         y: START_POS,
-        width: shape.defaultWidth,
-        height: shape.defaultHeight,
+        width: displayWidth,
+        height: displayHeight,
         data: shape.pathData,
         fill: shape.originalFill,
         stroke: shape.originalStroke,
         strokeWidth: shape.strokeWidth,
         opacity: shape.opacity,
         rotation: 0,
-        scaleX: scaleX,
-        scaleY: scaleY,
+        // Don't use scaleX/scaleY - use width/height directly
+        scaleX: 1,
+        scaleY: 1,
       },
       editable: true,
       locked: false,
