@@ -1,10 +1,13 @@
 'use client';
 
-import React, { useCallback } from 'react';
-import { Square, Circle } from 'lucide-react';
+import React, { useCallback, useState, useMemo } from 'react';
+import { Square, Circle, ChevronDown, ChevronRight } from 'lucide-react';
 
 // Import definitions from our new libraries
 import { KonvaNodeDefinition, KonvaNodeType } from '@/types/template';
+
+// Import the shapes library
+import shapesLibrary from '@/public/shapes/shapes-library.json';
 
 // --- Types and Constants ---
 interface ShapeButton {
@@ -13,6 +16,24 @@ interface ShapeButton {
   name: string;
   group: 'Text' | 'Basic' | 'Vector';
   defaultProps: Partial<KonvaNodeDefinition['props']>;
+}
+
+interface CustomShape {
+  id: string;
+  name: string;
+  category: string;
+  pathData: string;
+  viewBox: string;
+  transform: string;
+  scaleValue: number; // Numeric scale value for easy access
+  originalFill: string;
+  displayFill: string;
+  originalStroke: string;
+  displayStroke: string;
+  strokeWidth: number;
+  opacity: number;
+  defaultWidth: number;
+  defaultHeight: number;
 }
 
 const START_POS = 50;
@@ -42,6 +63,15 @@ const SHAPE_DEFINITIONS: ShapeButton[] = [
   }),
 ];
 
+// Category display names
+const CATEGORY_NAMES: Record<string, string> = {
+  stars: '⭐ Stars & Sparkles',
+  organic: '🌿 Organic Shapes',
+  simple: '⬜ Simple Shapes',
+  geometric: '🔷 Geometric Patterns',
+  misc: '🎨 Miscellaneous'
+};
+
 // --- Component Props ---
 
 interface ShapeLibraryProps {
@@ -53,6 +83,8 @@ interface ShapeLibraryProps {
  * Allows users to quickly add various elements with a professional, grouped UI.
  */
 export function ShapeLibrary({ onAddNode }: ShapeLibraryProps) {
+  // State for collapsed categories (lazy loading)
+  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
 
   /**
    * Generates the full KonvaNodeDefinition and calls the parent's onAddNode function.
@@ -78,22 +110,181 @@ export function ShapeLibrary({ onAddNode }: ShapeLibraryProps) {
     onAddNode(newNode);
   }, [onAddNode]);
 
+  /**
+   * Add a custom shape from the library
+   */
+  const handleAddCustomShape = useCallback((shape: CustomShape) => {
+    const id = `node_path_${Date.now()}`;
+
+    // For shapes with scale transform, we need to apply the scale to the canvas rendering
+    // Shapes with scale(0.417) have path data in 480x480 but should display at ~200x200
+    const hasScaleTransform = shape.transform.includes('scale');
+    let scaleX = 1;
+    let scaleY = 1;
+
+    if (hasScaleTransform) {
+      // Extract scale value from transform string (e.g., "scale(0.417)")
+      const scaleMatch = shape.transform.match(/scale\(([0-9.]+)\)/);
+      if (scaleMatch) {
+        const scaleValue = parseFloat(scaleMatch[1]);
+        scaleX = scaleValue;
+        scaleY = scaleValue;
+      }
+    }
+
+    const newNode: KonvaNodeDefinition = {
+      id,
+      type: 'Path',
+      props: {
+        id,
+        x: START_POS,
+        y: START_POS,
+        width: shape.defaultWidth,
+        height: shape.defaultHeight,
+        data: shape.pathData,
+        fill: shape.originalFill,
+        stroke: shape.originalStroke,
+        strokeWidth: shape.strokeWidth,
+        opacity: shape.opacity,
+        rotation: 0,
+        scaleX: scaleX,
+        scaleY: scaleY,
+      },
+      editable: true,
+      locked: false,
+    } as KonvaNodeDefinition;
+
+    onAddNode(newNode);
+  }, [onAddNode]);
+
+  /**
+   * Toggle category expansion
+   */
+  const toggleCategory = useCallback((category: string) => {
+    setExpandedCategories(prev => {
+      const next = new Set(prev);
+      if (next.has(category)) {
+        next.delete(category);
+      } else {
+        next.add(category);
+      }
+      return next;
+    });
+  }, []);
+
+  /**
+   * Get shapes by category (memoized for performance)
+   */
+  const shapesByCategory = useMemo(() => {
+    const categories = shapesLibrary.categories as Record<string, string[]>;
+    const shapes = shapesLibrary.shapes as CustomShape[];
+
+    const result: Record<string, CustomShape[]> = {};
+
+    Object.entries(categories).forEach(([category, shapeIds]) => {
+      result[category] = shapeIds
+        .map(id => shapes.find(s => s.id === id))
+        .filter((s): s is CustomShape => s !== undefined);
+    });
+
+    return result;
+  }, []);
+
+  /**
+   * Render SVG thumbnail for custom shape
+   */
+  const renderShapeThumbnail = useCallback((shape: CustomShape) => {
+    // For shapes with scale transform, use larger viewBox (480x480) to show full shape
+    // Original shapes with scale(0.417) have path data in 480x480 coordinate system
+    const hasScaleTransform = shape.transform.includes('scale');
+    const viewBox = hasScaleTransform ? '0 0 480 480' : shape.viewBox;
+
+    // Don't apply transform in thumbnail - just use correct viewBox
+    const svgContent = `<path d="${shape.pathData}" fill="${shape.displayFill}" stroke="${shape.displayStroke}" stroke-width="${shape.strokeWidth}" />`;
+
+    return (
+      <svg
+        width="40"
+        height="40"
+        viewBox={viewBox}
+        xmlns="http://www.w3.org/2000/svg"
+        className="pointer-events-none"
+        dangerouslySetInnerHTML={{ __html: svgContent }}
+      />
+    );
+  }, []);
+
   return (
     <div className="flex-1 h-full flex flex-col overflow-hidden">
       <div className="p-4 space-y-4 overflow-y-auto custom-scrollbar flex-1">
-        <h3 className="font-semibold text-xs text-gray-500 uppercase tracking-wider">Basic Shapes</h3>
-        <div className="grid grid-cols-2 gap-3">
-          {SHAPE_DEFINITIONS.map((shape, idx) => (
-            <button
-              key={`${shape.name}-${idx}`}
-              onClick={() => handleAddShape(shape)}
-              title={`Add ${shape.name}`}
-              className="flex flex-col items-center justify-center p-4 border border-gray-200 bg-white hover:bg-gray-50 hover:border-gray-300 rounded-xl transition-all duration-200 aspect-square shadow-sm hover:shadow-md group"
-            >
-              <shape.icon size={32} className="text-gray-600 group-hover:text-blue-600 transition-colors mb-2" strokeWidth={1.5} />
-              <span className="text-xs text-center text-gray-600 font-medium group-hover:text-gray-900">{shape.name}</span>
-            </button>
-          ))}
+        {/* Basic Shapes Section */}
+        <div>
+          <h3 className="font-semibold text-xs text-gray-500 uppercase tracking-wider mb-3">Basic Shapes</h3>
+          <div className="grid grid-cols-2 gap-3">
+            {SHAPE_DEFINITIONS.map((shape, idx) => (
+              <button
+                key={`${shape.name}-${idx}`}
+                onClick={() => handleAddShape(shape)}
+                title={`Add ${shape.name}`}
+                className="flex flex-col items-center justify-center p-4 border border-gray-200 bg-white hover:bg-gray-50 hover:border-gray-300 rounded-xl transition-all duration-200 aspect-square shadow-sm hover:shadow-md group"
+              >
+                <shape.icon size={32} className="text-gray-600 group-hover:text-blue-600 transition-colors mb-2" strokeWidth={1.5} />
+                <span className="text-xs text-center text-gray-600 font-medium group-hover:text-gray-900">{shape.name}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Custom Shapes Section */}
+        <div className="border-t border-gray-200 pt-4">
+          <h3 className="font-semibold text-xs text-gray-500 uppercase tracking-wider mb-3">
+            Custom Shapes ({shapesLibrary.totalShapes})
+          </h3>
+
+          <div className="space-y-2">
+            {Object.entries(shapesByCategory).map(([category, shapes]) => {
+              const isExpanded = expandedCategories.has(category);
+              const displayName = CATEGORY_NAMES[category] || category;
+
+              return (
+                <div key={category} className="border border-gray-200 rounded-lg overflow-hidden">
+                  {/* Category Header */}
+                  <button
+                    onClick={() => toggleCategory(category)}
+                    className="w-full flex items-center justify-between p-3 bg-gray-50 hover:bg-gray-100 transition-colors"
+                  >
+                    <span className="text-sm font-medium text-gray-700">
+                      {displayName} ({shapes.length})
+                    </span>
+                    {isExpanded ? (
+                      <ChevronDown size={16} className="text-gray-500" />
+                    ) : (
+                      <ChevronRight size={16} className="text-gray-500" />
+                    )}
+                  </button>
+
+                  {/* Category Content (Lazy Loaded) */}
+                  {isExpanded && (
+                    <div className="p-3 bg-white grid grid-cols-3 gap-2">
+                      {shapes.map((shape) => (
+                        <button
+                          key={shape.id}
+                          onClick={() => handleAddCustomShape(shape)}
+                          title={`${shape.id}: ${shape.name}`}
+                          className="flex flex-col items-center justify-center p-2 border border-gray-200 bg-white hover:bg-gray-50 hover:border-blue-400 rounded-lg transition-all duration-200 aspect-square group"
+                        >
+                          {renderShapeThumbnail(shape)}
+                          <span className="text-[10px] text-center text-gray-500 mt-1 truncate w-full group-hover:text-gray-900">
+                            {shape.id}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
     </div>

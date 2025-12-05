@@ -121,23 +121,23 @@ const ColorPickerWithSwatch = ({
   <div className="flex flex-col space-y-1">
     <label className="text-xs font-semibold text-gray-600">{label}</label>
     <div className={`flex items-center gap-2 border border-gray-300 p-1 rounded-md ${disabled ? 'bg-gray-100' : 'bg-white'}`}>
-      <div
-        className="w-6 h-6 rounded border border-gray-200 shadow-sm"
-        style={{ backgroundColor: color }}
-      />
+      <div className="relative w-6 h-6 rounded border border-gray-200 shadow-sm cursor-pointer" style={{ backgroundColor: color }}>
+        <input
+          type="color"
+          value={color}
+          onChange={(e) => onChange(e.target.value)}
+          disabled={disabled}
+          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+          title="Click to pick color"
+        />
+      </div>
       <input
         type="text"
         value={color}
         onChange={(e) => onChange(e.target.value)}
         disabled={disabled}
         className="flex-1 text-xs font-mono uppercase outline-none bg-transparent"
-      />
-      <input
-        type="color"
-        value={color}
-        onChange={(e) => onChange(e.target.value)}
-        disabled={disabled}
-        className="w-6 h-6 opacity-0 absolute cursor-pointer"
+        placeholder="#000000"
       />
     </div>
   </div>
@@ -559,6 +559,30 @@ export default function PropertyPanel({
   }
 
   // 7. Transform
+  // Add aspect ratio lock state for Path shapes
+  const [aspectRatioLocked, setAspectRatioLocked] = useState(node.type === 'Path');
+  const aspectRatio = width / height;
+
+  // Handle width change with aspect ratio lock
+  const handleWidthChange = (newWidth: number) => {
+    if (aspectRatioLocked && node.type === 'Path') {
+      const newHeight = newWidth / aspectRatio;
+      onPropChange(id, { width: newWidth, height: newHeight });
+    } else {
+      handlePropChange('width', newWidth);
+    }
+  };
+
+  // Handle height change with aspect ratio lock
+  const handleHeightChange = (newHeight: number) => {
+    if (aspectRatioLocked && node.type === 'Path') {
+      const newWidth = newHeight * aspectRatio;
+      onPropChange(id, { width: newWidth, height: newHeight });
+    } else {
+      handlePropChange('height', newHeight);
+    }
+  };
+
   panels.push(
     <SectionContainer key="transform" title="Transform" icon={Move} disabled={layoutControlsDisabled}>
       <div className="grid grid-cols-2 gap-3">
@@ -566,9 +590,35 @@ export default function PropertyPanel({
         <InputGroup label="Y" value={Math.round(y)} step={1} onChange={(v) => handlePropChange('y', Number(v))} disabled={layoutControlsDisabled} />
         <InputGroup label="Rotation" unit="°" value={Math.round(rotation)} step={1} onChange={(v) => handlePropChange('rotation', Number(v))} disabled={layoutControlsDisabled} />
         <InputGroup label="Opacity" unit="%" type="number" value={Math.round(opacity)} min={0} max={100} onChange={(v) => handlePropChange('opacity', Number(v))} disabled={layoutControlsDisabled} />
-        <InputGroup label="Width" value={Math.round(width)} min={1} step={1} onChange={(v) => handlePropChange('width', Number(v))} disabled={layoutControlsDisabled} />
-        <InputGroup label="Height" value={Math.round(height)} min={1} step={1} onChange={(v) => handlePropChange('height', Number(v))} disabled={layoutControlsDisabled} />
       </div>
+
+      {/* Width/Height with Aspect Ratio Lock for Path shapes */}
+      {node.type === 'Path' && (
+        <div className="mt-3 pt-3 border-t border-gray-100">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-semibold text-gray-600">Size</span>
+            <button
+              onClick={() => setAspectRatioLocked(!aspectRatioLocked)}
+              className={`p-1.5 rounded transition-colors ${aspectRatioLocked ? 'bg-blue-50 text-blue-600' : 'bg-gray-100 text-gray-500'}`}
+              title={aspectRatioLocked ? "Aspect ratio locked" : "Aspect ratio unlocked"}
+            >
+              {aspectRatioLocked ? <Lock size={14} /> : <Unlock size={14} />}
+            </button>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <InputGroup label="Width" value={Math.round(width)} min={1} step={1} onChange={(v) => handleWidthChange(Number(v))} disabled={layoutControlsDisabled} />
+            <InputGroup label="Height" value={Math.round(height)} min={1} step={1} onChange={(v) => handleHeightChange(Number(v))} disabled={layoutControlsDisabled} />
+          </div>
+        </div>
+      )}
+
+      {/* Regular Width/Height for other shapes */}
+      {node.type !== 'Path' && (
+        <div className="grid grid-cols-2 gap-3 mt-3 pt-3 border-t border-gray-100">
+          <InputGroup label="Width" value={Math.round(width)} min={1} step={1} onChange={(v) => handlePropChange('width', Number(v))} disabled={layoutControlsDisabled} />
+          <InputGroup label="Height" value={Math.round(height)} min={1} step={1} onChange={(v) => handlePropChange('height', Number(v))} disabled={layoutControlsDisabled} />
+        </div>
+      )}
     </SectionContainer>
   );
 
