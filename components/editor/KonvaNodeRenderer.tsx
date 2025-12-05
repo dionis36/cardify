@@ -243,7 +243,8 @@ const KonvaNodeRendererBase: React.FC<KonvaNodeRendererProps> = ({
 
   // 4. Path (Complex Shapes / Generic SVG Data)
   if (node.type === "Path") {
-    const { width, height, data } = node.props as PathProps;
+    // Cast to PathProps to access specific properties (including new 'paths')
+    const { width, height, data, paths } = node.props as PathProps;
 
     return (
       // Wrap Path in a Group for better handling of transformations (resizing the content via width/height)
@@ -252,17 +253,41 @@ const KonvaNodeRendererBase: React.FC<KonvaNodeRendererProps> = ({
         {...shapeStyleProps}
         ref={nodeRef as React.RefObject<Konva.Group>}
       >
-        <Path
-          x={0} // Positioned relative to Group
-          y={0}
-          width={width} // Konva Path uses width/height to scale the SVG 'data'
-          height={height}
-          data={data}
-          // Styling is passed through the Group's style props for consistency
-          fill={fill}
-          stroke={stroke}
-          strokeWidth={strokeWidth}
-        />
+        {/* Support for multi-path shapes (NEW) */}
+        {paths && paths.length > 0 ? (
+          paths.map((pathData, i) => (
+            <Path
+              key={i}
+              x={0}
+              y={0}
+              // For multi-path, we rely on the Group's scaleX/scaleY to handle sizing if the paths are normalized.
+              // IF the paths are raw SVG, they might not fill width/height.
+              // Standard behavior: The Group scales, the Paths just draw.
+              // We pass width/height to Path only if we want Konva to fit it? 
+              // Actually, for multi-path, usually we just want to render them as-is and let Group handle overall scale.
+              // But to maintain consistency with single-path mode where width/height are passed:
+              // We'll skip passing width/height to individual paths to avoid them trying to EACH fit the box differently.
+              // They should maintain their relative positions.
+              data={pathData.d}
+              fill={fill} // Inherit parent fill (Monochrome behavior)
+              stroke={stroke}
+              strokeWidth={strokeWidth}
+              fillRule={pathData.fillRule || 'nonzero'}
+            />
+          ))
+        ) : (
+          /* Backward compatibility for single path */
+          <Path
+            x={0}
+            y={0}
+            width={width} // Konva Path uses width/height to scale the SVG 'data'
+            height={height}
+            data={data || ''}
+            fill={fill}
+            stroke={stroke}
+            strokeWidth={strokeWidth}
+          />
+        )}
       </Group>
     );
   }

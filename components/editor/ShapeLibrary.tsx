@@ -23,6 +23,8 @@ interface CustomShape {
   name: string;
   category: string;
   pathData: string;
+  // NEW: Add paths definition
+  paths?: Array<{ d: string; fillRule?: "nonzero" | "evenodd" }>;
   viewBox: string;
   transform: string;
   scaleValue: number;
@@ -69,7 +71,8 @@ const CATEGORY_NAMES: Record<string, string> = {
   organic: 'Organic Shapes',
   simple: 'Simple Shapes',
   geometric: 'Geometric Patterns',
-  misc: 'Decorative Elements'
+  misc: 'Decorative Elements',
+  decorative: 'Decorative' // Explicitly add decorative
 };
 
 const CATEGORY_ICONS: Record<string, React.FC<any>> = {
@@ -77,7 +80,8 @@ const CATEGORY_ICONS: Record<string, React.FC<any>> = {
   organic: Flower2,
   simple: Shapes,
   geometric: Grid3x3,
-  misc: Sparkles
+  misc: Sparkles,
+  decorative: Sparkles // Map decorative to Sparkles or similar
 };
 
 // --- Component Props ---
@@ -140,6 +144,8 @@ export function ShapeLibrary({ onAddNode }: ShapeLibraryProps) {
         width: displayWidth,
         height: displayHeight,
         data: shape.pathData,
+        // NEW: Pass paths definition if available
+        paths: shape.paths,
         fill: shape.originalFill,
         stroke: shape.originalStroke,
         strokeWidth: shape.strokeWidth,

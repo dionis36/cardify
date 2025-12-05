@@ -169,7 +169,11 @@ export interface ComplexShapeProps extends NodeCommonProps {
 }
 
 export interface PathProps extends NodeCommonProps {
-  data: string; // Standard SVG path
+  data?: string; // Standard single path (backward compat)
+  data?: string; // Standard single path (backward compat)
+  paths?: Array<{ d: string; fillRule?: "nonzero" | "evenodd" }>; // NEW: Multi-path support
+  naturalWidth?: number; // Natural SVG width
+  naturalHeight?: number; // Natural SVG height
 }
 
 export interface CircleProps extends NodeCommonProps {
