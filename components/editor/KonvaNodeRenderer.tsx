@@ -1,15 +1,15 @@
 "use client";
 
 import React, { useRef, memo, useCallback, useEffect } from "react";
-import { 
-  Rect, Circle, Ellipse, Star, RegularPolygon, Line, Arrow, Path, Group, 
-} from "react-konva"; 
+import {
+  Rect, Circle, Ellipse, Star, RegularPolygon, Line, Arrow, Path, Group,
+} from "react-konva";
 import Konva from "konva";
-import { 
-  KonvaNodeDefinition, 
-  KonvaNodeProps, 
-  RectProps, 
-  ImageProps, 
+import {
+  KonvaNodeDefinition,
+  KonvaNodeProps,
+  RectProps,
+  ImageProps,
   TextProps,
   CircleProps,
   EllipseProps,
@@ -22,9 +22,9 @@ import {
   KonvaNodeType
 } from "@/types/template";
 // FIX: Using full paths for sibling components to resolve local module errors
-import TextNode from "components/editor/TextNode"; 
-import ImageNode from "components/editor/ImageNode"; 
-import IconNode from "components/editor/IconNode"; 
+import TextNode from "components/editor/TextNode";
+import ImageNode from "components/editor/ImageNode";
+import IconNode from "components/editor/IconNode";
 
 /**
  * Props for the KonvaNodeRenderer component.
@@ -62,14 +62,14 @@ const KonvaNodeRendererBase: React.FC<KonvaNodeRendererProps> = ({
 }) => {
   // Use a ref for the main Konva node (Group, Rect, etc.)
   const nodeRef = useRef<Konva.Node>(null);
-  
+
   /**
    * Effect to manage the Konva Transformer attachment.
    * Attaches the transformer only when the node is selected and not layout disabled.
    */
   useEffect(() => {
     if (!nodeRef.current) return;
-    
+
     // Safety check to ensure Konva instances are available
     const stage = nodeRef.current.getStage();
     const transformer = (stage as any)?.transformer as Konva.Transformer | undefined;
@@ -90,34 +90,56 @@ const KonvaNodeRendererBase: React.FC<KonvaNodeRendererProps> = ({
     // Redraw the layer to update transformer visibility
     nodeRef.current.getLayer()?.batchDraw();
 
-  }, [isSelected, isLayoutDisabled, nodeRef]); 
+  }, [isSelected, isLayoutDisabled, nodeRef]);
 
+  /**
+   * Handles the end of a transform (resize or rotation) event.
+   * Calculates the new dimensions and resets the scale on the Konva object to 1.
+   */
   /**
    * Handles the end of a transform (resize or rotation) event.
    * Calculates the new dimensions and resets the scale on the Konva object to 1.
    */
   const handleTransformEnd = useCallback(() => {
     if (!nodeRef.current) return;
-    
+
     const node = nodeRef.current;
-    
+
     // Calculate new width/height based on current scale and initial size
-    let width = node.width() * node.scaleX();
-    let height = node.height() * node.scaleY();
-    
-    // Reset scale to 1 on the Konva object, and transfer new size to props
+    const scaleX = node.scaleX();
+    const scaleY = node.scaleY();
+
+    // Reset scale to 1 on the Konva object to perform the "bake" of the transform
     node.scaleX(1);
     node.scaleY(1);
-    
-    onNodeChange(index, {
+
+    const updates: Partial<KonvaNodeProps> = {
       x: node.x(),
       y: node.y(),
       rotation: node.rotation(),
-      // Text, Image, Path (Icon/Complex) use width/height
-      width: width, 
-      height: height,
-    });
-    
+    };
+
+    // Special handling for Circle: radius is the source of truth
+    if (node.getClassName() === 'Circle') {
+      // Use max scale to keep it growing if user dragged corner
+      // (Konva Circle is always a circle, so if user dragged unconstrained, we just pick one dimension or max)
+      const maxScale = Math.max(Math.abs(scaleX), Math.abs(scaleY));
+      const oldRadius = (node as Konva.Circle).radius();
+
+      // Fix: Cast to any to avoid TS union error (radius exists on CircleProps but not all props)
+      (updates as any).radius = oldRadius * maxScale;
+
+      // Also update width/height metadata if used elsewhere, keeping it square
+      updates.width = (oldRadius * maxScale) * 2;
+      updates.height = (oldRadius * maxScale) * 2;
+    } else {
+      // Standard Rect/Image/Text handling
+      updates.width = node.width() * scaleX;
+      updates.height = node.height() * scaleY;
+    }
+
+    onNodeChange(index, updates);
+
     // Redraw the layer to apply the scale reset
     node.getLayer()?.batchDraw();
   }, [index, onNodeChange]);
@@ -130,7 +152,7 @@ const KonvaNodeRendererBase: React.FC<KonvaNodeRendererProps> = ({
     rotation: node.props.rotation,
     opacity: node.props.opacity,
     draggable: !isLocked && !isLayoutDisabled, // Locked nodes and layout disabled nodes cannot be dragged
-    
+
     // Event handlers
     onClick: () => onSelect(index),
     onTap: () => onSelect(index),
@@ -189,39 +211,39 @@ const KonvaNodeRendererBase: React.FC<KonvaNodeRendererProps> = ({
   if (node.type === "Icon") {
     const props = node.props as IconProps;
     return (
-        <IconNode
-            nodeRef={nodeRef as React.RefObject<Konva.Group>}
-            iconName={props.iconName || 'HelpCircle'}
-            props={props}
-            commonKonvaProps={commonKonvaProps}
-            isLayoutDisabled={isLayoutDisabled}
-        />
+      <IconNode
+        nodeRef={nodeRef as React.RefObject<Konva.Group>}
+        iconName={props.iconName || 'HelpCircle'}
+        props={props}
+        commonKonvaProps={commonKonvaProps}
+        isLayoutDisabled={isLayoutDisabled}
+      />
     );
   }
 
   // 4. Path (Complex Shapes / Generic SVG Data)
   if (node.type === "Path") {
     const { width, height, data } = node.props as PathProps;
-    
+
     return (
-        // Wrap Path in a Group for better handling of transformations (resizing the content via width/height)
-        <Group
-            {...commonKonvaProps}
-            {...shapeStyleProps}
-            ref={nodeRef as React.RefObject<Konva.Group>}
-        >
-            <Path
-                x={0} // Positioned relative to Group
-                y={0}
-                width={width} // Konva Path uses width/height to scale the SVG 'data'
-                height={height}
-                data={data}
-                // Styling is passed through the Group's style props for consistency
-                fill={fill}
-                stroke={stroke}
-                strokeWidth={strokeWidth}
-            />
-        </Group>
+      // Wrap Path in a Group for better handling of transformations (resizing the content via width/height)
+      <Group
+        {...commonKonvaProps}
+        {...shapeStyleProps}
+        ref={nodeRef as React.RefObject<Konva.Group>}
+      >
+        <Path
+          x={0} // Positioned relative to Group
+          y={0}
+          width={width} // Konva Path uses width/height to scale the SVG 'data'
+          height={height}
+          data={data}
+          // Styling is passed through the Group's style props for consistency
+          fill={fill}
+          stroke={stroke}
+          strokeWidth={strokeWidth}
+        />
+      </Group>
     );
   }
 
@@ -238,7 +260,7 @@ const KonvaNodeRendererBase: React.FC<KonvaNodeRendererProps> = ({
         width={width}
         height={height}
         cornerRadius={cornerRadius}
-        // Rect is handled directly by TR for resize
+      // Rect is handled directly by TR for resize
       />
     );
   }
@@ -304,37 +326,37 @@ const KonvaNodeRendererBase: React.FC<KonvaNodeRendererProps> = ({
   // 10. Line
   if (node.type === "Line") {
     const { points, tension, lineCap, lineJoin } = node.props as LineProps;
-    
+
     return (
-        <Line
-            {...commonKonvaProps}
-            {...shapeStyleProps}
-            ref={nodeRef as React.RefObject<Konva.Line>}
-            // Line uses x/y as offset, points define the shape
-            points={points}
-            tension={tension}
-            lineCap={lineCap}
-            lineJoin={lineJoin}
-        />
+      <Line
+        {...commonKonvaProps}
+        {...shapeStyleProps}
+        ref={nodeRef as React.RefObject<Konva.Line>}
+        // Line uses x/y as offset, points define the shape
+        points={points}
+        tension={tension}
+        lineCap={lineCap}
+        lineJoin={lineJoin}
+      />
     );
   }
 
   // 11. Arrow
   if (node.type === "Arrow") {
     const { points, lineCap, lineJoin, pointerLength, pointerWidth } = node.props as ArrowProps;
-    
+
     return (
-        <Arrow
-            {...commonKonvaProps}
-            {...shapeStyleProps}
-            ref={nodeRef as React.RefObject<Konva.Arrow>}
-            // Arrow uses x/y as offset, points define the shape
-            points={points}
-            lineCap={lineCap}
-            lineJoin={lineJoin}
-            pointerLength={pointerLength}
-            pointerWidth={pointerWidth}
-        />
+      <Arrow
+        {...commonKonvaProps}
+        {...shapeStyleProps}
+        ref={nodeRef as React.RefObject<Konva.Arrow>}
+        // Arrow uses x/y as offset, points define the shape
+        points={points}
+        lineCap={lineCap}
+        lineJoin={lineJoin}
+        pointerLength={pointerLength}
+        pointerWidth={pointerWidth}
+      />
     );
   }
 
@@ -346,13 +368,13 @@ const KonvaNodeRendererBase: React.FC<KonvaNodeRendererProps> = ({
 
 // FIX LAYER 4: Custom comparison function to prevent unnecessary re-renders
 const arePropsEqual = (prev: KonvaNodeRendererProps, next: KonvaNodeRendererProps) => {
-    return (
-        prev.isSelected === next.isSelected &&
-        prev.isLocked === next.isLocked &&
-        prev.isLayoutDisabled === next.isLayoutDisabled &&
-        prev.node === next.node &&
-        prev.index === next.index
-    );
+  return (
+    prev.isSelected === next.isSelected &&
+    prev.isLocked === next.isLocked &&
+    prev.isLayoutDisabled === next.isLayoutDisabled &&
+    prev.node === next.node &&
+    prev.index === next.index
+  );
 };
 
 const KonvaNodeRenderer = memo(KonvaNodeRendererBase, arePropsEqual);
