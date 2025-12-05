@@ -19,18 +19,35 @@ export function applyPalette(baseTemplate: CardTemplate, palette: ColorPalette):
     const contextMap = analyzeTemplate(baseTemplate);
 
     // 2. Pre-calculate assigned colors for Shapes so we can check contrast later
-    // We need to know what color a Shape WILL be to decide the Text color on top of it.
+    // We process layers in order (Back -> Front) so we know the color of the layer underneath.
     const shapeColorMap = new Map<string, string>();
 
-    // First pass: Decide Shape Colors
     baseTemplate.layers.forEach(layer => {
         if (['Rect', 'Circle', 'RegularPolygon', 'Star', 'Path', 'ComplexShape'].includes(layer.type)) {
-            // Logic to determine shape color (mirrors updateLayer logic)
-            // Default to Primary
-            let color = palette.primary;
-            if (layer.props.fill === 'transparent' || !layer.props.fill) color = 'transparent';
+            // 1. Find what we are sitting on
+            const context = contextMap[layer.id];
+            let effectiveBg = palette.background;
 
-            // Store it
+            if (context && context.backgroundLayerId !== 'main_bg') {
+                const bgId = context.backgroundLayerId;
+                if (shapeColorMap.has(bgId)) {
+                    effectiveBg = shapeColorMap.get(bgId)!;
+                }
+            }
+
+            // 2. Determine THIS shape's color based on that background
+            // Logic: Default to Primary. If background is Primary, swap to Secondary.
+            let color = palette.primary;
+            if (layer.props.fill === 'transparent' || !layer.props.fill) {
+                color = 'transparent';
+            } else {
+                // Check visual similarity (using contrast ratio as a proxy for similarity)
+                // If contrast is very low (< 1.5), they are likely the same or very similar color.
+                if (getContrastRatio(effectiveBg, palette.primary) < 1.6) {
+                    color = palette.secondary;
+                }
+            }
+
             shapeColorMap.set(layer.id, color);
         }
     });
@@ -118,7 +135,7 @@ function updateLayer(
     let bgHex = palette.background; // Default to main card background
 
     if (context && context.backgroundLayerId !== 'main_bg') {
-        // It's sitting on a shape. Get that shape's NEW assigned color.
+        // It's sitting on a shape. Get that shape's PRE-CALCULATED color.
         const shapeColor = shapeColorMap.get(context.backgroundLayerId);
         if (shapeColor && shapeColor !== 'transparent') {
             bgHex = shapeColor;
@@ -130,51 +147,44 @@ function updateLayer(
         const fontSize = newLayer.props.fontSize || 16;
 
         // Check Contrast against the REAL background (bgHex)
-        // If bgHex is Dark -> Text should be White
-        // If bgHex is Light -> Text should be Black/Dark
-
-        // Simple contrast check
         const contrastWithWhite = getContrastRatio(bgHex, '#FFFFFF');
         const contrastWithBlack = getContrastRatio(bgHex, '#000000');
+        const contrastWithPrimary = getContrastRatio(bgHex, palette.primary);
 
-        if (contrastWithWhite > contrastWithBlack) {
-            // White text is better
-            newLayer.props.fill = '#FFFFFF';
+        // Can we use Primary color for text? (For titles mostly)
+        // Only if it's large text AND has good contrast (AA Large = 3.0, but we prefer 4.5)
+        if (fontSize > 18 && contrastWithPrimary > 3.5) {
+            newLayer.props.fill = palette.primary;
         } else {
-            // Black text is better. Use Palette Text/Subtext for harmony if possible
-            const paletteTextContrast = getContrastRatio(bgHex, palette.text);
-            if (paletteTextContrast > 4.5) {
-                newLayer.props.fill = palette.text;
+            // Standard Legibility Check
+            if (contrastWithWhite > contrastWithBlack) {
+                // White text is better
+                newLayer.props.fill = contrastWithWhite > 4.5 ? '#FFFFFF' : '#F0F0F0';
             } else {
-                newLayer.props.fill = '#000000'; // Fallback to pure black
+                // Black text is better
+                // Try Palette Text (Dark Grey) first for softness, else Pure Black
+                const contrastPaletteText = getContrastRatio(bgHex, palette.text);
+                newLayer.props.fill = contrastPaletteText > 4.5 ? palette.text : '#000000';
             }
         }
 
     } else if (['Rect', 'Circle', 'RegularPolygon', 'Star', 'Path', 'Icon', 'ComplexShape'].includes(newLayer.type)) {
-        // Apply pre-decided colors
-        // Note: We might want to vary this? E.g. Shapes typically are Primary. 
-        // But if a Shape is sitting on Primary, it should be Secondary.
+        // Apply the pre-calculated color from the map
+        const assignedColor = shapeColorMap.get(layer.id);
 
-        // Advanced: Check if THIS shape is sitting on another shape of the same color?
-        // context.backgroundLayerId
-
-        let targetColor = palette.primary;
-
-        // If background is ALSO primary (e.g. gradient or large rect), swap to Secondary
-        // (Approximation by checking hex equality)
-        if (bgHex.toLowerCase() === palette.primary.toLowerCase()) {
-            targetColor = palette.secondary;
+        if (assignedColor && newLayer.props.fill !== 'transparent') {
+            newLayer.props.fill = assignedColor;
         }
 
         if (newLayer.props.stroke) {
+            // If stroke is same as fill, it's invisible.
+            // If fill is Primary, make stroke Secondary or Surface?
+            // Simple: Always Secondary for now.
             newLayer.props.stroke = palette.secondary;
         }
 
-        if (newLayer.props.fill && newLayer.props.fill !== 'transparent') {
-            newLayer.props.fill = targetColor;
-        }
-
     } else if (newLayer.type === 'Arrow' || newLayer.type === 'Line') {
+        // Linear elements usually Primary
         newLayer.props.stroke = palette.primary;
         newLayer.props.fill = palette.primary;
     }

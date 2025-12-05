@@ -19,7 +19,7 @@ export function analyzeTemplate(template: CardTemplate): TemplateContextMap {
     // Sort valid shape layers by index (z-index)
     // We only care about filled shapes that could act as a background
     const potentialBackgrounds = layers.filter((l, idx) => {
-        if (!l.visible === false) return false; // Skip invisible
+        if (l.props.visible === false) return false; // Skip invisible
         // Only solid shapes
         if (['Rect', 'Circle', 'RegularPolygon', 'ComplexShape'].includes(l.type)) {
             // Must have a fill
