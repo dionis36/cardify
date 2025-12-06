@@ -704,6 +704,12 @@ const CanvasStage = forwardRef<KonvaStageType, CanvasStageProps>(
         useEffect(() => {
             const handleKeyDown = (e: KeyboardEvent) => {
                 if (e.code === 'Space' && !isSpacePressed) {
+                    // FIX: Allow space bar in input/textarea elements
+                    const activeTag = document.activeElement?.tagName.toLowerCase();
+                    if (activeTag === 'input' || activeTag === 'textarea') {
+                        return;
+                    }
+
                     setIsSpacePressed(true);
                     e.preventDefault();
                 }

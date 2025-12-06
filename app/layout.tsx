@@ -1,6 +1,6 @@
 import "./globals.css";
 import type { Metadata } from "next";
-import { Inter, Roboto, Playfair_Display, Bebas_Neue, Poppins, Lato, Montserrat, Open_Sans } from 'next/font/google';
+import { Inter, Roboto, Playfair_Display, Bebas_Neue, Poppins, Lato, Montserrat, Open_Sans, Merriweather, Pacifico, Dancing_Script, Oswald } from 'next/font/google';
 
 // Load all fonts using Next.js font optimization
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'swap' });
@@ -11,6 +11,10 @@ const poppins = Poppins({ weight: ['400', '700'], subsets: ['latin'], variable: 
 const lato = Lato({ weight: ['400', '700'], subsets: ['latin'], variable: '--font-lato', display: 'swap' });
 const montserrat = Montserrat({ weight: ['400', '700'], subsets: ['latin'], variable: '--font-montserrat', display: 'swap' });
 const openSans = Open_Sans({ weight: ['400', '700'], subsets: ['latin'], variable: '--font-opensans', display: 'swap' });
+const merriweather = Merriweather({ weight: ['400', '700'], subsets: ['latin'], variable: '--font-merriweather', display: 'swap' });
+const pacifico = Pacifico({ weight: ['400'], subsets: ['latin'], variable: '--font-pacifico', display: 'swap' });
+const dancingScript = Dancing_Script({ weight: ['400', '700'], subsets: ['latin'], variable: '--font-dancing-script', display: 'swap' });
+const oswald = Oswald({ weight: ['400', '700'], subsets: ['latin'], variable: '--font-oswald', display: 'swap' });
 
 export const metadata: Metadata = {
   title: "Cardify – Business Card Designer",
@@ -23,7 +27,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${inter.variable} ${roboto.variable} ${playfair.variable} ${bebas.variable} ${poppins.variable} ${lato.variable} ${montserrat.variable} ${openSans.variable}`}>
+    <html lang="en" className={`${inter.variable} ${roboto.variable} ${playfair.variable} ${bebas.variable} ${poppins.variable} ${lato.variable} ${montserrat.variable} ${openSans.variable} ${merriweather.variable} ${pacifico.variable} ${dancingScript.variable} ${oswald.variable}`}>
       <body className="bg-background text-secondary">
         {children}
       </body>

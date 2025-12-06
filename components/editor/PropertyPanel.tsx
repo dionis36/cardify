@@ -170,9 +170,9 @@ const StyleButton = ({
 );
 
 const FONT_OPTIONS = [
-  "Inter", "Roboto", "Open Sans", "Lato", "Montserrat", // Sans
+  "Inter", "Roboto", "Open Sans", "Lato", "Montserrat", "Poppins", // Sans
   "Playfair Display", "Merriweather", // Serif
-  "Pacifico", "Bebas Neue" // Display
+  "Pacifico", "Bebas Neue", "Dancing Script", "Oswald" // Display & Handwriting
 ];
 
 // --- Main Component ---
