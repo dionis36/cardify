@@ -9,6 +9,11 @@
         "type": "solid",
         "color1": "#F8F2E3"
     },
+    "colorRoles": {
+        "right_teal_panel": "surface",
+        "diagonal_teal_shape": "surface",
+        "diagonal_white_stripe": "surface"
+    },
     "layers": [
         {
             "id": "right_teal_panel",

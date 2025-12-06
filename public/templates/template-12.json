@@ -1,0 +1,264 @@
+{
+  "$schema": "./schema.json",
+  "id": "template_12",
+  "name": "Sleek Modern Business Card",
+  "width": 1050,
+  "height": 600,
+  "orientation": "horizontal",
+  "background": {
+    "type": "solid",
+    "color1": "#1e2f49"
+  },
+  "colorRoles": {
+    "node_circle_01": "primary-text",
+    "node_circle_02": "primary-text",
+    "node_circle_03": "primary-text",
+    "node_circle_04": "primary-text",
+    "node_text_01": "primary-text",
+    "node_text_02": "secondary-text",
+    "node_text_03": "secondary-text",
+    "node_rect_01": "surface",
+    "node_rect_02": "surface",
+    "node_rect_03": "surface"
+  },
+  "layers": [
+    {
+      "id": "diagonal_accent",
+      "type": "Polygon",
+      "props": {
+        "id": "diagonal_accent",
+        "points": [
+          600,
+          0,
+          1050,
+          0,
+          1050,
+          600,
+          400,
+          600
+        ],
+        "fill": "#2D6B4F",
+        "rotation": 0,
+        "opacity": 1
+      },
+      "editable": true,
+      "locked": true
+    },
+    {
+      "id": "diagonal_stripe",
+      "type": "Polygon",
+      "props": {
+        "id": "diagonal_stripe",
+        "points": [
+          550,
+          0,
+          580,
+          0,
+          380,
+          600,
+          350,
+          600
+        ],
+        "fill": "#2D6B4F",
+        "rotation": 0,
+        "opacity": 0.3
+      },
+      "editable": true,
+      "locked": true
+    },
+    {
+      "id": "node_text_01",
+      "type": "Text",
+      "props": {
+        "id": "node_text_01",
+        "x": 49.999999999999844,
+        "y": 81.81818181818159,
+        "text": "Full Name",
+        "fontSize": 85,
+        "fill": "#cfd1b9",
+        "fontFamily": "Libre Baskerville",
+        "rotation": 0,
+        "opacity": 1,
+        "width": 536.3636363636361,
+        "height": 73.93939393939417
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "node_text_02",
+      "type": "Text",
+      "props": {
+        "id": "node_text_02",
+        "x": 49.999999999999844,
+        "y": 183.63636363636363,
+        "text": "POSITION",
+        "fontSize": 50,
+        "fill": "#a7a89f",
+        "fontFamily": "Quicksand",
+        "rotation": 0,
+        "opacity": 1,
+        "width": 250,
+        "height": 40
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "node_text_03", 
+      "type": "Text",
+      "props": {
+        "id": "node_text_03",
+        "x": 49.999999999999744,
+        "y": 416.9696969696959,
+        "text": "+255 000 000 000\nEMAIL ADDRESS",
+        "fontSize": 30,
+        "fill": "#a7a89f",
+        "fontFamily": "Quicksand",
+        "rotation": 0,
+        "opacity": 1,
+        "width": 328.4848484848487,
+        "height": 112.12121212121293,
+        "lineHeight": 1.6,
+        "letterSpacing": 0.4
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "node_circle_01",
+      "type": "Circle",
+      "props": {
+        "id": "node_circle_01",
+        "x": 855.4411106684959,
+        "y": 405.45022659543343,
+        "width": 129.69696969697029,
+        "height": 129.69696969697029,
+        "radius": 64.84848484848514,
+        "fill": "#cfd1b9",
+        "rotation": 0,
+        "opacity": 1
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "node_circle_02",
+      "type": "Circle",
+      "props": {
+        "id": "node_circle_02",
+        "x": 985.1380803654662,
+        "y": 405.4233570233361,
+        "width": 129.72383926906753,
+        "height": 129.72383926906753,
+        "radius": 64.86191963453376,
+        "fill": "#cfd1b9",
+        "rotation": 0,
+        "opacity": 1
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "node_rect_01",
+      "type": "Rect",
+      "props": {
+        "id": "node_rect_01",
+        "x": 855.4411106685013,
+        "y": 411.8138629590699,
+        "width": 129.69696969696489,
+        "height": 123.33333333333364,
+        "fill": "#1E2F49",
+        "cornerRadius": 0,
+        "rotation": 0,
+        "opacity": 1
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "node_circle_03",
+      "type": "Circle",
+      "props": {
+        "id": "node_circle_03",
+        "x": 855.4068274875918,
+        "y": 535.129815597594,
+        "width": 129.740368804812,
+        "height": 129.740368804812,
+        "radius": 64.870184402406,
+        "fill": "#cfd1b9",
+        "rotation": 0,
+        "opacity": 1
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "node_circle_04",
+      "type": "Circle",
+      "props": {
+        "id": "node_circle_04",
+        "x": 985.1471962924038,
+        "y": 535.1471962924037,
+        "width": 129.7056074151926,
+        "height": 129.7056074151926,
+        "radius": 64.8528037075963,
+        "fill": "#cfd1b9",
+        "rotation": 0,
+        "opacity": 1
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "node_rect_02",
+      "type": "Rect",
+      "props": {
+        "id": "node_rect_02",
+        "x": 780.4068274875918,
+        "y": 470.2852766578699,
+        "width": 75,
+        "height": 75,
+        "fill": "#1E2F49",
+        "cornerRadius": 0,
+        "rotation": 0,
+        "opacity": 1
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "node_rect_03",
+      "type": "Rect",
+      "props": {
+        "id": "node_rect_03",
+        "x": 985.1471962924038,
+        "y": 470.2852766578699,
+        "width": 75,
+        "height": 75,
+        "fill": "#1E2F49",
+        "cornerRadius": 0,
+        "rotation": 0,
+        "opacity": 1
+      },
+      "editable": true,
+      "locked": false
+    }
+  ],
+  "groups": [],
+  "thumbnail": "",
+  "preview": "",
+  "tags": [
+    "modern",
+    "Elegant",
+    "Sleek"
+  ],
+  "category": "creative",
+  "colors": [
+    "#2D6B4F",
+    "#cfd1b9",
+    "#a7a89f",
+    "#1E2F49"
+  ],
+  "features": []
+}
