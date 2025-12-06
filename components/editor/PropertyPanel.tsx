@@ -625,8 +625,45 @@ export default function PropertyPanel({
       {/* Regular Width/Height for other shapes */}
       {node.type !== 'Path' && (
         <div className="grid grid-cols-2 gap-3 mt-3 pt-3 border-t border-gray-100">
-          <InputGroup label="Width" value={Math.round(width)} min={1} step={1} onChange={(v) => handlePropChange('width', Number(v))} disabled={layoutControlsDisabled} />
-          <InputGroup label="Height" value={Math.round(height)} min={1} step={1} onChange={(v) => handlePropChange('height', Number(v))} disabled={layoutControlsDisabled} />
+          {node.type === 'Circle' ? (
+            <>
+              <InputGroup
+                label="Width"
+                value={Math.round(width)}
+                min={1}
+                step={1}
+                onChange={(v) => {
+                  const newSize = Number(v);
+                  // Update both width and height to maintain circle shape
+                  handlePropChange('width', newSize);
+                  handlePropChange('height', newSize);
+                  // Update radius to match (radius = diameter / 2)
+                  handlePropChange('radius', newSize / 2);
+                }}
+                disabled={layoutControlsDisabled}
+              />
+              <InputGroup
+                label="Height"
+                value={Math.round(height)}
+                min={1}
+                step={1}
+                onChange={(v) => {
+                  const newSize = Number(v);
+                  // Update both width and height to maintain circle shape
+                  handlePropChange('width', newSize);
+                  handlePropChange('height', newSize);
+                  // Update radius to match (radius = diameter / 2)
+                  handlePropChange('radius', newSize / 2);
+                }}
+                disabled={layoutControlsDisabled}
+              />
+            </>
+          ) : (
+            <>
+              <InputGroup label="Width" value={Math.round(width)} min={1} step={1} onChange={(v) => handlePropChange('width', Number(v))} disabled={layoutControlsDisabled} />
+              <InputGroup label="Height" value={Math.round(height)} min={1} step={1} onChange={(v) => handlePropChange('height', Number(v))} disabled={layoutControlsDisabled} />
+            </>
+          )}
         </div>
       )}
     </SectionContainer>

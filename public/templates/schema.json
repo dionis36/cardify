@@ -219,7 +219,8 @@
                         "Line",
                         "Arrow",
                         "Path",
-                        "Icon"
+                        "Icon",
+                        "Polygon"
                     ]
                 },
                 "editable": {
@@ -440,7 +441,10 @@
                                 "Impact",
                                 "Comic Sans MS",
                                 "Pacifico",
-                                "Bebas Neue"
+                                "Bebas Neue",
+                                "Libre Baskerville",
+                                "Quicksand",
+                                "Cinzel"
                             ]
                         },
                         "align": {
