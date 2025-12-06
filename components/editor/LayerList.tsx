@@ -167,27 +167,33 @@ export default function LayerList({
   // Bulk operations
   const areAllSelectedVisible = bulkSelectedIndices.every(index => {
     const layer = layers[index];
-    return layer.props.visible !== false;
+    return layer && layer.props && layer.props.visible !== false;
   });
 
   const areAllSelectedLocked = bulkSelectedIndices.every(index => {
     const layer = layers[index];
-    return layer.locked === true;
+    return layer && layer.locked === true;
   });
 
   const handleBulkToggleVisibility = () => {
     const newValue = !areAllSelectedVisible;
     bulkSelectedIndices.forEach(index => {
-      onDefinitionChange(index, {
-        props: { ...layers[index].props, visible: newValue }
-      } as Partial<KonvaNodeDefinition>);
+      const layer = layers[index];
+      if (layer && layer.props) {
+        onDefinitionChange(index, {
+          props: { ...layer.props, visible: newValue }
+        } as Partial<KonvaNodeDefinition>);
+      }
     });
   };
 
   const handleBulkToggleLock = () => {
     const newValue = !areAllSelectedLocked;
     bulkSelectedIndices.forEach(index => {
-      onDefinitionChange(index, { locked: newValue });
+      const layer = layers[index];
+      if (layer) {
+        onDefinitionChange(index, { locked: newValue });
+      }
     });
   };
 
