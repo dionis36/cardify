@@ -33,7 +33,8 @@ export type ColorRole =
     | 'decorative'      // Secondary decorative shapes
     | 'primary-text'    // Headings, names, titles
     | 'secondary-text'  // Subtitles, contact info, body text
-    | 'highlight';      // Call-to-action elements, important shapes
+    | 'highlight'       // Call-to-action elements, important shapes
+    | 'background';     // Elements that match the background color
 
 /**
  * Maps layer IDs to their semantic color roles.

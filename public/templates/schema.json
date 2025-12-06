@@ -36,7 +36,8 @@
                     "decorative",
                     "primary-text",
                     "secondary-text",
-                    "highlight"
+                    "highlight",
+                    "background"
                 ]
             }
         },

@@ -17,9 +17,9 @@
     "node_text_01": "primary-text",
     "node_text_02": "secondary-text",
     "node_text_03": "secondary-text",
-    "node_rect_01": "surface",
-    "node_rect_02": "surface",
-    "node_rect_03": "surface"
+    "node_rect_01": "background",
+    "node_rect_02": "background",
+    "node_rect_03": "background"
   },
   "layers": [
     {

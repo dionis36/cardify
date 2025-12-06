@@ -46,6 +46,11 @@ export function assignColorByRole(
             // Highlight elements use primary color for emphasis
             return palette.primary;
 
+        case 'background':
+            // Background elements use the same color as the background
+            // Useful for creating subtle layering or elements that blend
+            return palette.background;
+
         default:
             // Fallback to primary
             return palette.primary;

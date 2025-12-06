@@ -1,0 +1,183 @@
+{
+  "$schema": "./schema.json",
+  "id": "template_13",
+  "name": "Contemporary Business Card",
+  "width": 1050,
+  "height": 600,
+  "orientation": "horizontal",
+  "background": {
+    "type": "solid",
+    "color1": "#ededed",
+    "opacity": 1
+  },
+  "colorRoles": {
+    "node_path_01": "primary-text",
+    "node_path_02": "primary-text",
+    "node_path_03": "primary-text",
+    "node_path_04": "primary-text",
+    "node_path_05": "primary-text",
+    "node_text_01": "primary-text",
+    "node_text_02": "primary-text"
+  },
+  "layers": [
+    {
+      "id": "node_path_01",
+      "type": "Path",
+      "props": {
+        "id": "node_path_01",
+        "x": -83,
+        "y": 355.02956195563513,
+        "width": 0,
+        "height": 0,
+        "data": "M240 240A240 240 0 0 0 0 480a240 240 0 0 0 240-240ZM240 240A240 240 0 0 0 0 0a240 240 0 0 0 240 240ZM480 0a240 240 0 0 0-240 240A240 240 0 0 0 480 0ZM480 480a240 240 0 0 0-240-240 240 240 0 0 0 240 240Z",
+        "fill": "#2802cf",
+        "stroke": "#48dbfb",
+        "strokeWidth": 1,
+        "opacity": 1,
+        "rotation": 0,
+        "scaleX": 0.5,
+        "scaleY": 0.5
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "node_path_02",
+      "type": "Path",
+      "props": {
+        "id": "node_path_02",
+        "x": 162,
+        "y": 355,
+        "width": 41.699999999999996,
+        "height": 41.699999999999996,
+        "data": "M240 240A240 240 0 0 0 0 480a240 240 0 0 0 240-240ZM240 240A240 240 0 0 0 0 0a240 240 0 0 0 240 240ZM480 0a240 240 0 0 0-240 240A240 240 0 0 0 480 0ZM480 480a240 240 0 0 0-240-240 240 240 0 0 0 240 240Z",
+        "fill": "#2802cf",
+        "stroke": "#48dbfb",
+        "strokeWidth": 1,
+        "opacity": 1,
+        "rotation": 0,
+        "scaleX": 0.5,
+        "scaleY": 0.5
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "node_path_03",
+      "type": "Path",
+      "props": {
+        "id": "node_path_03",
+        "x": 408,
+        "y": 355,
+        "width": 41.699999999999996,
+        "height": 41.699999999999996,
+        "data": "M240 240A240 240 0 0 0 0 480a240 240 0 0 0 240-240ZM240 240A240 240 0 0 0 0 0a240 240 0 0 0 240 240ZM480 0a240 240 0 0 0-240 240A240 240 0 0 0 480 0ZM480 480a240 240 0 0 0-240-240 240 240 0 0 0 240 240Z",
+        "fill": "#2802cf",
+        "stroke": "#48dbfb",
+        "strokeWidth": 1,
+        "opacity": 1,
+        "rotation": 0,
+        "scaleX": 0.5,
+        "scaleY": 0.5
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "node_path_04",
+      "type": "Path",
+      "props": {
+        "id": "node_path_04",
+        "x": 654,
+        "y": 355,
+        "width": 41.699999999999996,
+        "height": 41.699999999999996,
+        "data": "M240 240A240 240 0 0 0 0 480a240 240 0 0 0 240-240ZM240 240A240 240 0 0 0 0 0a240 240 0 0 0 240 240ZM480 0a240 240 0 0 0-240 240A240 240 0 0 0 480 0ZM480 480a240 240 0 0 0-240-240 240 240 0 0 0 240 240Z",
+        "fill": "#2802cf",
+        "stroke": "#48dbfb",
+        "strokeWidth": 1,
+        "opacity": 1,
+        "rotation": 0,
+        "scaleX": 0.5,
+        "scaleY": 0.5
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "node_path_05",
+      "type": "Path",
+      "props": {
+        "id": "node_path_05",
+        "x": 900.6060606060603,
+        "y": 355,
+        "width": 41.699999999999996,
+        "height": 41.699999999999996,
+        "data": "M240 240A240 240 0 0 0 0 480a240 240 0 0 0 240-240ZM240 240A240 240 0 0 0 0 0a240 240 0 0 0 240 240ZM480 0a240 240 0 0 0-240 240A240 240 0 0 0 480 0ZM480 480a240 240 0 0 0-240-240 240 240 0 0 0 240 240Z",
+        "fill": "#2802cf",
+        "stroke": "#48dbfb",
+        "strokeWidth": 1,
+        "opacity": 1,
+        "rotation": 0,
+        "scaleX": 0.5,
+        "scaleY": 0.5
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "node_text_01",
+      "type": "Text",
+      "props": {
+        "id": "node_text_01",
+        "x": 268.5787878787888,
+        "y": 119.9999999999998,
+        "text": "Full Name",
+        "fontSize": 89,
+        "fill": "#2802cf",
+        "fontFamily": "Cinzel",
+        "rotation": 0,
+        "opacity": 1,
+        "width": 517.2727272727273,
+        "height": 114.24242424242436,
+        "align": "center"
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "node_text_02",
+      "type": "Text",
+      "props": {
+        "id": "node_text_02",
+        "x": 356.5151515151522,
+        "y": 253.6363636363637,
+        "text": "POSITION TITLE",
+        "fontSize": 40,
+        "fill": "#2802cf",
+        "fontFamily": "Lato",
+        "rotation": 0,
+        "opacity": 1,
+        "width": 336.9696969696955,
+        "height": 46.363636363636274,
+        "align": "center"
+      },
+      "editable": true,
+      "locked": false
+    }
+  ],
+  "groups": [],
+  "thumbnail": "",
+  "preview": "",
+  "tags": [
+    "bold",
+    "colorful",
+    "artistic"
+  ],
+  "category": "bold",
+  "colors": [
+    "#2802cf",
+    "#48dbfb"
+  ],
+  "features": []
+}

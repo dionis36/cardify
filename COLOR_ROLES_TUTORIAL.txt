@@ -21,6 +21,7 @@ surface           palette.primary      Main background rectangles
 accent            palette.accent       Decorative elements that stand out
 decorative        palette.secondary    Secondary decorative shapes
 highlight         palette.primary      Call-to-action elements
+background        palette.background   Elements that match the background
 primary-text      High contrast        Headings, names, titles
 secondary-text    Medium contrast      Body text, subtitles
 
@@ -174,6 +175,29 @@ Design: Two background rects (same color) + accent shape (different)
 RESULT:
 - Left rect + Right rect + Logo area: Color A (all same)
 - Decorative pattern: Color B (different)
+
+
+PATTERN 5: Subtle Layering (Background-Matching Elements)
+----------------------------------------------------------
+Design: Main card with decorative shapes that blend with the background
+
+{
+  "colorRoles": {
+    "main_card": "surface",           // Color A (palette.primary)
+    "accent_shape": "accent",         // Color B (palette.accent)
+    "subtle_overlay": "background",   // Background color (blends in!)
+    "shadow_shape": "background",     // Background color (subtle effect)
+    "name": "primary-text"
+  }
+}
+
+RESULT:
+- Main card: Color A
+- Accent shape: Color B (stands out)
+- Subtle overlay + Shadow shape: Background color (blend with background)
+
+*** Use 'background' role for elements that should be barely visible or
+    create subtle depth without adding new colors! ***
 
 
 ================================================================================
