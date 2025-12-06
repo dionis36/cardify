@@ -60,6 +60,52 @@ export default function TemplatePreview({ template, width: initialWidth = 400, h
             return <Rect width={template.width} height={template.height} fill={bg.color1} listening={false} />;
         }
 
+        if (bg.type === 'gradient') {
+            // Handle gradient backgrounds with gradientStops support
+            const stops = bg.gradientStops
+                ? bg.gradientStops.flatMap(s => [s.offset, s.color])
+                : [0, bg.color1, 1, bg.color2 || '#ffffff'];
+
+            let gradientProps: any = {};
+
+            if (bg.gradientType === 'radial') {
+                gradientProps = {
+                    fillRadialGradientStartPoint: { x: template.width / 2, y: template.height / 2 },
+                    fillRadialGradientStartRadius: 0,
+                    fillRadialGradientEndPoint: { x: template.width / 2, y: template.height / 2 },
+                    fillRadialGradientEndRadius: Math.max(template.width, template.height) / 1.5,
+                    fillRadialGradientColorStops: stops,
+                };
+            } else {
+                // Linear gradient
+                const angleRad = (bg.rotation || 0) * (Math.PI / 180);
+                const length = Math.sqrt(template.width * template.width + template.height * template.height) / 2;
+                const cx = template.width / 2;
+                const cy = template.height / 2;
+
+                gradientProps = {
+                    fillLinearGradientStartPoint: {
+                        x: cx - Math.cos(angleRad) * length,
+                        y: cy - Math.sin(angleRad) * length
+                    },
+                    fillLinearGradientEndPoint: {
+                        x: cx + Math.cos(angleRad) * length,
+                        y: cy + Math.sin(angleRad) * length
+                    },
+                    fillLinearGradientColorStops: stops,
+                };
+            }
+
+            return (
+                <Rect
+                    width={template.width}
+                    height={template.height}
+                    {...gradientProps}
+                    listening={false}
+                />
+            );
+        }
+
         if (bg.type === 'pattern') {
             // For patterns, we'll use a solid color with a subtle overlay
             return (

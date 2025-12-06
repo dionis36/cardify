@@ -1,0 +1,151 @@
+{
+  "$schema": "./schema.json",
+  "id": "template_15",
+  "name": "Elegant & Premium Business Card",
+  "width": 1050,
+  "height": 600,
+  "orientation": "horizontal",
+  "background": {
+    "type": "solid",
+    "color1": "#fff4eb"
+  },
+  "colorRoles": {
+    "node_rect_01": "primary-text",
+    "node_text_01": "primary-text",
+    "node_text_02": "primary-text",
+    "node_text_03": "primary-text",
+    "node_text_04": "background",
+    "node_text_05": "background"
+  },
+  "layers": [
+    {
+      "id": "node_rect_01",
+      "type": "Rect",
+      "props": {
+        "id": "node_rect_01",
+        "x": -45.45454545454566,
+        "y": 205.4545454545453,
+        "width": 509.39393939393966,
+        "height": 189.09090909090935,
+        "fill": "#3c3c3c",
+        "cornerRadius": 4,
+        "rotation": 0,
+        "opacity": 1
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "node_text_01",
+      "type": "Text",
+      "props": {
+        "id": "node_text_01",
+        "x": 733.030303030303,
+        "y": 159.39393939393875,
+        "text": "L",
+        "fontSize": 100,
+        "fill": "#3c3c3c",
+        "fontFamily": "Dancing Script",
+        "rotation": 0,
+        "opacity": 1,
+        "width": 245.75757575757575,
+        "height": 90.90909090909105
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "node_text_02",
+      "type": "Text",
+      "props": {
+        "id": "node_text_02",
+        "x": 539.9999999999986,
+        "y": 287.87878787878674,
+        "text": "LOGO TEXT HERE",
+        "fontSize": 50,
+        "fill": "#3c3c3c",
+        "fontFamily": "Cinzel",
+        "rotation": 0,
+        "opacity": 1,
+        "width": 445.15151515151524,
+        "height": 80.3030303030315,
+        "align": "center",
+        "letterSpacing": 0.5
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "node_text_03",
+      "type": "Text",
+      "props": {
+        "id": "node_text_03",
+        "x": 658.7878787878773,
+        "y": 368.18181818181824,
+        "text": "SLOGAN HERE",
+        "fontSize": 30,
+        "fill": "#3c3c3c",
+        "fontFamily": "Quicksand",
+        "rotation": 0,
+        "opacity": 1,
+        "width": 250,
+        "height": 40
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "node_text_04",
+      "type": "Text",
+      "props": {
+        "id": "node_text_04",
+        "x": 49.999999999999886,
+        "y": 250.3030303030298,
+        "text": "Full Name",
+        "fontSize": 60,
+        "fill": "#FFF4EB",
+        "fontFamily": "Poppins",
+        "rotation": 0,
+        "opacity": 1,
+        "width": 315.75757575757575,
+        "height": 56.969696969697395,
+        "fontStyle": "normal bold"
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "node_text_05",
+      "type": "Text",
+      "props": {
+        "id": "node_text_05",
+        "x": 49.999999999999886,
+        "y": 320.15151515151575,
+        "text": "Founder & CEO",
+        "fontSize": 30,
+        "fill": "#FFF4EB",
+        "fontFamily": "Poppins",
+        "rotation": 0,
+        "opacity": 1,
+        "width": 250,
+        "height": 40
+      },
+      "editable": true,
+      "locked": false
+    }
+  ],
+  "groups": [],
+  "thumbnail": "",
+  "preview": "",
+  "tags": [
+    "classic",
+    "elegant",
+    "premium"
+  ],
+  "category": "vintage",
+  "colors": [
+    "#3c3c3c",
+    "#FFF4EB"
+  ],
+  "features": []
+}

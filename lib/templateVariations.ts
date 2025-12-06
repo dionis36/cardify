@@ -99,16 +99,16 @@ export function applyPalette(baseTemplate: CardTemplate, palette: ColorPalette):
 
 /**
  * Generates variations of a base template using procedural "Smart Logic".
- * Generates 10 total variants (1 Original + 9 Generated).
+ * Generates 16 total variants (1 Original + 15 Generated).
  */
 export function generateVariations(baseTemplate: CardTemplate): CardTemplate[] {
     // Return the original template as the first item
     const variations: CardTemplate[] = [baseTemplate];
     const generatedIds = new Set<string>();
 
-    // Generate 11 unique variations (Total 12 with base)
+    // Generate 15 unique variations (Total 16 with base)
     let attempts = 0;
-    while (variations.length < 12 && attempts < 20) {
+    while (variations.length < 16 && attempts < 30) {
         attempts++;
 
         // Deterministic seed: BaseID + Index + Attempt
@@ -140,10 +140,43 @@ function updateBackground(bg: BackgroundPattern | undefined, palette: ColorPalet
     }
 
     if (bg.type === 'gradient') {
+        // Generate beautiful gradient colors based on palette
+        let gradientColor1: string;
+        let gradientColor2: string;
+
+        if (palette.isDark) {
+            // For dark themes: use darker primary and lighter accent for depth
+            gradientColor1 = palette.primary;
+            gradientColor2 = palette.background;
+        } else {
+            // For light themes: use vibrant primary and secondary
+            gradientColor1 = palette.primary;
+            gradientColor2 = palette.secondary;
+        }
+
+        // Update gradientStops if they exist, otherwise use color1/color2
+        const updatedGradientStops = bg.gradientStops
+            ? bg.gradientStops.map((stop, index) => {
+                // Interpolate between our gradient colors based on stop position
+                if (index === 0) {
+                    return { ...stop, color: gradientColor1 };
+                } else if (index === bg.gradientStops!.length - 1) {
+                    return { ...stop, color: gradientColor2 };
+                } else {
+                    // For middle stops, create a blend using accent color for vibrancy
+                    return { ...stop, color: palette.accent };
+                }
+            })
+            : [
+                { offset: 0, color: gradientColor1 },
+                { offset: 1, color: gradientColor2 }
+            ];
+
         return {
             ...bg,
-            color1: palette.background,
-            color2: palette.isDark ? palette.primary : palette.secondary,
+            color1: gradientColor1,
+            color2: gradientColor2,
+            gradientStops: updatedGradientStops,
         };
     }
 

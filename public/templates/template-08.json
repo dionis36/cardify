@@ -1,13 +1,23 @@
 {
   "$schema": "./schema.json",
   "id": "template_08",
-  "name": "Elegant Professional",
+  "name": "Modern Business Card",
   "width": 1050,
   "height": 600,
   "orientation": "horizontal",
   "background": {
     "type": "solid",
-    "color1": "#FFFFFF"
+    "color1": "#f5f5f6"
+  },
+  "colorRoles": {
+    "left_panel": "primary-text",
+    "accent_line": "primary-text",
+    "divider": "primary-text",
+    "full_name_text": "primary-text",
+    "logo_text": "background",
+    "slogan_text": "background",
+    "title_text": "secondary-text",
+    "email_text": "secondary-text"
   },
   "layers": [
     {
@@ -23,7 +33,7 @@
         "height": 600,
         "rotation": 0,
         "opacity": 1,
-        "fill": "#1A3E3E",
+        "fill": "#5c5ab9",
         "category": "BasicShape"
       }
     },
@@ -40,7 +50,7 @@
         "height": 600,
         "rotation": 0,
         "opacity": 1,
-        "fill": "#D4954A",
+        "fill": "#5c5ab9",
         "category": "BasicShape"
       }
     },
@@ -51,13 +61,13 @@
       "locked": false,
       "props": {
         "id": "logo_image",
-        "x": 160,
-        "y": 180,
-        "width": 100,
-        "height": 100,
+        "x": 150,
+        "y": 168.4848484848485,
+        "width": 120,
+        "height": 120,
         "rotation": 0,
         "opacity": 1,
-        "src": "",
+        "src": "/logos/LogoTaco_Logo-30/SVG/Logo30_White.svg",
         "isLogo": true,
         "cornerRadius": 0,
         "category": "Image"
@@ -70,18 +80,18 @@
       "locked": false,
       "props": {
         "id": "logo_text",
-        "x": 50,
-        "y": 300,
-        "width": 320,
-        "height": 50,
+        "x": 19.242424242424867,
+        "y": 320.7575757575761,
+        "width": 381.51515151515025,
+        "height": 54.24242424242394,
         "rotation": 0,
         "opacity": 1,
         "text": "COMPANY NAME",
-        "fontSize": 28,
-        "fill": "#FFFFFF",
+        "fontSize": 39,
+        "fill": "#F5F5F6",
         "fontFamily": "Montserrat",
         "align": "center",
-        "letterSpacing": 2,
+        "letterSpacing": 1,
         "category": "Text"
       }
     },
@@ -92,15 +102,15 @@
       "locked": false,
       "props": {
         "id": "slogan_text",
-        "x": 50,
-        "y": 345,
+        "x": 49.99999999999999,
+        "y": 375,
         "width": 320,
         "height": 30,
         "rotation": 0,
         "opacity": 0.8,
         "text": "Your Slogan Here",
-        "fontSize": 16,
-        "fill": "#B8D4D4",
+        "fontSize": 25,
+        "fill": "#F5F5F6",
         "fontFamily": "Lato",
         "align": "center",
         "letterSpacing": 1,
@@ -114,15 +124,15 @@
       "locked": false,
       "props": {
         "id": "full_name_text",
-        "x": 500,
-        "y": 185,
+        "x": 493.63636363636357,
+        "y": 138.78787878787875,
         "width": 500,
         "height": 70,
         "rotation": 0,
         "opacity": 1,
         "text": "Full Name",
-        "fontSize": 66,
-        "fill": "#1A3E3E",
+        "fontSize": 90,
+        "fill": "#5c5ab9",
         "fontFamily": "Playfair Display",
         "align": "left",
         "letterSpacing": 0,
@@ -137,14 +147,14 @@
       "props": {
         "id": "title_text",
         "x": 500,
-        "y": 260,
+        "y": 248.48484848484853,
         "width": 500,
         "height": 40,
         "rotation": 0,
         "opacity": 1,
         "text": "Founder & CEO",
-        "fontSize": 22,
-        "fill": "#D4954A",
+        "fontSize": 40,
+        "fill": "#232259",
         "fontFamily": "Lato",
         "align": "left",
         "letterSpacing": 1,
@@ -164,7 +174,7 @@
         "height": 3,
         "rotation": 0,
         "opacity": 1,
-        "fill": "#D4954A",
+        "fill": "#5c5ab9",
         "category": "BasicShape"
       }
     },
@@ -176,59 +186,19 @@
       "props": {
         "id": "email_text",
         "x": 500,
-        "y": 370,
-        "width": 500,
-        "height": 30,
+        "y": 375,
+        "width": 340.9090909090925,
+        "height": 131.8181818181834,
         "rotation": 0,
         "opacity": 1,
-        "text": "john@company.com",
-        "fontSize": 18,
-        "fill": "#555555",
+        "text": "example@company.com\nwww.company.com\n+255 000 000 000\n",
+        "fontSize": 26,
+        "fill": "#232259",
         "fontFamily": "Lato",
         "align": "left",
-        "category": "Text"
-      }
-    },
-    {
-      "id": "phone_text",
-      "type": "Text",
-      "editable": true,
-      "locked": false,
-      "props": {
-        "id": "phone_text",
-        "x": 500,
-        "y": 410,
-        "width": 500,
-        "height": 30,
-        "rotation": 0,
-        "opacity": 1,
-        "text": "+1 (555) 123-4567",
-        "fontSize": 18,
-        "fill": "#555555",
-        "fontFamily": "Lato",
-        "align": "left",
-        "category": "Text"
-      }
-    },
-    {
-      "id": "website_text",
-      "type": "Text",
-      "editable": true,
-      "locked": false,
-      "props": {
-        "id": "website_text",
-        "x": 500,
-        "y": 450,
-        "width": 500,
-        "height": 30,
-        "rotation": 0,
-        "opacity": 1,
-        "text": "www.company.com",
-        "fontSize": 18,
-        "fill": "#555555",
-        "fontFamily": "Lato",
-        "align": "left",
-        "category": "Text"
+        "category": "Text",
+        "lineHeight": 1.5,
+        "letterSpacing": 0.3
       }
     }
   ],
@@ -236,22 +206,14 @@
   "thumbnail": "",
   "preview": "",
   "tags": [
-    "professional",
-    "elegant",
-    "minimal",
-    "corporate"
+    "modern",
+    "proffesional"
   ],
-  "category": "Business",
+  "category": "professional",
   "colors": [
-    "#1A3E3E",
-    "#FFFFFF",
-    "#D4954A",
-    "#B8D4D4",
-    "#555555"
+    "#5c5ab9",
+    "#F5F5F6",
+    "#232259"
   ],
-  "features": [
-    "logo",
-    "minimal_design",
-    "clean_layout"
-  ]
+  "features": []
 }

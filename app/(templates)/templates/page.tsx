@@ -76,10 +76,10 @@ const TemplatesPage = () => {
 
     router.push(`?${params.toString()}`, { scroll: false });
 
-    // Scroll to top of content
-    const MainContainer = document.querySelector('main');
-    if (MainContainer) {
-      MainContainer.scrollTo({ top: 0, behavior: 'smooth' });
+    // Scroll to top of the scrollable content area
+    const scrollableContainer = document.querySelector('.flex-1.overflow-y-auto');
+    if (scrollableContainer) {
+      scrollableContainer.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
