@@ -1,0 +1,383 @@
+================================================================================
+                    COLOR ROLES TUTORIAL - COMPLETE GUIDE
+================================================================================
+
+UNDERSTANDING THE COLOR ROLE SYSTEM
+================================================================================
+
+THE CORE CONCEPT:
+-----------------
+Color roles determine which palette color each element receives.
+
+Elements with the SAME role     → Get the SAME color
+Elements with DIFFERENT roles   → Get DIFFERENT colors
+
+
+AVAILABLE COLOR ROLES:
+-----------------
+Role              Gets Color           Typical Use
+----------------  -------------------  ------------------------------------
+surface           palette.primary      Main background rectangles
+accent            palette.accent       Decorative elements that stand out
+decorative        palette.secondary    Secondary decorative shapes
+highlight         palette.primary      Call-to-action elements
+primary-text      High contrast        Headings, names, titles
+secondary-text    Medium contrast      Body text, subtitles
+
+
+KEY COLOR RELATIONSHIPS:
+-----------------
+palette.primary   ≠ palette.accent     (DIFFERENT - complementary/analogous)
+palette.primary   ≠ palette.secondary  (DIFFERENT - slight variation)
+palette.accent    ≠ palette.secondary  (DIFFERENT)
+
+
+================================================================================
+HOW TO MAKE ELEMENTS HAVE THE SAME COLOR
+================================================================================
+
+RULE: Assign them the SAME role
+
+EXAMPLE 1: Two Rectangles with Same Color
+------------------------------------------
+{
+  "colorRoles": {
+    "rect_1": "surface",
+    "rect_2": "surface"     ← Same role = Same color
+  }
+}
+
+RESULT: Both rectangles get palette.primary (same color)
+
+
+EXAMPLE 2: Multiple Decorative Shapes with Same Color
+------------------------------------------------------
+{
+  "colorRoles": {
+    "circle_1": "decorative",
+    "circle_2": "decorative",
+    "line_1": "decorative"   ← All get palette.secondary
+  }
+}
+
+RESULT: All three elements get palette.secondary (same color)
+
+
+================================================================================
+HOW TO MAKE ELEMENTS HAVE DIFFERENT COLORS
+================================================================================
+
+RULE: Assign them DIFFERENT roles
+
+EXAMPLE 1: Rectangle and Shape with Different Colors
+-----------------------------------------------------
+{
+  "colorRoles": {
+    "main_rect": "surface",      // Gets palette.primary
+    "decorative_shape": "accent"  // Gets palette.accent (DIFFERENT!)
+  }
+}
+
+RESULT: Rectangle and shape have DISTINCT colors
+
+
+EXAMPLE 2: Three Shapes with Three Different Colors
+----------------------------------------------------
+{
+  "colorRoles": {
+    "background_rect": "surface",     // palette.primary
+    "accent_circle": "accent",        // palette.accent (different!)
+    "secondary_line": "decorative"    // palette.secondary (different!)
+  }
+}
+
+RESULT: All three elements have DIFFERENT colors
+
+
+================================================================================
+COMMON DESIGN PATTERNS
+================================================================================
+
+PATTERN 1: Simple Card (Everything Same Color)
+-----------------------------------------------
+Design: One solid background, all text same color
+
+{
+  "colorRoles": {
+    "background": "surface",
+    "name_text": "primary-text",
+    "title_text": "primary-text",    // Same as name
+    "contact_text": "primary-text"   // Same as name
+  }
+}
+
+RESULT:
+- Background: One color
+- All text: Same high-contrast color
+
+
+PATTERN 2: Card with Accent (Background + Pop Element)
+-------------------------------------------------------
+Design: Main background + decorative element that stands out
+
+{
+  "colorRoles": {
+    "main_background": "surface",     // Color A
+    "accent_shape": "accent",         // Color B (different!)
+    "name_text": "primary-text",
+    "info_text": "secondary-text"
+  }
+}
+
+RESULT:
+- Main background: Color A
+- Accent shape: Color B (complementary/analogous to A)
+- Text: High contrast
+
+*** This is what we did for template-03! ***
+
+
+PATTERN 3: Multi-Layer Design (Multiple Different Colors)
+----------------------------------------------------------
+Design: Background + 2 decorative elements, all different
+
+{
+  "colorRoles": {
+    "layer_1_rect": "surface",        // Color A (palette.primary)
+    "layer_2_circle": "accent",       // Color B (palette.accent)
+    "layer_3_line": "decorative",     // Color C (palette.secondary)
+    "heading": "primary-text"
+  }
+}
+
+RESULT:
+- Layer 1: Color A
+- Layer 2: Color B (different from A)
+- Layer 3: Color C (different from A and B)
+
+
+PATTERN 4: Grouped Elements (Some Same, Some Different)
+--------------------------------------------------------
+Design: Two background rects (same color) + accent shape (different)
+
+{
+  "colorRoles": {
+    "left_rect": "surface",           // Color A
+    "right_rect": "surface",          // Color A (same!)
+    "decorative_pattern": "accent",   // Color B (different!)
+    "logo_area": "highlight",         // Color A (same as rects)
+    "name": "primary-text",
+    "title": "secondary-text"
+  }
+}
+
+RESULT:
+- Left rect + Right rect + Logo area: Color A (all same)
+- Decorative pattern: Color B (different)
+
+
+================================================================================
+STEP-BY-STEP WORKFLOW
+================================================================================
+
+STEP 1: Open Your Template JSON
+--------------------------------
+Open: public/templates/template-XX.json
+
+
+STEP 2: Identify All Layers
+----------------------------
+Look at the "layers" array and list each layer:
+
+"layers": [
+  { "id": "layer_1", "type": "Rect", ... },
+  { "id": "layer_2", "type": "Circle", ... },
+  { "id": "layer_3", "type": "Text", ... }
+]
+
+
+STEP 3: Decide Color Strategy
+------------------------------
+Ask yourself for each layer:
+
+FOR SHAPES:
+- Should this be the main background?        → surface
+- Should this stand out/pop?                 → accent
+- Should this match another element?         → Use the same role
+- Should this be different from others?      → Use a different role
+
+FOR TEXT:
+- Is it large/heading?                       → primary-text
+- Is it small/body?                          → secondary-text
+
+
+STEP 4: Create the colorRoles Object
+-------------------------------------
+{
+  "background": { ... },
+  
+  "colorRoles": {
+    "layer_1": "surface",
+    "layer_2": "accent",
+    "layer_3": "primary-text"
+  },
+  
+  "layers": [ ... ]
+}
+
+
+STEP 5: Test
+------------
+1. Save the file
+2. Refresh http://localhost:3002/templates
+3. Look at the variations
+4. Check if elements have the colors you want
+
+
+STEP 6: Adjust if Needed
+-------------------------
+- Elements too similar?  → Use different roles
+- Want elements to match? → Use the same role
+
+
+================================================================================
+PRACTICAL EXAMPLE: TEMPLATE-03 BREAKDOWN
+================================================================================
+
+What we did:
+------------
+{
+  "colorRoles": {
+    "node_rect_1765023001193": "surface",
+    "node_path_1765023052809": "accent",
+    "node_text_1765023175791": "primary-text",
+    "node_text_1765023282421": "secondary-text",
+    "node_text_1765023362424": "secondary-text"
+  }
+}
+
+DECISION PROCESS:
+-----------------
+
+1. Rectangle (node_rect_1765023001193)
+   - Largest element, main background
+   - Role: surface → Gets palette.primary
+
+2. Decorative Pattern (node_path_1765023052809)
+   - Should stand out from rectangle
+   - Role: accent → Gets palette.accent (DIFFERENT color!)
+
+3. "Full Name" Text (node_text_1765023175791)
+   - Large heading, needs high contrast
+   - Role: primary-text → High contrast color
+
+4. "Position" Text (node_text_1765023282421)
+   - Smaller, subtitle
+   - Role: secondary-text → Medium contrast
+
+5. Contact Info (node_text_1765023362424)
+   - Same as position (body text)
+   - Role: secondary-text → Same color as position
+
+
+================================================================================
+QUICK REFERENCE CHEAT SHEET
+================================================================================
+
+WANT SAME COLOR?
+----------------
+"element_1": "surface",
+"element_2": "surface"  // ✓ Same role = Same color
+
+
+WANT DIFFERENT COLORS?
+----------------------
+"element_1": "surface",      // Color A
+"element_2": "accent"        // Color B ✓ Different!
+
+
+WANT 3 DIFFERENT COLORS?
+------------------------
+"element_1": "surface",      // Color A
+"element_2": "accent",       // Color B
+"element_3": "decorative"    // Color C
+
+
+WANT SOME SAME, SOME DIFFERENT?
+--------------------------------
+"rect_1": "surface",         // Color A
+"rect_2": "surface",         // Color A (same)
+"circle": "accent",          // Color B (different)
+"line": "decorative"         // Color C (different)
+
+
+================================================================================
+COMMON MISTAKES TO AVOID
+================================================================================
+
+MISTAKE 1: Using Same Role When You Want Different Colors
+----------------------------------------------------------
+WRONG:
+{
+  "main_rect": "surface",
+  "accent_shape": "surface"  // ✗ Both get same color!
+}
+
+FIX:
+{
+  "main_rect": "surface",
+  "accent_shape": "accent"   // ✓ Different colors!
+}
+
+
+MISTAKE 2: Using Different Roles When You Want Same Color
+----------------------------------------------------------
+WRONG:
+{
+  "rect_1": "surface",
+  "rect_2": "decorative"     // ✗ Different colors!
+}
+
+FIX:
+{
+  "rect_1": "surface",
+  "rect_2": "surface"        // ✓ Same color!
+}
+
+
+================================================================================
+SUMMARY - THE SIMPLE RULE
+================================================================================
+
+Same role     = Same color
+Different role = Different color
+
+EXAMPLES:
+---------
+"rect_1": "surface",    }
+"rect_2": "surface"     } → SAME COLOR (both surface)
+
+"rect": "surface",      }
+"shape": "accent"       } → DIFFERENT COLORS (surface vs accent)
+
+"elem_1": "surface",    }
+"elem_2": "accent",     } → ALL DIFFERENT (3 different roles)
+"elem_3": "decorative"  }
+
+
+================================================================================
+TRY IT YOURSELF!
+================================================================================
+
+1. Open template-01.json
+2. Look at the layers
+3. Decide which elements should match and which should differ
+4. Add the colorRoles object
+5. Test and adjust
+
+Need help with a specific template? Just ask!
+
+
+================================================================================
+END OF TUTORIAL
+================================================================================

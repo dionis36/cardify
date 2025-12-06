@@ -25,6 +25,21 @@
         "background": {
             "$ref": "#/definitions/BackgroundPattern"
         },
+        "colorRoles": {
+            "type": "object",
+            "description": "Maps layer IDs to their semantic color roles for preserving design intent across variations",
+            "additionalProperties": {
+                "type": "string",
+                "enum": [
+                    "surface",
+                    "accent",
+                    "decorative",
+                    "primary-text",
+                    "secondary-text",
+                    "highlight"
+                ]
+            }
+        },
         "layers": {
             "type": "array",
             "items": {

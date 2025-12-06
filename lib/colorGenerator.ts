@@ -119,14 +119,22 @@ export function generateRandomPalette(seed?: string): ColorPalette {
     // 3. Generate Base Hue (H0) within Tone Constraints
     const baseH = rng.range(constraints.hueRange[0], constraints.hueRange[1]);
 
-    // 4. Generate Accent Color (The Pop)
-    // High Saturation, Mid Lightness
-    const accentH = baseH; // Monochromatic base for harmony
-    const accentS = rng.range(70, 95);
-    const accentL = rng.range(45, 60);
-    const accentHSL = new HSL(accentH, accentS, accentL);
+    // 4. Generate Primary Color (Main brand color)
+    const primaryH = baseH;
+    const primaryS = rng.range(constraints.saturationRange[0], constraints.saturationRange[1]);
+    const primaryL = rng.range(constraints.lightnessRange[0], constraints.lightnessRange[1]);
+    const primaryHSL = new HSL(primaryH, primaryS, primaryL);
 
-    // 5. Determine Background Logic (Light vs Dark vs Bold)
+    // 5. Generate Accent Color (The Pop) - MUST be different from primary
+    // Use complementary or analogous hue for visual distinction
+    const accentHueShift = rng.next() > 0.5 ? 180 : rng.range(30, 60); // Complementary or analogous
+    const accentHSL = new HSL(
+        (baseH + accentHueShift) % 360,
+        rng.range(70, 95),  // High saturation for pop
+        rng.range(45, 65)   // Mid lightness
+    );
+
+    // 6. Determine Background Logic (Light vs Dark vs Bold)
     const bgRoll = rng.next();
     let isDark = false;
     let bgHSL: HSL;
@@ -161,14 +169,11 @@ export function generateRandomPalette(seed?: string): ColorPalette {
         isDark = true;
     }
 
-    // 6. Generate Primary/Secondary Colors
-    // Primary is often close to Accent but can vary
-    const primaryHSL = accentHSL; // For now, Primary = Accent brand color
+    // 7. Generate Secondary Color
+    // Secondary is a variation of primary (slight rotation for harmony)
+    const secondaryHSL = primaryHSL.rotate(rng.range(15, 45));
 
-    // Secondary is a variation (rotate or desaturate)
-    const secondaryHSL = primaryHSL.rotate(180); // Complementary for high contrast elements
-
-    // 7. Calculate Best Text Colors (WCAG Contrast)
+    // 8. Calculate Best Text Colors (WCAG Contrast)
     const bgHex = bgHSL.toHex();
 
     const whiteContrast = getContrastRatio(bgHex, '#FFFFFF');
@@ -187,7 +192,7 @@ export function generateRandomPalette(seed?: string): ColorPalette {
         textStr = blackContrast > 4.5 ? softBlack : '#000000';
     }
 
-    // 8. Construct Palette
+    // 9. Construct Palette
     return {
         id: `gen_${id}`,
         name: `${tone} ${isDark ? 'Dark' : 'Light'}`,

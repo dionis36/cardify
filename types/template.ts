@@ -20,6 +20,30 @@ export interface ColorPalette {
     isDark: boolean;   // Whether this is a dark theme
 }
 
+// --- COLOR ROLE DEFINITION (NEW) ---
+
+/**
+ * Semantic color roles for template layers.
+ * These roles define the design intent of each element,
+ * ensuring color variations maintain visual hierarchy.
+ */
+export type ColorRole =
+    | 'surface'         // Background rectangles, base layers
+    | 'accent'          // Decorative elements, highlights, patterns
+    | 'decorative'      // Secondary decorative shapes
+    | 'primary-text'    // Headings, names, titles
+    | 'secondary-text'  // Subtitles, contact info, body text
+    | 'highlight';      // Call-to-action elements, important shapes
+
+/**
+ * Maps layer IDs to their semantic color roles.
+ * Used in templates to explicitly define design intent.
+ */
+export interface ColorRoleMap {
+    [layerId: string]: ColorRole;
+}
+
+
 // --- FONT DEFINITIONS ---
 
 export type FontName =
@@ -295,6 +319,9 @@ export interface CardTemplate {
 
     // (NEW) Background State
     background: BackgroundPattern;
+
+    // (NEW) Color Role Definitions
+    colorRoles?: ColorRoleMap;
 
     layers: KonvaNodeDefinition[];
 

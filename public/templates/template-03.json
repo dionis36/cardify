@@ -9,6 +9,13 @@
     "type": "solid",
     "color1": "#d0d0cc"
   },
+  "colorRoles": {
+    "node_rect_1765023001193": "surface",
+    "node_path_1765023052809": "accent",
+    "node_text_1765023175791": "primary-text",
+    "node_text_1765023282421": "secondary-text",
+    "node_text_1765023362424": "secondary-text"
+  },
   "layers": [
     {
       "id": "node_rect_1765023001193",

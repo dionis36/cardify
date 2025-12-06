@@ -1,7 +1,8 @@
-import { CardTemplate, KonvaNodeDefinition, BackgroundPattern, ColorPalette } from "@/types/template";
+import { CardTemplate, KonvaNodeDefinition, BackgroundPattern, ColorPalette, ColorRoleMap } from "@/types/template";
 import { generateRandomPalette } from "./colorGenerator";
 import { analyzeTemplate, TemplateContextMap } from "./semanticAnalysis";
 import { getContrastRatio } from "./smartTheme";
+import { assignColorByRole, inferColorRoles, getLayerRole } from "./colorRoleAssignment";
 
 // NOTE: PALETTES constant removed in favor of procedural generation.
 export const PALETTES: ColorPalette[] = [];
@@ -14,45 +15,56 @@ export const PALETTES: ColorPalette[] = [];
 export function applyPalette(baseTemplate: CardTemplate, palette: ColorPalette): CardTemplate {
     const variantId = `${baseTemplate.id}_${palette.id}`;
 
-    // 1. Analyze the Base Template Spatially
+    // 1. Get color roles (explicit or inferred)
+    const colorRoles = baseTemplate.colorRoles || inferColorRoles(baseTemplate);
+
+    // 2. Analyze the Base Template Spatially
     const contextMap = analyzeTemplate(baseTemplate);
 
-    // 2. Pre-calculate assigned colors for Shapes so we can check contrast later
-    const shapeColorMap = new Map<string, string>();
+    // 3. Pre-calculate assigned colors for all layers using role-based assignment
+    const layerColorMap = new Map<string, string>();
 
     baseTemplate.layers.forEach(layer => {
-        if (['Rect', 'Circle', 'RegularPolygon', 'Star', 'Path', 'ComplexShape'].includes(layer.type)) {
+        if (['Rect', 'Circle', 'RegularPolygon', 'Star', 'Path', 'ComplexShape', 'Icon'].includes(layer.type)) {
             const context = contextMap[layer.id];
             let effectiveBg = palette.background;
 
+            // Determine the actual background this layer sits on
             if (context && context.backgroundLayerId !== 'main_bg') {
                 const bgId = context.backgroundLayerId;
-                if (shapeColorMap.has(bgId)) {
-                    effectiveBg = shapeColorMap.get(bgId)!;
+                if (layerColorMap.has(bgId)) {
+                    effectiveBg = layerColorMap.get(bgId)!;
                 }
             }
+
+            // Get the role for this layer
+            const role = getLayerRole(layer, baseTemplate, colorRoles);
 
             let color = palette.primary;
             if (layer.props.fill === 'transparent' || !layer.props.fill) {
                 color = 'transparent';
+            } else if (role) {
+                // Use role-based color assignment
+                color = assignColorByRole(role, palette, effectiveBg);
             } else {
+                // Fallback to contrast-based assignment
                 if (getContrastRatio(effectiveBg, palette.primary) < 1.6) {
                     color = palette.secondary;
                 }
             }
 
-            shapeColorMap.set(layer.id, color);
+            layerColorMap.set(layer.id, color);
         }
     });
 
-    // 3. Determine the correct logo for this variation
+    // 4. Determine the correct logo for this variation
     // We use require to avoid circular dependencies (logoAssignments -> templateVariations -> logoAssignments)
     const { getLogoForTemplate } = require("./logoAssignments");
     const logoVariant = getLogoForTemplate(variantId, palette.background, palette.accent);
 
-    // 4. Update layers (colors + logo)
+    // 5. Update layers (colors + logo)
     const updatedLayers = baseTemplate.layers.map(layer => {
-        const updatedLayer = updateLayer(layer, palette, contextMap, shapeColorMap);
+        const updatedLayer = updateLayer(layer, palette, contextMap, layerColorMap, colorRoles);
 
         // Update logo layer if it exists
         if ((updatedLayer.type === 'Image' && updatedLayer.props.isLogo) ||
@@ -81,6 +93,7 @@ export function applyPalette(baseTemplate: CardTemplate, palette: ColorPalette):
         tone: palette.tone, // Pass the tone from the palette to the template
         background: updateBackground(baseTemplate.background, palette),
         layers: updatedLayers,
+        colorRoles: colorRoles, // Preserve color roles in variation
     };
 }
 
@@ -150,7 +163,8 @@ function updateLayer(
     layer: KonvaNodeDefinition,
     palette: ColorPalette,
     contextMap: TemplateContextMap,
-    shapeColorMap: Map<string, string>
+    layerColorMap: Map<string, string>,
+    colorRoles: ColorRoleMap
 ): KonvaNodeDefinition {
     const newLayer = JSON.parse(JSON.stringify(layer)); // Deep copy
     const context = contextMap[layer.id];
@@ -160,41 +174,41 @@ function updateLayer(
 
     if (context && context.backgroundLayerId !== 'main_bg') {
         // It's sitting on a shape. Get that shape's PRE-CALCULATED color.
-        const shapeColor = shapeColorMap.get(context.backgroundLayerId);
+        const shapeColor = layerColorMap.get(context.backgroundLayerId);
         if (shapeColor && shapeColor !== 'transparent') {
             bgHex = shapeColor;
         }
     }
 
+    // Get the role for this layer
+    const role = colorRoles[layer.id];
+
     if (newLayer.type === 'Text') {
-        // Text Context-Aware Logic
-        const fontSize = newLayer.props.fontSize || 16;
-
-        // Check Contrast against the REAL background (bgHex)
-        const contrastWithWhite = getContrastRatio(bgHex, '#FFFFFF');
-        const contrastWithBlack = getContrastRatio(bgHex, '#000000');
-        const contrastWithPrimary = getContrastRatio(bgHex, palette.primary);
-
-        // Can we use Primary color for text? (For titles mostly)
-        // Only if it's large text AND has good contrast (AA Large = 3.0, but we prefer 4.5)
-        if (fontSize > 18 && contrastWithPrimary > 3.5) {
-            newLayer.props.fill = palette.primary;
+        // Use role-based text color assignment if role is defined
+        if (role && (role === 'primary-text' || role === 'secondary-text')) {
+            newLayer.props.fill = assignColorByRole(role, palette, bgHex);
         } else {
-            // Standard Legibility Check
-            if (contrastWithWhite > contrastWithBlack) {
-                // White text is better
-                newLayer.props.fill = contrastWithWhite > 4.5 ? '#FFFFFF' : '#F0F0F0';
+            // Fallback to original text logic
+            const fontSize = newLayer.props.fontSize || 16;
+            const contrastWithWhite = getContrastRatio(bgHex, '#FFFFFF');
+            const contrastWithBlack = getContrastRatio(bgHex, '#000000');
+            const contrastWithPrimary = getContrastRatio(bgHex, palette.primary);
+
+            if (fontSize > 18 && contrastWithPrimary > 3.5) {
+                newLayer.props.fill = palette.primary;
             } else {
-                // Black text is better
-                // Try Palette Text (Dark Grey) first for softness, else Pure Black
-                const contrastPaletteText = getContrastRatio(bgHex, palette.text);
-                newLayer.props.fill = contrastPaletteText > 4.5 ? palette.text : '#000000';
+                if (contrastWithWhite > contrastWithBlack) {
+                    newLayer.props.fill = contrastWithWhite > 4.5 ? '#FFFFFF' : '#F0F0F0';
+                } else {
+                    const contrastPaletteText = getContrastRatio(bgHex, palette.text);
+                    newLayer.props.fill = contrastPaletteText > 4.5 ? palette.text : '#000000';
+                }
             }
         }
 
     } else if (['Rect', 'Circle', 'RegularPolygon', 'Star', 'Path', 'Icon', 'ComplexShape'].includes(newLayer.type)) {
-        // Apply the pre-calculated color from the map
-        const assignedColor = shapeColorMap.get(layer.id);
+        // Apply the pre-calculated color from the map (which now uses role-based assignment)
+        const assignedColor = layerColorMap.get(layer.id);
 
         if (assignedColor && newLayer.props.fill !== 'transparent') {
             newLayer.props.fill = assignedColor;

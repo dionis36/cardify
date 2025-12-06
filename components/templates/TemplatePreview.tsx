@@ -207,15 +207,43 @@ export default function TemplatePreview({ template, width: initialWidth = 400, h
 
             case 'Path':
             case 'Icon':
+                const pathProps = layer.props as any;
+
+                // Handle multi-path format (paths array)
+                if (pathProps.paths && Array.isArray(pathProps.paths)) {
+                    return (
+                        <React.Fragment key={layer.id || index}>
+                            {pathProps.paths.map((pathData: any, pathIndex: number) => (
+                                <Path
+                                    key={`${layer.id || index}_${pathIndex}`}
+                                    x={layer.props.x}
+                                    y={layer.props.y}
+                                    data={pathData.d || ''}
+                                    fill={layer.props.fill}
+                                    stroke={pathProps.stroke}
+                                    strokeWidth={pathProps.strokeWidth}
+                                    scaleX={pathProps.scaleX || 1}
+                                    scaleY={pathProps.scaleY || 1}
+                                    rotation={layer.props.rotation}
+                                    opacity={layer.props.opacity}
+                                    listening={false}
+                                    perfectDrawEnabled={false}
+                                />
+                            ))}
+                        </React.Fragment>
+                    );
+                }
+
+                // Handle single path format (data string)
                 return (
                     <Path
                         key={layer.id || index}
                         x={layer.props.x}
                         y={layer.props.y}
-                        data={(layer.props as any).data || ''}
+                        data={pathProps.data || ''}
                         fill={layer.props.fill}
-                        stroke={(layer.props as any).stroke}
-                        strokeWidth={(layer.props as any).strokeWidth}
+                        stroke={pathProps.stroke}
+                        strokeWidth={pathProps.strokeWidth}
                         scaleX={layer.props.width / 24} // Icons are typically 24x24
                         scaleY={layer.props.height / 24}
                         rotation={layer.props.rotation}
