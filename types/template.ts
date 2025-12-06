@@ -9,6 +9,7 @@ export interface ColorPalette {
     name: string;
     primary: string;   // Main brand color
     secondary: string; // Secondary brand color
+    accent: string;    // NEW: Highlight/Pop color
     background: string; // Card background color
     text: string;      // Main text color
     subtext: string;   // Secondary text color

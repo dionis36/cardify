@@ -54,27 +54,59 @@ export function getContrastRatio(c1: string, c2: string): number {
     return Math.max(l1, l2) / Math.min(l1, l2);
 }
 
+// Distance between two hex colors (0-765ish)
+function getColorDistance(hex1: string, hex2: string): number {
+    const r1 = parseInt(hex1.substring(1, 3), 16);
+    const g1 = parseInt(hex1.substring(3, 5), 16);
+    const b1 = parseInt(hex1.substring(5, 7), 16);
+
+    const r2 = parseInt(hex2.substring(1, 3), 16);
+    const g2 = parseInt(hex2.substring(3, 5), 16);
+    const b2 = parseInt(hex2.substring(5, 7), 16);
+
+    return Math.sqrt(Math.pow(r1 - r2, 2) + Math.pow(g1 - g2, 2) + Math.pow(b1 - b2, 2));
+}
+
 // 1. Get Best Logo Variant
-export function getBestLogoVariant(backgroundColor: string, family: LogoFamily): LogoVariant {
+export function getBestLogoVariant(backgroundColor: string, family: LogoFamily, accentColor?: string): LogoVariant {
     const bgLuma = getLuminance(backgroundColor);
     const isDarkBg = bgLuma < 128;
 
-    // If background is dark, prefer White or light colors
-    // If background is light, prefer Black or dark colors
+    // 1. Accent Color Matching (Priority)
+    if (accentColor) {
+        // Check if accent has good contrast with background
+        const accentContrast = getContrastRatio(backgroundColor, accentColor);
 
-    // Simple heuristic:
-    // If dark BG -> look for 'White' first, then light colors
-    // If light BG -> look for 'Black' first, then dark colors
+        // If accent is visible enough (relaxed constraint for logos, 2.5 is readable for large shapes)
+        if (accentContrast > 2.5) {
+            // Find the logo variant closest to this accent color
+            let bestMatch: LogoVariant | null = null;
+            let minDistance = 100; // Threshold for similarity (approx)
 
+            for (const variant of family.variants) {
+                const variantHex = getHexForColorName(variant.color);
+                const distance = getColorDistance(accentColor, variantHex);
+
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    bestMatch = variant;
+                }
+            }
+
+            if (bestMatch) {
+                return bestMatch;
+            }
+        }
+    }
+
+    // 2. Fallback Logic (Contrast-based)
     if (isDarkBg) {
         const white = family.variants.find(v => v.color === 'White');
         if (white) return white;
-        // Fallback: try to find a light color? For now, just return the first one that isn't black
         return family.variants.find(v => v.color !== 'Black') || family.variants[0];
     } else {
         const black = family.variants.find(v => v.color === 'Black');
         if (black) return black;
-        // Fallback: return the first one that isn't white
         return family.variants.find(v => v.color !== 'White') || family.variants[0];
     }
 }

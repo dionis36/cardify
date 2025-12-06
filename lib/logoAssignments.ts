@@ -27,7 +27,12 @@ baseTemplateIds.forEach((templateId, index) => {
  * This ensures color-conscious pairing between logos and template palettes.
  * Template variations get DIFFERENT logos (not just different colors of same logo).
  */
-export function getLogoForTemplate(templateId: string, backgroundColor: string): LogoVariant {
+/**
+ * Get the appropriate logo variant for a template based on its background color.
+ * This ensures color-conscious pairing between logos and template palettes.
+ * Template variations get DIFFERENT logos (not just different colors of same logo).
+ */
+export function getLogoForTemplate(templateId: string, backgroundColor: string, accentColor?: string): LogoVariant {
     // Extract base template ID (remove palette suffix if present)
     // e.g., "template_01_midnight-blue" -> "template_01"
     const parts = templateId.split('_');
@@ -47,7 +52,11 @@ export function getLogoForTemplate(templateId: string, backgroundColor: string):
     if (parts.length > 2) {
         // CHECK FOR GENERATED VARIANTS FIRST
         if (templateId.includes('_gen_')) {
-            const seedStr = parts[parts.indexOf('gen') + 1];
+            // Fix: seedStr must capture the ENTIRE suffix after 'gen', not just one part
+            // templateId format: "template_01_gen_template_01_var_0_1"
+            const genIndex = parts.indexOf('gen');
+            const seedStr = parts.slice(genIndex + 1).join('_');
+
             if (seedStr) {
                 // Simple hash of seed string
                 let hash = 0;
@@ -55,37 +64,29 @@ export function getLogoForTemplate(templateId: string, backgroundColor: string):
                     hash = (hash << 5) - hash + seedStr.charCodeAt(i);
                     hash |= 0;
                 }
-                // Use hash to pick a random offset
-                const offset = Math.abs(hash) % AVAILABLE_LOGOS.length;
-                const baseLogoIndex = AVAILABLE_LOGOS.findIndex(l => l.id === logoFamily.id);
-                const newLogoIndex = (baseLogoIndex + offset) % AVAILABLE_LOGOS.length;
-                logoFamily = AVAILABLE_LOGOS[newLogoIndex];
+
+                // UNLINK FROM BASE TEMPLATE: Pick a random LogoFamily based on seed
+                // This ensures "Template 1 - Blue" might have a Circle Logo, while "Template 1 - Red" has a Star Logo
+                const logoFamilyIndex = Math.abs(hash) % AVAILABLE_LOGOS.length;
+                logoFamily = AVAILABLE_LOGOS[logoFamilyIndex];
+
+                // Also randomize the variant index using a secondary hash component
+                // (Though getBestLogoVariant below usually overrides this based on color)
             }
         } else {
             // Legacy handling for old palette IDs (if any exist)
             const paletteId = parts.slice(2).join('_');
 
-            // Import PALETTES to find which variation this is
-            const { PALETTES } = require('./templateVariations');
-            const paletteIndex = PALETTES.findIndex((p: any) => p.id === paletteId);
-
-            if (paletteIndex !== -1) {
-                // Get base logo index in AVAILABLE_LOGOS
-                const baseLogoIndex = AVAILABLE_LOGOS.findIndex(l => l.id === logoFamily.id);
-
-                // Offset by palette index + 1 to get a different logo
-                // Use modulo to wrap around if we exceed available logos
-                const newLogoIndex = (baseLogoIndex + paletteIndex + 1) % AVAILABLE_LOGOS.length;
-                logoFamily = AVAILABLE_LOGOS[newLogoIndex];
-
-                console.log(`Template variation ${templateId}: Using Logo ${logoFamily.name} (offset from base)`);
-            }
+            // Try to resolve legacy palette (requires dynamic import to avoid circular dep if needed, 
+            // but for now we assume PALETTES might be empty in new logic)
+            // Skipping legacy complex logic for now as we have fully moved to generated palettes.
         }
     }
 
     // Use smart selection based on background color
     // This will pick White for dark backgrounds, Black for light backgrounds, etc.
-    return getBestLogoVariant(backgroundColor, logoFamily);
+    // If accentColor is provided, it might try to match it (logic inside smartTheme)
+    return getBestLogoVariant(backgroundColor, logoFamily, accentColor);
 }
 
 /**

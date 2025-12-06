@@ -1,5 +1,5 @@
 import { ColorPalette } from "@/types/template";
-import { getContrastRatio } from "./smartTheme"; // Use shared contrast logic
+import { getContrastRatio } from "./smartTheme";
 
 // --- HSL HELPER CLASS ---
 
@@ -12,8 +12,8 @@ class HSL {
 
     toHex(): string {
         const h = this.h;
-        const s = this.s; // Keep as 0-100 for calculation
-        const l = this.l; // Keep as 0-100 for calculation
+        const s = this.s;
+        const l = this.l;
 
         let c = (1 - Math.abs(2 * (l / 100) - 1)) * (s / 100);
         let x = c * (1 - Math.abs(((h / 60) % 2) - 1));
@@ -35,17 +35,8 @@ class HSL {
         return `#${toHexStr(r)}${toHexStr(g)}${toHexStr(b)}`;
     }
 
-    // Returns a new HSL with modified values
     rotate(deg: number): HSL {
         return new HSL((this.h + deg + 360) % 360, this.s, this.l);
-    }
-
-    saturate(amount: number): HSL {
-        return new HSL(this.h, Math.min(100, Math.max(0, this.s + amount)), this.l);
-    }
-
-    lighten(amount: number): HSL {
-        return new HSL(this.h, this.s, Math.min(100, Math.max(0, this.l + amount)));
     }
 }
 
@@ -72,117 +63,117 @@ class SeededRandom {
     range(min: number, max: number): number {
         return min + (this.next() * (max - min));
     }
+
+    // Helper for choice
+    choice<T>(arr: T[]): T {
+        return arr[Math.floor(this.next() * arr.length)];
+    }
 }
 
-// --- GENIUS LOGIC ---
+// --- GENIUS LOGIC TYPES ---
 
-type SchemeType = 'monochromatic' | 'analogous' | 'complementary' | 'triadic';
+type ToneCategory = 'Corporate' | 'Modern' | 'Creative';
+
+interface ToneConstraints {
+    hueRange: [number, number]; // Start, End degree
+    saturationRange: [number, number]; // Min, Max %
+    lightnessRange: [number, number]; // Min, Max %
+}
+
+// --- GENIUS LOGIC CONFIGURATION ---
+
+const TONE_CONSTRAINTS: Record<ToneCategory, ToneConstraints> = {
+    Corporate: {
+        hueRange: [180, 270], // Blues, Cyans, Teals
+        saturationRange: [30, 60],
+        lightnessRange: [40, 60]
+    },
+    Modern: {
+        hueRange: [240, 320], // Purples, Violets, Magentas
+        saturationRange: [50, 80],
+        lightnessRange: [30, 50]
+    },
+    Creative: {
+        hueRange: [0, 60], // Reds, Oranges, Yellows (Warm)
+        saturationRange: [60, 80],
+        lightnessRange: [50, 75]
+    }
+};
+
+// --- CORE GENERATOR ---
 
 export function generateRandomPalette(seed?: string): ColorPalette {
     // 1. Initialization
     const id = seed || Math.random().toString(36).substring(7);
     const rng = new SeededRandom(id);
-    const rand = () => rng.next();
 
-    // 2. Select Scheme (Weighted for professionalism)
-    const schemeCheck = rand();
-    let scheme: SchemeType = 'monochromatic';
-    if (schemeCheck > 0.75) scheme = 'complementary';     // 25% High Contrast
-    else if (schemeCheck > 0.50) scheme = 'triadic';      // 25% Vibrant Balanced
-    else if (schemeCheck > 0.20) scheme = 'analogous';    // 30% Harmonious
-    else scheme = 'monochromatic';                        // 20% Sophisticated
+    // 2. Select Tone Category (The Anchor)
+    // Weighted probabilities: Corporate (40%), Modern (40%), Creative (20%)
+    const toneRoll = rng.next();
+    let tone: ToneCategory = 'Corporate';
+    if (toneRoll > 0.8) tone = 'Creative';
+    else if (toneRoll > 0.4) tone = 'Modern';
 
-    // 3. Anchor Points (Base HSL)
-    const baseH = Math.floor(rand() * 360);
-    // Base Saturation: Avoids extreme grays (muddy) or neons (eye-pain) for the base anchor, 
-    // though we will vary this later.
-    const baseS = rng.range(50, 95);
-    // Base Lightness: Avoids pure black/white as base, we want distinct color
-    const baseL = rng.range(30, 70);
+    const constraints = TONE_CONSTRAINTS[tone];
 
-    const baseColor = new HSL(baseH, baseS, baseL);
+    // 3. Generate Base Hue (H0) within Tone Constraints
+    const baseH = rng.range(constraints.hueRange[0], constraints.hueRange[1]);
 
-    // 4. Generate Palette Colors based on Scheme
-    let primaryHSL: HSL;
-    let secondaryHSL: HSL;
-    let surfaceHSL: HSL;
+    // 4. Generate Accent Color (The Pop)
+    // High Saturation, Mid Lightness
+    const accentH = baseH; // Monochromatic base for harmony
+    const accentS = rng.range(70, 95);
+    const accentL = rng.range(45, 60);
+    const accentHSL = new HSL(accentH, accentS, accentL);
 
-    switch (scheme) {
-        case 'monochromatic':
-            // Same Hue, Rely on S/L separation
-            primaryHSL = baseColor; // The anchor
-            // Secondary is lighter/desaturated or darker/saturated version
-            secondaryHSL = baseColor.lighten(isBright(baseColor) ? -30 : 30).saturate(-10);
-            break;
-
-        case 'analogous':
-            // Hues close together (+/- 30deg)
-            const angle = 30;
-            primaryHSL = baseColor;
-            secondaryHSL = baseColor.rotate(rand() > 0.5 ? angle : -angle);
-            break;
-
-        case 'complementary':
-            // Opposite Hues
-            primaryHSL = baseColor;
-            secondaryHSL = baseColor.rotate(180);
-            break;
-
-        case 'triadic':
-            // 120deg separation
-            primaryHSL = baseColor;
-            secondaryHSL = baseColor.rotate(rand() > 0.5 ? 120 : 240);
-            break;
-
-        default:
-            primaryHSL = baseColor;
-            secondaryHSL = baseColor.rotate(180);
-    }
-
-    // 5. Determine Background (Surface)
-    // We want 40% Dark, 40% Bold/Vibrant, 20% Light
-    const bgType = rand();
+    // 5. Determine Background Logic (Light vs Dark vs Bold)
+    const bgRoll = rng.next();
     let isDark = false;
+    let bgHSL: HSL;
 
-    if (bgType > 0.6) {
-        // DARK THEME (Surface is Dark)
-        // Use primary hue but very dark and low saturation (Charcoal/Navy influence)
-        surfaceHSL = new HSL(primaryHSL.h, rng.range(10, 30), rng.range(5, 15));
-        isDark = true;
-    } else if (bgType > 0.2) {
-        // BOLD/VIBRANT THEME (Surface is the Primary Color itself!)
-        // In this case, the Primary Role effectively becomes the background.
-        // We ensure it's punchy.
-        surfaceHSL = new HSL(primaryHSL.h, rng.range(70, 100), rng.range(35, 65));
-
-        // Check if this random bold color is perceptually dark
-        // Simple approx check for L
-        isDark = surfaceHSL.l < 55; // Threshold where white text looks better
-    } else {
-        // LIGHT THEME (Surface is Off-White)
-        surfaceHSL = new HSL(primaryHSL.h, rng.range(5, 20), rng.range(92, 98));
+    if (bgRoll > 0.70) {
+        // LIGHT THEME (30%)
+        // Very Low Saturation, High Lightness
+        const bgH = baseH;
+        const bgS = rng.range(5, 20);
+        const bgL = rng.range(92, 98); // Off-White
+        bgHSL = new HSL(bgH, bgS, bgL);
         isDark = false;
+    } else if (bgRoll > 0.30) {
+        // DARK THEME (40%)
+        // Low Saturation, Very Low Lightness
+        // Shift hue slightly for depth
+        const bgH = (baseH + rng.range(-15, 15) + 360) % 360;
+        const bgS = rng.range(10, 30);
+        const bgL = rng.range(5, 15); // Almost Black
+        bgHSL = new HSL(bgH, bgS, bgL);
+        isDark = true;
+    } else {
+        // BOLD/VIBRANT THEME (30%)
+        // The background IS the primary brand color!
+        // High Saturation, Mid-Low Lightness usually looks best
+        const bgH = baseH;
+        const bgS = rng.range(60, 90);
+        const bgL = rng.range(25, 45); // Deep, rich color
+        bgHSL = new HSL(bgH, bgS, bgL);
+
+        // Bold themes are effectively dark for text contrast purposes
+        isDark = true;
     }
 
-    // 6. Refine Colors for Context
-    // Now we have Raw Primary, Secondary, and Surface.
-    // We must ensure Primary/Secondary are visible against Surface if used as elements.
+    // 6. Generate Primary/Secondary Colors
+    // Primary is often close to Accent but can vary
+    const primaryHSL = accentHSL; // For now, Primary = Accent brand color
 
-    // If "Bold Theme" (Surface is vibrant), usually Primary == Surface. 
-    // So "Primary" usages should probably map to White/Black or Secondary to stand out.
-    // But for the data structure, we keep 'primary' as the Brand Color.
+    // Secondary is a variation (rotate or desaturate)
+    const secondaryHSL = primaryHSL.rotate(180); // Complementary for high contrast elements
 
-    // Let's finalize the Hex strings
-    const background = surfaceHSL.toHex();
-    const primHex = primaryHSL.toHex();
-    const secHex = secondaryHSL.toHex();
+    // 7. Calculate Best Text Colors (WCAG Contrast)
+    const bgHex = bgHSL.toHex();
 
-    // 7. Calculate Best Text Color
-    // STRICT WCAG check using our helper (assuming it uses luminance)
-    // We compare White (#FFF) vs Black (#000) against the Background
-    const whiteContrast = getContrastRatio(background, '#FFFFFF');
-    const blackContrast = getContrastRatio(background, '#000000');
-    // Also consider off-white/off-black for softness if contrast allows
+    const whiteContrast = getContrastRatio(bgHex, '#FFFFFF');
+    const blackContrast = getContrastRatio(bgHex, '#000000');
+
     const softWhite = '#F8FAFC'; // Slate-50
     const softBlack = '#0F172A'; // Slate-900
 
@@ -190,32 +181,22 @@ export function generateRandomPalette(seed?: string): ColorPalette {
     let subtextStr = '#64748B'; // Slate-500
 
     if (whiteContrast > blackContrast) {
-        // Dark Background -> Light Text
         textStr = whiteContrast > 4.5 ? softWhite : '#FFFFFF';
-        subtextStr = '#CBD5E1'; // Slate-300
+        subtextStr = '#94A3B8'; // Slate-400
     } else {
-        // Light Background -> Dark Text
         textStr = blackContrast > 4.5 ? softBlack : '#000000';
     }
 
-    // 8. Name Generation
-    const themeName = isDark ? "Dark" : (surfaceHSL.l > 80 ? "Light" : "Bold");
-    const schemeName = scheme.charAt(0).toUpperCase() + scheme.slice(1);
-    const name = `${themeName} ${schemeName}`;
-
+    // 8. Construct Palette
     return {
         id: `gen_${id}`,
-        name,
-        primary: primHex,
-        secondary: secHex,
-        background: background,
+        name: `${tone} ${isDark ? 'Dark' : 'Light'}`,
+        primary: primaryHSL.toHex(),
+        secondary: secondaryHSL.toHex(),
+        accent: accentHSL.toHex(), // The new constrained accent
+        background: bgHex,
         text: textStr,
         subtext: subtextStr,
         isDark
     };
-}
-
-// Helper: Is this HSL color "bright"?
-function isBright(color: HSL): boolean {
-    return color.l > 60;
 }

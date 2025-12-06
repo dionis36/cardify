@@ -48,7 +48,7 @@ export function applyPalette(baseTemplate: CardTemplate, palette: ColorPalette):
     // 3. Determine the correct logo for this variation
     // We use require to avoid circular dependencies (logoAssignments -> templateVariations -> logoAssignments)
     const { getLogoForTemplate } = require("./logoAssignments");
-    const logoVariant = getLogoForTemplate(variantId, palette.background);
+    const logoVariant = getLogoForTemplate(variantId, palette.background, palette.accent);
 
     // 4. Update layers (colors + logo)
     const updatedLayers = baseTemplate.layers.map(layer => {
@@ -97,7 +97,9 @@ export function generateVariations(baseTemplate: CardTemplate): CardTemplate[] {
     while (variations.length < 10 && attempts < 15) {
         attempts++;
 
-        const palette = generateRandomPalette();
+        // Deterministic seed: BaseID + Index + Attempt
+        const seed = `${baseTemplate.id}_var_${variations.length}_${attempts}`;
+        const palette = generateRandomPalette(seed);
 
         if (generatedIds.has(palette.id)) continue;
         generatedIds.add(palette.id);
