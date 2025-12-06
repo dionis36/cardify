@@ -15,16 +15,13 @@ export function applyPalette(baseTemplate: CardTemplate, palette: ColorPalette):
     const variantId = `${baseTemplate.id}_${palette.id}`;
 
     // 1. Analyze the Base Template Spatially
-    // (We could cache this, but it's fast enough for now)
     const contextMap = analyzeTemplate(baseTemplate);
 
     // 2. Pre-calculate assigned colors for Shapes so we can check contrast later
-    // We process layers in order (Back -> Front) so we know the color of the layer underneath.
     const shapeColorMap = new Map<string, string>();
 
     baseTemplate.layers.forEach(layer => {
         if (['Rect', 'Circle', 'RegularPolygon', 'Star', 'Path', 'ComplexShape'].includes(layer.type)) {
-            // 1. Find what we are sitting on
             const context = contextMap[layer.id];
             let effectiveBg = palette.background;
 
@@ -35,14 +32,10 @@ export function applyPalette(baseTemplate: CardTemplate, palette: ColorPalette):
                 }
             }
 
-            // 2. Determine THIS shape's color based on that background
-            // Logic: Default to Primary. If background is Primary, swap to Secondary.
             let color = palette.primary;
             if (layer.props.fill === 'transparent' || !layer.props.fill) {
                 color = 'transparent';
             } else {
-                // Check visual similarity (using contrast ratio as a proxy for similarity)
-                // If contrast is very low (< 1.5), they are likely the same or very similar color.
                 if (getContrastRatio(effectiveBg, palette.primary) < 1.6) {
                     color = palette.secondary;
                 }
@@ -52,13 +45,41 @@ export function applyPalette(baseTemplate: CardTemplate, palette: ColorPalette):
         }
     });
 
+    // 3. Determine the correct logo for this variation
+    // We use require to avoid circular dependencies (logoAssignments -> templateVariations -> logoAssignments)
+    const { getLogoForTemplate } = require("./logoAssignments");
+    const logoVariant = getLogoForTemplate(variantId, palette.background);
+
+    // 4. Update layers (colors + logo)
+    const updatedLayers = baseTemplate.layers.map(layer => {
+        const updatedLayer = updateLayer(layer, palette, contextMap, shapeColorMap);
+
+        // Update logo layer if it exists
+        if ((updatedLayer.type === 'Image' && updatedLayer.props.isLogo) ||
+            updatedLayer.id === 'main_logo' ||
+            updatedLayer.id === 'logo_icon') {
+
+            return {
+                ...updatedLayer,
+                type: 'Image' as const,
+                props: {
+                    ...updatedLayer.props,
+                    src: logoVariant.path,
+                    isLogo: true,
+                    category: 'Image' as const
+                }
+            };
+        }
+        return updatedLayer;
+    });
+
     return {
         ...baseTemplate,
         id: variantId,
         name: `${baseTemplate.name} (${palette.name})`,
         colors: [palette.background, palette.primary, palette.secondary],
         background: updateBackground(baseTemplate.background, palette),
-        layers: baseTemplate.layers.map(layer => updateLayer(layer, palette, contextMap, shapeColorMap)),
+        layers: updatedLayers,
     };
 }
 

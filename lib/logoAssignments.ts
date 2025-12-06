@@ -12,7 +12,10 @@ const BASE_TEMPLATE_LOGOS: Record<string, LogoFamily> = {};
 const SEED = 42069; // Fixed seed for consistency
 
 // Initialize assignments for all base templates
-const baseTemplateIds = ['template_01', 'template_02', 'template_03', 'template_04', 'template_05'];
+const baseTemplateIds = [
+    'template_01', 'template_02', 'template_03', 'template_04', 'template_05',
+    'template_06', 'template_07', 'template_08', 'template_09', 'template_10', 'template_11'
+];
 
 baseTemplateIds.forEach((templateId, index) => {
     const logoIndex = Math.floor(seededRandom(SEED + index) * AVAILABLE_LOGOS.length);

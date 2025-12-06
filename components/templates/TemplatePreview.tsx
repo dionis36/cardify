@@ -1,8 +1,15 @@
 "use client";
 
 import React, { useMemo, useState, useRef, useEffect } from 'react';
-import { Stage, Layer, Rect, Circle, Text, Path, RegularPolygon, Star, Arrow, Line } from 'react-konva';
+import { Stage, Layer, Rect, Circle, Text, Path, RegularPolygon, Star, Arrow, Line, Image as KonvaImage } from 'react-konva';
 import { CardTemplate, KonvaNodeDefinition } from '@/types/template';
+import useImage from 'use-image';
+
+// Inner component for handling image loading
+const URLImage = ({ src, ...props }: any) => {
+    const [image] = useImage(src || '', 'anonymous');
+    return <KonvaImage image={image} {...props} />;
+};
 
 interface TemplatePreviewProps {
     template: CardTemplate;
@@ -215,6 +222,15 @@ export default function TemplatePreview({ template, width: initialWidth = 400, h
                         opacity={layer.props.opacity}
                         listening={false}
                         perfectDrawEnabled={false}
+                    />
+                );
+
+            case 'Image':
+                return (
+                    <URLImage
+                        key={layer.id || index}
+                        src={(layer.props as any).src}
+                        {...baseProps}
                     />
                 );
 
