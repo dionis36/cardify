@@ -170,9 +170,14 @@ const StyleButton = ({
 );
 
 const FONT_OPTIONS = [
-  "Inter", "Roboto", "Open Sans", "Lato", "Montserrat", "Poppins", // Sans
-  "Playfair Display", "Merriweather", // Serif
-  "Pacifico", "Bebas Neue", "Dancing Script", "Oswald" // Display & Handwriting
+  // Sans
+  "Inter", "Roboto", "Open Sans", "Lato", "Montserrat", "Poppins",
+  "Raleway", "Ubuntu", "Nunito", "Rubik", "Quicksand",
+  // Serif
+  "Playfair Display", "Merriweather", "Cinzel", "Libre Baskerville", "PT Serif", "Lora",
+  // Display & Handwriting
+  "Pacifico", "Bebas Neue", "Dancing Script", "Oswald",
+  "Lobster", "Great Vibes", "Righteous", "Audiowide", "Indie Flower", "Caveat"
 ];
 
 // --- Main Component ---

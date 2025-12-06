@@ -22,7 +22,23 @@ export default function FontLoader() {
         "Pacifico",
         "Bebas+Neue",
         "Dancing+Script:wght@400;700",
-        "Oswald:wght@400;700"
+        "Oswald:wght@400;700",
+        // Extended
+        "Raleway:wght@400;700",
+        "Ubuntu:wght@400;700",
+        "Nunito:wght@400;700",
+        "Rubik:wght@400;700",
+        "Quicksand:wght@400;700",
+        "Cinzel:wght@400;700",
+        "Libre+Baskerville:wght@400;700",
+        "PT+Serif:wght@400;700",
+        "Lora:wght@400;700",
+        "Lobster",
+        "Great+Vibes",
+        "Righteous",
+        "Audiowide",
+        "Indie+Flower",
+        "Caveat:wght@400;700"
     ];
 
     const fontQuery = fonts.join("&family=");
