@@ -2,21 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
-
 /* app/globals.css */
 
-/* Font CSS custom properties - fonts loaded via next/font/google in layout.tsx */
-:root {
-  --font-inter: var(--font-inter), 'Inter', sans-serif;
-  --font-roboto: var(--font-roboto), 'Roboto', sans-serif;
-  --font-playfair: var(--font-playfair), 'Playfair Display', serif;
-  --font-bebas: var(--font-bebas), 'Bebas Neue', cursive;
-  --font-poppins: var(--font-poppins), 'Poppins', sans-serif;
-  --font-lato: var(--font-lato), 'Lato', sans-serif;
-  --font-montserrat: var(--font-montserrat), 'Montserrat', sans-serif;
-  --font-opensans: var(--font-opensans), 'Open Sans', sans-serif;
-  --font-georgia: 'Georgia', serif;
-}
+/* Fonts are now loaded via FontLoader.tsx using standard family names */
 
 /* Make fonts globally available by their family names */
 .font-inter {
