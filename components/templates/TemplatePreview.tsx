@@ -244,8 +244,8 @@ export default function TemplatePreview({ template, width: initialWidth = 400, h
                         fill={layer.props.fill}
                         stroke={pathProps.stroke}
                         strokeWidth={pathProps.strokeWidth}
-                        scaleX={layer.props.width / 24} // Icons are typically 24x24
-                        scaleY={layer.props.height / 24}
+                        scaleX={pathProps.scaleX !== undefined ? pathProps.scaleX : (layer.props.width / 24)}
+                        scaleY={pathProps.scaleY !== undefined ? pathProps.scaleY : (layer.props.height / 24)}
                         rotation={layer.props.rotation}
                         opacity={layer.props.opacity}
                         listening={false}
