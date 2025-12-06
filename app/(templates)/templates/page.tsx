@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { CardTemplate } from "@/types/template";
 import TemplateCard from "@/components/templates/TemplateCard";
 import TemplateGrid from "@/components/templates/TemplateGrid";
@@ -9,9 +10,15 @@ import { templateRegistry, TemplateFilterOptions } from "@/lib/templateRegistry"
 import { Pagination } from "@/components/ui/Pagination";
 
 const TemplatesPage = () => {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  // Parse page from URL or default to 1
+  const initialPage = Number(searchParams.get('page')) || 1;
+
   const [templates, setTemplates] = useState<CardTemplate[]>([]);
   const [filters, setFilters] = useState<TemplateFilterOptions>({
-    category: 'All',
+    category: searchParams.get('category') || 'All',
     search: '',
   });
   const [isLoaded, setIsLoaded] = useState(false);
@@ -19,7 +26,6 @@ const TemplatesPage = () => {
 
   // Initial load
   useEffect(() => {
-    // In a real app, this might be an async fetch
     const allTemplates = templateRegistry.getAllTemplates();
     setTemplates(allTemplates);
     setIsLoaded(true);
@@ -28,18 +34,23 @@ const TemplatesPage = () => {
 
   // Filter logic
   const filteredTemplates = useMemo(() => {
-    // Note: In a real app, filtering might be async or server-side
     return templateRegistry.getTemplates(filters);
   }, [filters, templates]);
 
   // Pagination State
-  const [currentPage, setCurrentPage] = useState(1);
-  const ITEMS_PER_PAGE = 36; // UPDATED to 36 as requested
+  const [currentPage, setCurrentPage] = useState(initialPage);
+  const ITEMS_PER_PAGE = 36;
 
-  // Reset pagination when filters change
+  // Sync state with URL changes (e.g. Back button)
   useEffect(() => {
-    setCurrentPage(1);
-  }, [filters]);
+    const page = Number(searchParams.get('page')) || 1;
+    setCurrentPage(page);
+
+    const category = searchParams.get('category') || 'All';
+    if (category !== filters.category) {
+      setFilters(prev => ({ ...prev, category }));
+    }
+  }, [searchParams]);
 
   // Derived visible templates
   const totalItems = filteredTemplates.length;
@@ -53,12 +64,38 @@ const TemplatesPage = () => {
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
-    // Optional: Scroll to top
-    // window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    // Update URL
+    const params = new URLSearchParams(searchParams);
+    params.set('page', page.toString());
+    if (filters.category && filters.category !== 'All') {
+      params.set('category', filters.category);
+    } else {
+      params.delete('category');
+    }
+
+    router.push(`?${params.toString()}`, { scroll: false });
+
+    // Scroll to top of content
     const MainContainer = document.querySelector('main');
     if (MainContainer) {
       MainContainer.scrollTo({ top: 0, behavior: 'smooth' });
     }
+  };
+
+  const handleFilterChange = (newFilters: TemplateFilterOptions) => {
+    setFilters(newFilters);
+    setCurrentPage(1);
+
+    const params = new URLSearchParams(searchParams);
+    params.set('page', '1');
+    if (newFilters.category && newFilters.category !== 'All') {
+      params.set('category', newFilters.category);
+    } else {
+      params.delete('category');
+    }
+
+    router.push(`?${params.toString()}`, { scroll: false });
   };
 
   if (!isLoaded) {
@@ -74,25 +111,27 @@ const TemplatesPage = () => {
 
   return (
     <main className="min-h-screen bg-gray-50 flex flex-col h-screen">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200 flex-shrink-0">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <h1 className="text-4xl font-extrabold text-gray-900 tracking-tight mb-2">
-            Template Library
-          </h1>
-          <p className="text-lg text-gray-500 max-w-2xl">
-            Jumpstart your design with our professionally crafted templates.
-            Customize every detail to match your brand.
-          </p>
-        </div>
-      </div>
-
-      {/* Horizontal Filters Panel */}
-      <TemplateFilters filters={filters} onFilterChange={setFilters} />
-
       {/* Scrollable Content Area */}
-      <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
-        <div className="max-w-7xl mx-auto">
+      <div className="flex-1 overflow-y-auto">
+
+        {/* Header */}
+        <div className="bg-white border-b border-gray-200">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <h1 className="text-4xl font-extrabold text-gray-900 tracking-tight mb-2">
+              Template Library
+            </h1>
+            <p className="text-lg text-gray-500 max-w-2xl">
+              Jumpstart your design with our professionally crafted templates.
+              Customize every detail to match your brand.
+            </p>
+          </div>
+        </div>
+
+        {/* Sticky Filters */}
+        <TemplateFilters filters={filters} onFilterChange={handleFilterChange} />
+
+        {/* Grid Content */}
+        <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
           <div className="mb-6">
             <h1 className="text-2xl font-bold text-gray-900">
               {filters.category && filters.category !== 'All' ? `${filters.category} Templates` : 'All Templates'}
@@ -107,7 +146,6 @@ const TemplatesPage = () => {
             <>
               <TemplateGrid templates={visibleTemplates} />
 
-              {/* Numbered Pagination */}
               <div className="border-t border-gray-200">
                 <Pagination
                   currentPage={currentPage}

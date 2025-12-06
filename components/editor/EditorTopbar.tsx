@@ -3,7 +3,6 @@
 "use client";
 
 import { Download, Undo, Redo, Save, ArrowLeft, Loader, Shuffle, RotateCcw } from "lucide-react";
-import Link from "next/link";
 
 interface EditorTopbarProps {
     templateName: string;
@@ -43,9 +42,13 @@ export default function EditorTopbar({
 
             {/* 1. Left: Back & Title */}
             <div className="flex items-center space-x-4">
-                <Link href="/templates" className="p-2 hover:bg-gray-100 rounded-full text-gray-600 transition-colors" title="Back to Templates">
+                <button
+                    onClick={() => onBack ? onBack() : window.history.back()}
+                    className="p-2 hover:bg-gray-100 rounded-full text-gray-600 transition-colors"
+                    title="Back"
+                >
                     <ArrowLeft size={20} />
-                </Link>
+                </button>
                 <div className="flex flex-col">
                     <h1 className="font-semibold text-gray-800 text-sm">{templateName || "Untitled Design"}</h1>
                     <span className="text-xs text-gray-400">Card Editor</span>
