@@ -9,6 +9,8 @@ import {
     STANDARD_CARD_ORIENTATION
 } from "./constants";
 import { getLogoForTemplate } from "./logoAssignments";
+import { generateRandomPalette } from "./colorGenerator";
+import { applyPalette } from "./templateVariations";
 
 // Import all template JSON files
 import template01JSON from "../public/templates/template-01.json";
@@ -112,9 +114,7 @@ export function loadTemplate(id: string): CardTemplate {
         const baseTemplate = templateMap[baseId];
 
         if (baseTemplate && seedStr) {
-            const { generateRandomPalette } = require("./colorGenerator");
-            const { applyPalette } = require("./templateVariations");
-
+            // OPTIMIZATION: Use imported functions instead of runtime require
             // Re-generate the specific palette using the seed
             const palette = generateRandomPalette(seedStr);
 

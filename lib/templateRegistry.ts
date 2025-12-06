@@ -1,11 +1,13 @@
 import { CardTemplate } from "@/types/template";
 import { loadTemplates } from "./templates";
 import { generateVariations } from "./templateVariations";
+import { shuffleArray } from "./utils";
 
 export type SortOption = 'popular' | 'newest' | 'name';
 
 export interface TemplateFilterOptions {
     category?: string;
+    tone?: string;
     color?: string; // Hex or name (e.g., 'blue')
     search?: string;
     tags?: string[];
@@ -28,7 +30,11 @@ class TemplateRegistry {
         if (!this.initialized) {
             const baseTemplates = loadTemplates();
             // Generate variations for each base template
-            this.templates = baseTemplates.flatMap(t => generateVariations(t));
+            const allTemplates = baseTemplates.flatMap(t => generateVariations(t));
+
+            // Randomize the order so variations of the same template aren't grouped together
+            this.templates = shuffleArray(allTemplates);
+
             this.initialized = true;
         }
     }
@@ -62,7 +68,12 @@ class TemplateRegistry {
             results = results.filter(t => t.category === options.category);
         }
 
-        // 3. Color Filter (Basic implementation - checks if template tags or colors include the color name)
+        // 3. Tone Filter (NEW)
+        if (options.tone && options.tone !== 'All') {
+            results = results.filter(t => t.tone === options.tone);
+        }
+
+        // 4. Color Filter (Basic implementation - checks if template tags or colors include the color name)
         if (options.color) {
             const colorQuery = options.color.toLowerCase();
             results = results.filter(t =>
@@ -71,7 +82,7 @@ class TemplateRegistry {
             );
         }
 
-        // 4. Sorting
+        // 5. Sorting
         if (options.sortBy) {
             switch (options.sortBy) {
                 case 'name':

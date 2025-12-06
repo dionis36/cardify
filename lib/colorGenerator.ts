@@ -194,6 +194,7 @@ export function generateRandomPalette(seed?: string): ColorPalette {
         primary: primaryHSL.toHex(),
         secondary: secondaryHSL.toHex(),
         accent: accentHSL.toHex(), // The new constrained accent
+        tone: tone, // Return the selected tone
         background: bgHex,
         text: textStr,
         subtext: subtextStr,

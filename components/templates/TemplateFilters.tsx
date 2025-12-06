@@ -28,7 +28,7 @@ export default function TemplateFilters({ filters, onFilterChange }: TemplateFil
         onFilterChange({ search: filters.search }); // Keep search, clear others
     };
 
-    const activeFiltersCount = (filters.category ? 1 : 0) + (filters.color ? 1 : 0);
+    const activeFiltersCount = (filters.category ? 1 : 0) + (filters.color ? 1 : 0) + (filters.tone ? 1 : 0);
 
     return (
         <div className="w-full bg-white border-b border-gray-200 sticky top-0 z-10 shadow-sm">
@@ -52,8 +52,8 @@ export default function TemplateFilters({ filters, onFilterChange }: TemplateFil
                     <button
                         onClick={() => setIsOpen(!isOpen)}
                         className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${isOpen || activeFiltersCount > 0
-                                ? 'bg-blue-50 text-blue-700 border border-blue-200'
-                                : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                            ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                            : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
                             }`}
                     >
                         <Filter size={18} />
@@ -70,7 +70,7 @@ export default function TemplateFilters({ filters, onFilterChange }: TemplateFil
                 {/* Collapsible Filter Panel */}
                 {isOpen && (
                     <div className="mt-4 pt-4 border-t border-gray-100 animate-in slide-in-from-top-2 duration-200">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                             {/* Categories */}
                             <div>
                                 <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
@@ -82,11 +82,32 @@ export default function TemplateFilters({ filters, onFilterChange }: TemplateFil
                                             key={category}
                                             onClick={() => handleCategoryChange(category)}
                                             className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${(filters.category === category) || (!filters.category && category === 'All')
-                                                    ? 'bg-blue-600 text-white shadow-sm'
-                                                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                                ? 'bg-blue-600 text-white shadow-sm'
+                                                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                                                 }`}
                                         >
                                             {category}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Tones (NEW) */}
+                            <div>
+                                <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
+                                    Style / Tone
+                                </h3>
+                                <div className="flex flex-wrap gap-2">
+                                    {['All', 'Corporate', 'Modern', 'Creative'].map((tone) => (
+                                        <button
+                                            key={tone}
+                                            onClick={() => onFilterChange({ ...filters, tone: tone === 'All' ? undefined : tone })}
+                                            className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${(filters.tone === tone) || (!filters.tone && tone === 'All')
+                                                ? 'bg-purple-600 text-white shadow-sm'
+                                                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                                }`}
+                                        >
+                                            {tone}
                                         </button>
                                     ))}
                                 </div>
@@ -114,8 +135,8 @@ export default function TemplateFilters({ filters, onFilterChange }: TemplateFil
                                             key={color}
                                             onClick={() => handleColorChange(color)}
                                             className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium border transition-all ${filters.color === color
-                                                    ? 'border-blue-500 bg-blue-50 text-blue-700 ring-1 ring-blue-500'
-                                                    : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
+                                                ? 'border-blue-500 bg-blue-50 text-blue-700 ring-1 ring-blue-500'
+                                                : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
                                                 }`}
                                         >
                                             <div

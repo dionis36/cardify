@@ -3,6 +3,9 @@
 
 import { TemplateCategoryKey } from "@/lib/templateCategories";
 
+// --- TONE DEFINITION (NEW) ---
+export type ToneCategory = 'Corporate' | 'Modern' | 'Creative';
+
 // --- COLOR PALETTE DEFINITION (NEW) ---
 export interface ColorPalette {
     id: string;
@@ -10,6 +13,7 @@ export interface ColorPalette {
     primary: string;   // Main brand color
     secondary: string; // Secondary brand color
     accent: string;    // NEW: Highlight/Pop color
+    tone: ToneCategory; // NEW: The genius logic tone of this palette
     background: string; // Card background color
     text: string;      // Main text color
     subtext: string;   // Secondary text color
@@ -303,10 +307,10 @@ export interface CardTemplate {
     tags: string[];
     category: TemplateCategoryKey;
     colors: string[];
+    tone?: ToneCategory; // NEW: The aesthetic tone of the card
+    isPro?: boolean; // If true, requires premium
     features: string[];
 }
-
-// --- TEMPLATE EXPORT TYPES (NEW) ---
 
 /**
  * Metadata for exporting a template

@@ -78,6 +78,7 @@ export function applyPalette(baseTemplate: CardTemplate, palette: ColorPalette):
         id: variantId,
         name: `${baseTemplate.name} (${palette.name})`,
         colors: [palette.background, palette.primary, palette.secondary],
+        tone: palette.tone, // Pass the tone from the palette to the template
         background: updateBackground(baseTemplate.background, palette),
         layers: updatedLayers,
     };
@@ -92,9 +93,9 @@ export function generateVariations(baseTemplate: CardTemplate): CardTemplate[] {
     const variations: CardTemplate[] = [baseTemplate];
     const generatedIds = new Set<string>();
 
-    // Generate 9 unique variations
+    // Generate 11 unique variations (Total 12 with base)
     let attempts = 0;
-    while (variations.length < 10 && attempts < 15) {
+    while (variations.length < 12 && attempts < 20) {
         attempts++;
 
         // Deterministic seed: BaseID + Index + Attempt

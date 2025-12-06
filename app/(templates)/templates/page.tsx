@@ -6,6 +6,7 @@ import TemplateCard from "@/components/templates/TemplateCard";
 import TemplateGrid from "@/components/templates/TemplateGrid";
 import TemplateFilters from "@/components/templates/TemplateFilters";
 import { templateRegistry, TemplateFilterOptions } from "@/lib/templateRegistry";
+import { Pagination } from "@/components/ui/Pagination";
 
 const TemplatesPage = () => {
   const [templates, setTemplates] = useState<CardTemplate[]>([]);
@@ -31,6 +32,35 @@ const TemplatesPage = () => {
     return templateRegistry.getTemplates(filters);
   }, [filters, templates]);
 
+  // Pagination State
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 36; // UPDATED to 36 as requested
+
+  // Reset pagination when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filters]);
+
+  // Derived visible templates
+  const totalItems = filteredTemplates.length;
+  const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+
+  const visibleTemplates = useMemo(() => {
+    const start = (currentPage - 1) * ITEMS_PER_PAGE;
+    const end = start + ITEMS_PER_PAGE;
+    return filteredTemplates.slice(start, end);
+  }, [currentPage, filteredTemplates, ITEMS_PER_PAGE]);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    // Optional: Scroll to top
+    // window.scrollTo({ top: 0, behavior: 'smooth' });
+    const MainContainer = document.querySelector('main');
+    if (MainContainer) {
+      MainContainer.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
   if (!isLoaded) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -43,7 +73,7 @@ const TemplatesPage = () => {
   }
 
   return (
-    <main className="min-h-screen bg-gray-50 flex flex-col">
+    <main className="min-h-screen bg-gray-50 flex flex-col h-screen">
       {/* Header */}
       <div className="bg-white border-b border-gray-200 flex-shrink-0">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -67,9 +97,6 @@ const TemplatesPage = () => {
             <h1 className="text-2xl font-bold text-gray-900">
               {filters.category && filters.category !== 'All' ? `${filters.category} Templates` : 'All Templates'}
             </h1>
-            <p className="text-gray-500 mt-1">
-              {filteredTemplates.length} {filteredTemplates.length === 1 ? 'design' : 'designs'} found
-            </p>
           </div>
 
           {isLoading ? (
@@ -77,7 +104,20 @@ const TemplatesPage = () => {
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
             </div>
           ) : (
-            <TemplateGrid templates={filteredTemplates} />
+            <>
+              <TemplateGrid templates={visibleTemplates} />
+
+              {/* Numbered Pagination */}
+              <div className="border-t border-gray-200">
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  onPageChange={handlePageChange}
+                  totalItems={totalItems}
+                  itemsPerPage={ITEMS_PER_PAGE}
+                />
+              </div>
+            </>
           )}
         </div>
       </div>
