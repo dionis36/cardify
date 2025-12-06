@@ -26,6 +26,7 @@ import template10JSON from "../public/templates/template-10.json";
 import template11JSON from "../public/templates/template-11.json";
 import template12JSON from "../public/templates/template-12.json";
 import template13JSON from "../public/templates/template-13.json";
+import template14JSON from "../public/templates/template-14.json";
 
 // Map for individual lookup - all templates must conform to the new CardTemplate type
 // NOTE: We keep the raw JSON imported here.
@@ -43,6 +44,7 @@ const templateMap: Record<string, CardTemplate> = {
     template_11: template11JSON as CardTemplate,
     template_12: template12JSON as CardTemplate,
     template_13: template13JSON as CardTemplate,
+    template_14: template14JSON as CardTemplate,
 };
 
 /**
