@@ -1,0 +1,259 @@
+{
+  "$schema": "./schema.json",
+  "id": "template_18",
+  "name": "Official Business Card",
+  "width": 1050,
+  "height": 600,
+  "orientation": "horizontal",
+  "background": {
+    "type": "solid",
+    "color1": "#37353e"
+  },
+  "colorRoles": {
+    "node_path_01": "primary-text",
+    "node_path_02": "primary-text",
+    "node_path_03": "primary-text",
+    "node_rect_01": "primary-text",
+    "node_text_01": "primary-text",
+    "node_text_02": "primary-text",
+    "node_text_03": "primary-text",
+    "node_text_04": "primary-text",
+    "icon_01": "primary-text",
+    "icon_02": "primary-text"
+  },
+  "layers": [
+    {
+      "id": "node_path_01",
+      "type": "Path",
+      "props": {
+        "id": "node_path_01",
+        "x": 854,
+        "y": 393,
+        "width": 0,
+        "height": 0,
+        "data": "",
+        "paths": [
+          {
+            "d": "M50.4787 81.66L85 57.1395L71.7481 18H28.2519L15 57.1395L15.5 57.4947V57.6175H15.6729L50 82L50.4703 81.666L50.4761 81.6678L50.4787 81.66ZM49.769 80.6448L57.4902 57.6175H17.3498L49.769 80.6448ZM16.213 56.6613H41.2361L28.7374 19.6706L16.213 56.6613ZM29.5469 18.9562H70.0526L37.1972 41.5978L29.5469 18.9562ZM71.1611 19.3709L50.8551 33.3644L83.5209 55.8755L71.1611 19.3709ZM83.4815 57.027L51.003 80.0965L63.3826 43.1762L83.4815 57.027ZM37.5203 42.5539L42.287 56.6613H57.8108L62.5296 42.5883L49.9999 33.9537L37.5203 42.5539Z",
+            "fillRule": "evenodd"
+          }
+        ],
+        "fill": "#d3dad9",
+        "stroke": "#d3dad9",
+        "strokeWidth": 2,
+        "opacity": 1,
+        "rotation": -8,
+        "scaleX": 2.801514108359804,
+        "scaleY": 2.801514108359804
+      },
+      "editable": true,
+      "locked": true
+    },
+    {
+      "id": "node_path_02",
+      "type": "Path",
+      "props": {
+        "id": "node_path_02",
+        "x": 812,
+        "y": 268.0005728278136,
+        "width": 0,
+        "height": 0,
+        "data": "",
+        "paths": [
+          {
+            "d": "M50.4787 81.66L85 57.1395L71.7481 18H28.2519L15 57.1395L15.5 57.4947V57.6175H15.6729L50 82L50.4703 81.666L50.4761 81.6678L50.4787 81.66ZM49.769 80.6448L57.4902 57.6175H17.3498L49.769 80.6448ZM16.213 56.6613H41.2361L28.7374 19.6706L16.213 56.6613ZM29.5469 18.9562H70.0526L37.1972 41.5978L29.5469 18.9562ZM71.1611 19.3709L50.8551 33.3644L83.5209 55.8755L71.1611 19.3709ZM83.4815 57.027L51.003 80.0965L63.3826 43.1762L83.4815 57.027ZM37.5203 42.5539L42.287 56.6613H57.8108L62.5296 42.5883L49.9999 33.9537L37.5203 42.5539Z",
+            "fillRule": "evenodd"
+          }
+        ],
+        "fill": "#d3dad9",
+        "stroke": "#d3dad9",
+        "strokeWidth": 2,
+        "opacity": 1,
+        "rotation": 38,
+        "scaleX": 2.8,
+        "scaleY": 2.8
+      },
+      "editable": true,
+      "locked": true
+    },
+    {
+      "id": "node_path_03",
+      "type": "Path",
+      "props": {
+        "id": "node_path_03",
+        "x": 855.5839367647811,
+        "y": 175,
+        "width": 0,
+        "height": 0,
+        "data": "",
+        "paths": [
+          {
+            "d": "M50.4787 81.66L85 57.1395L71.7481 18H28.2519L15 57.1395L15.5 57.4947V57.6175H15.6729L50 82L50.4703 81.666L50.4761 81.6678L50.4787 81.66ZM49.769 80.6448L57.4902 57.6175H17.3498L49.769 80.6448ZM16.213 56.6613H41.2361L28.7374 19.6706L16.213 56.6613ZM29.5469 18.9562H70.0526L37.1972 41.5978L29.5469 18.9562ZM71.1611 19.3709L50.8551 33.3644L83.5209 55.8755L71.1611 19.3709ZM83.4815 57.027L51.003 80.0965L63.3826 43.1762L83.4815 57.027ZM37.5203 42.5539L42.287 56.6613H57.8108L62.5296 42.5883L49.9999 33.9537L37.5203 42.5539Z",
+            "fillRule": "evenodd"
+          }
+        ],
+        "fill": "#d3dad9",
+        "stroke": "#d3dad9",
+        "strokeWidth": 2,
+        "opacity": 1,
+        "rotation": 13,
+        "scaleX": 2.7999999999999963,
+        "scaleY": 2.7999999999999963
+      },
+      "editable": true,
+      "locked": true
+    },
+    {
+      "id": "node_text_01",
+      "type": "Text",
+      "props": {
+        "id": "node_text_01",
+        "x": 54.24242424242421,
+        "y": 213.03030303030295,
+        "text": "Full Name",
+        "fontSize": 110,
+        "fill": "#d3dad9",
+        "fontFamily": "Dancing Script",
+        "rotation": 0,
+        "opacity": 1,
+        "width": 460.00000000000006,
+        "height": 95.15151515151524,
+        "align": "left"
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "node_text_02",
+      "type": "Text",
+      "props": {
+        "id": "node_text_02",
+        "x": 54.24242424242421,
+        "y": 338.484848484845,
+        "text": "Founder & CEO",
+        "fontSize": 40,
+        "fill": "#d3dad9",
+        "fontFamily": "Lato",
+        "rotation": 0,
+        "opacity": 1,
+        "width": 368.7878787878778,
+        "height": 46.36363636363786
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "node_rect_01",
+      "type": "Rect",
+      "props": {
+        "id": "node_rect_01",
+        "x": 54.24242424242421,
+        "y": 406.3636363636356,
+        "width": 100,
+        "height": 7,
+        "fill": "#d3dad9",
+        "cornerRadius": 2,
+        "rotation": 0,
+        "opacity": 1
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "node_text_03",
+      "type": "Text",
+      "props": {
+        "id": "node_text_03",
+        "x": 97.87878787878778,
+        "y": 515.7575757575744,
+        "text": "Email",
+        "fontSize": 30,
+        "fill": "#d3dad9",
+        "fontFamily": "Inter",
+        "rotation": 0,
+        "opacity": 1,
+        "width": 250,
+        "height": 40
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "icon_01",
+      "type": "Icon",
+      "props": {
+        "id": "icon_01",
+        "x": 54.24242424242421,
+        "y": 454.2424242424242,
+        "width": 30,
+        "height": 30,
+        "rotation": 0,
+        "opacity": 1,
+        "visible": true,
+        "category": "Icon",
+        "iconName": "lucide:phone",
+        "fill": "transparent",
+        "stroke": "#d3dad9",
+        "strokeWidth": 2,
+        "data": ""
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "icon_02",
+      "type": "Icon",
+      "props": {
+        "id": "icon_02",
+        "x": 54.24242424242421,
+        "y": 515.7575757575744,
+        "width": 30,
+        "height": 30,
+        "rotation": 0,
+        "opacity": 1,
+        "visible": true,
+        "category": "Icon",
+        "iconName": "lucide:mail",
+        "fill": "transparent",
+        "stroke": "#d3dad9",
+        "strokeWidth": 2,
+        "data": ""
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "node_text_04",
+      "type": "Text",
+      "props": {
+        "id": "node_text_04",
+        "x": 101,
+        "y": 454.2424242424242,
+        "text": "Phone",
+        "fontSize": 30,
+        "fill": "#d3dad9",
+        "fontFamily": "Inter",
+        "rotation": 0,
+        "opacity": 1,
+        "width": 250,
+        "height": 40
+      },
+      "editable": true,
+      "locked": false
+    }
+  ],
+  "groups": [],
+  "thumbnail": "",
+  "preview": "",
+  "tags": [
+    "official",
+    "clean",
+    "minimal"
+  ],
+  "category": "minimal",
+  "colors": [
+    "#d3dad9",
+    "transparent"
+  ],
+  "features": []
+}

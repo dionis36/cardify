@@ -61,8 +61,8 @@
       "type": "Text",
       "props": {
         "id": "node_text_03",
-        "x": 767.3678087402611,
-        "y": 453.03030303030187,
+        "x": 697.3678087402611,
+        "y": 447.03030303030187,
         "text": "+255 000 000 000\nEMAIL ADDRESS",
         "fontSize": 30,
         "fill": "#315e4d",
@@ -71,6 +71,7 @@
         "opacity": 1,
         "width": 328.4848484848487,
         "height": 112.12121212121293,
+        "align": "right",
         "lineHeight": 1.6,
         "letterSpacing": 0.4
       },
