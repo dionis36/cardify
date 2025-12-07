@@ -1,0 +1,291 @@
+{
+  "$schema": "./schema.json",
+  "id": "template_19",
+  "name": "Sleek Modern Business Card",
+  "width": 1050,
+  "height": 600,
+  "orientation": "horizontal",
+  "background": {
+    "type": "solid",
+    "color1": "#eeedef"
+  },
+    "colorRoles": {
+    "node_rect_01": "surface",
+    "node_text_01": "primary-text",
+    "node_text_02": "secondary-text",
+    "node_text_03": "secondary-text",
+    "node_circle_01": "accent",
+    "node_circle_02": "accent",
+    "node_circle_03": "accent",
+    "node_circle_04": "accent",
+    "node_circle_05": "accent",
+    "node_circle_06": "accent",
+    "node_rect_02": "accent",
+    "node_rect_03": "accent",
+    "node_rect_04": "accent",
+    "node_rect_05": "accent"
+  },
+  "layers": [
+    {
+      "id": "node_rect_01",
+      "type": "Rect",
+      "props": {
+        "id": "node_rect_01",
+        "x": 649,
+        "y": -23.93939393939406,
+        "width": 486.0606060606063,
+        "height": 623.9393939393941,
+        "fill": "#58138e",
+        "cornerRadius": 0,
+        "rotation": 0,
+        "opacity": 1
+      },
+      "editable": true,
+      "locked": true
+    },
+    {
+      "id": "node_text_01",
+      "type": "Text",
+      "props": {
+        "id": "node_text_01",
+        "x": 45.75757575757554,
+        "y": 96.66666666666652,
+        "text": "Full Name",
+        "fontSize": 89,
+        "fill": "#58138e",
+        "fontFamily": "Ubuntu",
+        "rotation": 0,
+        "opacity": 1,
+        "width": 434.54545454545473,
+        "height": 93.0303030303031
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "node_text_02",
+      "type": "Text",
+      "props": {
+        "id": "node_text_02",
+        "x": 46,
+        "y": 199.39393939393935,
+        "text": "Position",
+        "fontSize": 40,
+        "fill": "#0F172A",
+        "fontFamily": "Montserrat",
+        "rotation": 0,
+        "opacity": 1,
+        "width": 250,
+        "height": 40
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "node_text_03",
+      "type": "Text",
+      "props": {
+        "id": "node_text_03",
+        "x": 46,
+        "y": 444.54545454545354,
+        "text": "+255 000 000 000\nEmail Address",
+        "fontSize": 30,
+        "fill": "#0F172A",
+        "fontFamily": "Montserrat",
+        "rotation": 0,
+        "opacity": 1,
+        "width": 313.6363636363636,
+        "height": 103.63636363636446,
+        "lineHeight": 1.6,
+        "letterSpacing": 0
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "node_circle_01",
+      "type": "Circle",
+      "props": {
+        "id": "node_circle_01",
+        "x": 950,
+        "y": 99.39393939393935,
+        "width": 200,
+        "height": 200,
+        "radius": 100,
+        "fill": "#d81b86",
+        "rotation": 0,
+        "opacity": 1
+      },
+      "editable": true,
+      "locked": true
+    },
+    {
+      "id": "node_circle_02",
+      "type": "Circle",
+      "props": {
+        "id": "node_circle_02",
+        "x": 950,
+        "y": 499,
+        "width": 200,
+        "height": 200,
+        "radius": 100,
+        "fill": "#d81b86",
+        "rotation": 0,
+        "opacity": 1
+      },
+      "editable": true,
+      "locked": true
+    },
+    {
+      "id": "node_circle_03",
+      "type": "Circle",
+      "props": {
+        "id": "node_circle_03",
+        "x": 950,
+        "y": 299,
+        "width": 200,
+        "height": 200,
+        "radius": 100,
+        "fill": "#d81b86",
+        "rotation": 0,
+        "opacity": 1
+      },
+      "editable": true,
+      "locked": true
+    },
+    {
+      "id": "node_circle_04",
+      "type": "Circle",
+      "props": {
+        "id": "node_circle_04",
+        "x": 750,
+        "y": 100.00000000000003,
+        "width": 200,
+        "height": 200,
+        "radius": 100,
+        "fill": "#d81b86",
+        "rotation": 0,
+        "opacity": 1
+      },
+      "editable": true,
+      "locked": true
+    },
+    {
+      "id": "node_circle_05",
+      "type": "Circle",
+      "props": {
+        "id": "node_circle_05",
+        "x": 750,
+        "y": 299,
+        "width": 200,
+        "height": 200,
+        "radius": 100,
+        "fill": "#d81b86",
+        "rotation": 0,
+        "opacity": 1
+      },
+      "editable": true,
+      "locked": true
+    },
+    {
+      "id": "node_circle_06",
+      "type": "Circle",
+      "props": {
+        "id": "node_circle_06",
+        "x": 750,
+        "y": 499,
+        "width": 200,
+        "height": 200,
+        "radius": 100,
+        "fill": "#d81b86",
+        "rotation": 0,
+        "opacity": 1
+      },
+      "editable": true,
+      "locked": true
+    },
+    {
+      "id": "node_rect_02",
+      "type": "Rect",
+      "props": {
+        "id": "node_rect_02",
+        "x": 747.8787878787878,
+        "y": -100,
+        "width": 100,
+        "height": 200,
+        "fill": "#d81b86",
+        "cornerRadius": 0,
+        "rotation": 0,
+        "opacity": 1
+      },
+      "editable": true,
+      "locked": true
+    },
+    {
+      "id": "node_rect_03",
+      "type": "Rect",
+      "props": {
+        "id": "node_rect_03",
+        "x": 968.4848484848484,
+        "y": -100,
+        "width": 100,
+        "height": 200,
+        "fill": "#d81b86",
+        "cornerRadius": 0,
+        "rotation": 0,
+        "opacity": 1
+      },
+      "editable": true,
+      "locked": true
+    },
+    {
+      "id": "node_rect_04",
+      "type": "Rect",
+      "props": {
+        "id": "node_rect_04",
+        "x": 649,
+        "y": 101,
+        "width": 100,
+        "height": 300,
+        "fill": "#d81b86",
+        "cornerRadius": 0,
+        "rotation": 0,
+        "opacity": 1
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "node_rect_05",
+      "type": "Rect",
+      "props": {
+        "id": "node_rect_05",
+        "x": 950,
+        "y": 398,
+        "width": 100,
+        "height": 200,
+        "fill": "#d81b86",
+        "cornerRadius": 0,
+        "rotation": 0,
+        "opacity": 1
+      },
+      "editable": true,
+      "locked": true
+    }
+  ],
+  "groups": [],
+  "thumbnail": "",
+  "preview": "",
+  "tags": [
+    "creative",
+    "artistic",
+    "sleek"
+  ],
+  "category": "creative",
+  "colors": [
+    "#58138e",
+    "#0F172A",
+    "#d81b86"
+  ],
+  "features": []
+}

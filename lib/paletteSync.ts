@@ -198,13 +198,25 @@ function updateLayerSync(
         }
     } else if (['Rect', 'Circle', 'RegularPolygon', 'Star', 'Path', 'Icon', 'ComplexShape'].includes(newLayer.type)) {
         const assignedColor = layerColorMap.get(layer.id);
+        const strokeWidth = (newLayer.props as any).strokeWidth || 0;
 
-        if (assignedColor && newLayer.props.fill !== 'transparent') {
+        // Handle fill based on original design intent
+        if (layer.props.fill === 'transparent') {
+            // Case 1: Outline-only shape (original fill was transparent)
+            newLayer.props.fill = 'transparent';
+        } else if (assignedColor && newLayer.props.fill !== 'transparent') {
+            // Case 2 & 3: Fill-only or filled-with-outline
             newLayer.props.fill = assignedColor;
         }
 
-        if (newLayer.props.stroke) {
-            newLayer.props.stroke = palette.secondary;
+        // Handle stroke based on strokeWidth
+        if (newLayer.props.stroke && newLayer.props.stroke !== 'transparent' && strokeWidth > 0) {
+            // Apply color role to stroke for shapes with visible stroke
+            if (role) {
+                newLayer.props.stroke = assignColorByRole(role, palette, bgHex);
+            } else {
+                newLayer.props.stroke = palette.secondary;
+            }
         }
     } else if (newLayer.type === 'Arrow' || newLayer.type === 'Line') {
         newLayer.props.stroke = palette.primary;

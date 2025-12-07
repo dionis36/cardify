@@ -1,14 +1,61 @@
 "use client";
 
 import React, { useMemo, useState, useRef, useEffect } from 'react';
-import { Stage, Layer, Rect, Circle, Text, Path, RegularPolygon, Star, Arrow, Line, Image as KonvaImage } from 'react-konva';
+import { Stage, Layer, Rect, Circle, Text, Path, RegularPolygon, Star, Arrow, Line, Image as KonvaImage, Group } from 'react-konva';
 import { CardTemplate, KonvaNodeDefinition } from '@/types/template';
 import useImage from 'use-image';
+import { getIcon } from '@/lib/iconLoader';
 
 // Inner component for handling image loading
 const URLImage = ({ src, ...props }: any) => {
     const [image] = useImage(src || '', 'anonymous');
     return <KonvaImage image={image} {...props} />;
+};
+
+// Component for rendering Icon elements with proper SVG generation
+const IconPreview = ({ layer }: { layer: KonvaNodeDefinition }) => {
+    const props = layer.props as any;
+    const { x, y, width, height, rotation, opacity, fill, stroke, strokeWidth, iconName } = props;
+
+    // Get icon data from Iconify
+    const iconData = useMemo(() => getIcon(iconName) || getIcon('lucide:help-circle'), [iconName]);
+
+    // Generate SVG URL with proper fill and stroke
+    const svgUrl = useMemo(() => {
+        if (!iconData) return '';
+
+        const svgString = `
+            <svg xmlns="http://www.w3.org/2000/svg" width="${iconData.width}" height="${iconData.height}" viewBox="0 0 ${iconData.width} ${iconData.height}" style="color: ${stroke !== 'transparent' ? stroke : fill}">
+                <g fill="${fill}" stroke="${stroke}" stroke-width="${strokeWidth}">
+                    ${iconData.body}
+                </g>
+            </svg>
+        `.trim();
+
+        return `data:image/svg+xml;utf8,${encodeURIComponent(svgString)}`;
+    }, [iconData, fill, stroke, strokeWidth]);
+
+    const [image] = useImage(svgUrl);
+
+    return (
+        <Group
+            x={x}
+            y={y}
+            rotation={rotation}
+            opacity={opacity}
+            listening={false}
+        >
+            {image && (
+                <KonvaImage
+                    image={image}
+                    width={width}
+                    height={height}
+                    listening={false}
+                    perfectDrawEnabled={false}
+                />
+            )}
+        </Group>
+    );
 };
 
 interface TemplatePreviewProps {
@@ -322,8 +369,11 @@ export default function TemplatePreview({ template, width: initialWidth = 400, h
                     />
                 );
 
-            case 'Path':
             case 'Icon':
+                // Render Icon using iconify data with proper SVG generation
+                return <IconPreview key={layer.id || index} layer={layer} />;
+
+            case 'Path':
                 const pathProps = layer.props as any;
 
                 // Handle multi-path format (paths array)
