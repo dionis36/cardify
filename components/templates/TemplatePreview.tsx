@@ -21,6 +21,77 @@ interface TemplatePreviewProps {
 export default function TemplatePreview({ template, width: initialWidth = 400, height: initialHeight = 229 }: TemplatePreviewProps) {
     const containerRef = useRef<HTMLDivElement>(null);
     const [dimensions, setDimensions] = useState({ width: initialWidth, height: initialHeight });
+    const [qrCodeImages, setQrCodeImages] = useState<Map<string, string>>(new Map());
+
+    // Regenerate QR codes with fancy styling
+    useEffect(() => {
+        const regenerateQRCodes = async () => {
+            const newQrImages = new Map<string, string>();
+
+            for (const layer of template.layers) {
+                // Check if this is a QR code with metadata
+                if (layer.type === 'Image' && (layer.props as any).qrMetadata) {
+                    const qrMetadata = (layer.props as any).qrMetadata;
+
+                    try {
+                        // Dynamically import react-qrcode-logo
+                        const { QRCode } = await import('react-qrcode-logo');
+                        const ReactDOM = await import('react-dom/client');
+                        const React = await import('react');
+
+                        // Create a temporary container
+                        const container = document.createElement('div');
+                        container.style.position = 'absolute';
+                        container.style.left = '-9999px';
+                        container.style.top = '-9999px';
+                        document.body.appendChild(container);
+
+                        // Create root and render QR code
+                        const root = ReactDOM.createRoot(container);
+
+                        // Render the QR code component with fancy styling
+                        root.render(
+                            React.createElement(QRCode, {
+                                value: qrMetadata.value,
+                                size: 400,
+                                fgColor: qrMetadata.fgColor,
+                                bgColor: qrMetadata.bgColor === 'transparent' ? '#FFFFFF00' : qrMetadata.bgColor,
+                                qrStyle: qrMetadata.dotStyle || 'squares',
+                                eyeRadius: (qrMetadata as any).eyeRadius || [0, 0, 0],
+                                ecLevel: (qrMetadata as any).ecLevel || 'Q',
+                                logoImage: (qrMetadata as any).logoSource || undefined,
+                            })
+                        );
+
+                        // Wait for render and extract canvas
+                        await new Promise<void>((resolve) => {
+                            setTimeout(() => {
+                                const qrCanvas = container.querySelector('canvas');
+                                if (qrCanvas) {
+                                    const dataUrl = qrCanvas.toDataURL('image/png');
+                                    newQrImages.set(layer.id, dataUrl);
+                                }
+
+                                // Cleanup
+                                root.unmount();
+                                document.body.removeChild(container);
+                                resolve();
+                            }, 100);
+                        });
+
+                    } catch (error) {
+                        console.error('Failed to regenerate QR code for preview:', error);
+                    }
+                }
+            }
+
+            if (newQrImages.size > 0) {
+                setQrCodeImages(newQrImages);
+            }
+        };
+
+        regenerateQRCodes();
+    }, [template.id]); // Regenerate when template changes
 
     // Measure container size
     useEffect(() => {
@@ -300,10 +371,12 @@ export default function TemplatePreview({ template, width: initialWidth = 400, h
                 );
 
             case 'Image':
+                // Use regenerated QR code if available, otherwise use original src
+                const imageSrc = qrCodeImages.get(layer.id) || (layer.props as any).src;
                 return (
                     <URLImage
                         key={layer.id || index}
-                        src={(layer.props as any).src}
+                        src={imageSrc}
                         {...baseProps}
                     />
                 );

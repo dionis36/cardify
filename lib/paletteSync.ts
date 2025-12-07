@@ -1,19 +1,16 @@
+// lib/paletteSync.ts
+// Synchronous palette application for editor (without QR regeneration)
+
 import { CardTemplate, KonvaNodeDefinition, BackgroundPattern, ColorPalette, ColorRoleMap } from "@/types/template";
-import { generateRandomPalette } from "./colorGenerator";
 import { analyzeTemplate, TemplateContextMap } from "./semanticAnalysis";
 import { getContrastRatio } from "./smartTheme";
 import { assignColorByRole, inferColorRoles, getLayerRole } from "./colorRoleAssignment";
-import { regenerateQRCodeAsync, isQRCodeLayer } from "./qrcodeGenerator";
-
-// NOTE: PALETTES constant removed in favor of procedural generation.
-export const PALETTES: ColorPalette[] = [];
-
-// --- HELPERS ---
 
 /**
- * Applies a color palette to a template to create a new variation.
+ * Applies a color palette to a template SYNCHRONOUSLY (without QR regeneration).
+ * Use this for editor initialization where async is not possible.
  */
-export async function applyPalette(baseTemplate: CardTemplate, palette: ColorPalette): Promise<CardTemplate> {
+export function applyPaletteSync(baseTemplate: CardTemplate, palette: ColorPalette): CardTemplate {
     const variantId = `${baseTemplate.id}_${palette.id}`;
 
     // 1. Get color roles (explicit or inferred)
@@ -59,13 +56,12 @@ export async function applyPalette(baseTemplate: CardTemplate, palette: ColorPal
     });
 
     // 4. Determine the correct logo for this variation
-    // We use require to avoid circular dependencies (logoAssignments -> templateVariations -> logoAssignments)
     const { getLogoForTemplate } = require("./logoAssignments");
     const logoVariant = getLogoForTemplate(variantId, palette.background, palette.accent);
 
-    // 5. Update layers (colors + logo + QR codes)
-    const updatedLayers = await Promise.all(baseTemplate.layers.map(async (layer) => {
-        const updatedLayer = await updateLayer(layer, palette, contextMap, layerColorMap, colorRoles);
+    // 5. Update layers (colors + logo, NO QR regeneration)
+    const updatedLayers = baseTemplate.layers.map(layer => {
+        const updatedLayer = updateLayerSync(layer, palette, contextMap, layerColorMap, colorRoles);
 
         // Update logo layer if it exists
         if ((updatedLayer.type === 'Image' && updatedLayer.props.isLogo) ||
@@ -84,48 +80,21 @@ export async function applyPalette(baseTemplate: CardTemplate, palette: ColorPal
             };
         }
         return updatedLayer;
-    }));
+    });
 
     return {
         ...baseTemplate,
         id: variantId,
         name: `${baseTemplate.name} (${palette.name})`,
         colors: [palette.background, palette.primary, palette.secondary],
-        tone: palette.tone, // Pass the tone from the palette to the template
-        background: updateBackground(baseTemplate.background, palette),
+        tone: palette.tone,
+        background: updateBackgroundSync(baseTemplate.background, palette),
         layers: updatedLayers,
-        colorRoles: colorRoles, // Preserve color roles in variation
+        colorRoles: colorRoles,
     };
 }
 
-/**
- * Generates variations of a base template using procedural "Smart Logic".
- * Generates 16 total variants (1 Original + 15 Generated).
- */
-export async function generateVariations(baseTemplate: CardTemplate): Promise<CardTemplate[]> {
-    // Return the original template as the first item
-    const variations: CardTemplate[] = [baseTemplate];
-    const generatedIds = new Set<string>();
-
-    // Generate 15 unique variations (Total 16 with base)
-    let attempts = 0;
-    while (variations.length < 16 && attempts < 30) {
-        attempts++;
-
-        // Deterministic seed: BaseID + Index + Attempt
-        const seed = `${baseTemplate.id}_var_${variations.length}_${attempts}`;
-        const palette = generateRandomPalette(seed);
-
-        if (generatedIds.has(palette.id)) continue;
-        generatedIds.add(palette.id);
-
-        variations.push(await applyPalette(baseTemplate, palette));
-    }
-
-    return variations;
-}
-
-function updateBackground(bg: BackgroundPattern | undefined, palette: ColorPalette): BackgroundPattern {
+function updateBackgroundSync(bg: BackgroundPattern | undefined, palette: ColorPalette): BackgroundPattern {
     if (!bg) return { type: 'solid', color1: palette.background };
 
     if (bg.type === 'solid') {
@@ -141,30 +110,24 @@ function updateBackground(bg: BackgroundPattern | undefined, palette: ColorPalet
     }
 
     if (bg.type === 'gradient') {
-        // Generate beautiful gradient colors based on palette
         let gradientColor1: string;
         let gradientColor2: string;
 
         if (palette.isDark) {
-            // For dark themes: use darker primary and lighter accent for depth
             gradientColor1 = palette.primary;
             gradientColor2 = palette.background;
         } else {
-            // For light themes: use vibrant primary and secondary
             gradientColor1 = palette.primary;
             gradientColor2 = palette.secondary;
         }
 
-        // Update gradientStops if they exist, otherwise use color1/color2
         const updatedGradientStops = bg.gradientStops
             ? bg.gradientStops.map((stop, index) => {
-                // Interpolate between our gradient colors based on stop position
                 if (index === 0) {
                     return { ...stop, color: gradientColor1 };
                 } else if (index === bg.gradientStops!.length - 1) {
                     return { ...stop, color: gradientColor2 };
                 } else {
-                    // For middle stops, create a blend using accent color for vibrancy
                     return { ...stop, color: palette.accent };
                 }
             })
@@ -192,37 +155,31 @@ function updateBackground(bg: BackgroundPattern | undefined, palette: ColorPalet
     return bg;
 }
 
-
-async function updateLayer(
+function updateLayerSync(
     layer: KonvaNodeDefinition,
     palette: ColorPalette,
     contextMap: TemplateContextMap,
     layerColorMap: Map<string, string>,
     colorRoles: ColorRoleMap
-): Promise<KonvaNodeDefinition> {
-    const newLayer = JSON.parse(JSON.stringify(layer)); // Deep copy
+): KonvaNodeDefinition {
+    const newLayer = JSON.parse(JSON.stringify(layer));
     const context = contextMap[layer.id];
 
-    // Determine the color of the background sitting immediately behind this layer
-    let bgHex = palette.background; // Default to main card background
+    let bgHex = palette.background;
 
     if (context && context.backgroundLayerId !== 'main_bg') {
-        // It's sitting on a shape. Get that shape's PRE-CALCULATED color.
         const shapeColor = layerColorMap.get(context.backgroundLayerId);
         if (shapeColor && shapeColor !== 'transparent') {
             bgHex = shapeColor;
         }
     }
 
-    // Get the role for this layer
     const role = colorRoles[layer.id];
 
     if (newLayer.type === 'Text') {
-        // Use role-based text color assignment if role is defined
         if (role && (role === 'primary-text' || role === 'secondary-text')) {
             newLayer.props.fill = assignColorByRole(role, palette, bgHex);
         } else {
-            // Fallback to original text logic
             const fontSize = newLayer.props.fontSize || 16;
             const contrastWithWhite = getContrastRatio(bgHex, '#FFFFFF');
             const contrastWithBlack = getContrastRatio(bgHex, '#000000');
@@ -239,9 +196,7 @@ async function updateLayer(
                 }
             }
         }
-
     } else if (['Rect', 'Circle', 'RegularPolygon', 'Star', 'Path', 'Icon', 'ComplexShape'].includes(newLayer.type)) {
-        // Apply the pre-calculated color from the map (which now uses role-based assignment)
         const assignedColor = layerColorMap.get(layer.id);
 
         if (assignedColor && newLayer.props.fill !== 'transparent') {
@@ -249,32 +204,22 @@ async function updateLayer(
         }
 
         if (newLayer.props.stroke) {
-            // If stroke is same as fill, it's invisible.
-            // If fill is Primary, make stroke Secondary or Surface?
-            // Simple: Always Secondary for now.
             newLayer.props.stroke = palette.secondary;
         }
-
     } else if (newLayer.type === 'Arrow' || newLayer.type === 'Line') {
-        // Linear elements usually Primary
         newLayer.props.stroke = palette.primary;
         newLayer.props.fill = palette.primary;
-    } else if (isQRCodeLayer(newLayer)) {
-        // Handle QR codes with color roles
+    } else if (newLayer.type === 'Image' && newLayer.props.qrMetadata) {
+        // For QR codes: Update metadata color but DON'T regenerate image
+        // The image will keep its original appearance in the editor
         const qrMetadata = newLayer.props.qrMetadata;
-
         if (qrMetadata && role) {
-            // Get the new foreground color based on the assigned role
             const newFgColor = assignColorByRole(role, palette, bgHex);
-
-            // Regenerate the QR code with the new color
-            const { metadata, base64Image } = await regenerateQRCodeAsync(qrMetadata, newFgColor);
-
-            // Update both metadata and image
-            newLayer.props.qrMetadata = metadata;
-            if (base64Image) {
-                newLayer.props.src = base64Image;
-            }
+            newLayer.props.qrMetadata = {
+                ...qrMetadata,
+                fgColor: newFgColor
+            };
+            // Note: src (image) stays the same - will show original QR code
         }
     }
 

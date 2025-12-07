@@ -26,16 +26,27 @@ const TemplatesPage = () => {
 
   // Initial load
   useEffect(() => {
-    const allTemplates = templateRegistry.getAllTemplates();
-    setTemplates(allTemplates);
-    setIsLoaded(true);
-    setIsLoading(false);
+    const loadTemplates = async () => {
+      const allTemplates = await templateRegistry.getAllTemplates();
+      setTemplates(allTemplates);
+      setIsLoaded(true);
+      setIsLoading(false);
+    };
+    loadTemplates();
   }, []);
 
   // Filter logic
-  const filteredTemplates = useMemo(() => {
-    return templateRegistry.getTemplates(filters);
-  }, [filters, templates]);
+  const [filteredTemplates, setFilteredTemplates] = useState<CardTemplate[]>([]);
+
+  useEffect(() => {
+    const filterTemplates = async () => {
+      const filtered = await templateRegistry.getTemplates(filters);
+      setFilteredTemplates(filtered);
+    };
+    if (isLoaded) {
+      filterTemplates();
+    }
+  }, [filters, templates, isLoaded]);
 
   // Pagination State
   const [currentPage, setCurrentPage] = useState(initialPage);

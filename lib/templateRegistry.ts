@@ -21,36 +21,52 @@ export interface TemplateFilterOptions {
 class TemplateRegistry {
     private templates: CardTemplate[] = [];
     private initialized: boolean = false;
+    private initPromise: Promise<void> | null = null;
 
     constructor() {
         // Lazy initialization
     }
 
-    private ensureInitialized() {
-        if (!this.initialized) {
+    private async ensureInitialized() {
+        if (this.initialized) return;
+
+        // If initialization is in progress, wait for it
+        if (this.initPromise) {
+            await this.initPromise;
+            return;
+        }
+
+        // Start initialization
+        this.initPromise = (async () => {
             const baseTemplates = loadTemplates();
-            // Generate variations for each base template
-            const allTemplates = baseTemplates.flatMap(t => generateVariations(t));
+            // Generate variations for each base template (now async)
+            const allTemplatesNested = await Promise.all(
+                baseTemplates.map(t => generateVariations(t))
+            );
+            const allTemplates = allTemplatesNested.flat();
 
             // Randomize the order so variations of the same template aren't grouped together
             this.templates = shuffleArray(allTemplates);
 
             this.initialized = true;
-        }
+            this.initPromise = null;
+        })();
+
+        await this.initPromise;
     }
 
-    public getAllTemplates(): CardTemplate[] {
-        this.ensureInitialized();
+    public async getAllTemplates(): Promise<CardTemplate[]> {
+        await this.ensureInitialized();
         return this.templates;
     }
 
-    public getTemplateById(id: string): CardTemplate | undefined {
-        this.ensureInitialized();
+    public async getTemplateById(id: string): Promise<CardTemplate | undefined> {
+        await this.ensureInitialized();
         return this.templates.find(t => t.id === id);
     }
 
-    public getTemplates(options: TemplateFilterOptions = {}): CardTemplate[] {
-        this.ensureInitialized();
+    public async getTemplates(options: TemplateFilterOptions = {}): Promise<CardTemplate[]> {
+        await this.ensureInitialized();
         let results = [...this.templates];
 
         // 1. Search (Name, Tags, Category)
@@ -102,8 +118,8 @@ class TemplateRegistry {
         return results;
     }
 
-    public getCategories(): string[] {
-        this.ensureInitialized();
+    public async getCategories(): Promise<string[]> {
+        await this.ensureInitialized();
         const categories = new Set(this.templates.map(t => t.category));
         return Array.from(categories).sort();
     }

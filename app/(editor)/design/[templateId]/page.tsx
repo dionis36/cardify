@@ -281,7 +281,86 @@ export default function Editor() {
     const selectedNode = selectedIndices.length === 1 ? currentPage.layers[selectedIndices[0]] : null;
     const selectedNodes = selectedIndices.map(i => currentPage.layers[i]).filter(Boolean);
 
-    // --- CORE HANDLERS ---
+    // Regenerate QR codes client-side when template loads (for variations with color roles)
+    useEffect(() => {
+        const regenerateQRCodes = async () => {
+            // Only regenerate for variations (IDs with _gen_)
+            if (!templateId.includes('_gen_')) return;
+
+            // Process each layer
+            for (let index = 0; index < currentPage.layers.length; index++) {
+                const layer = currentPage.layers[index];
+
+                // Check if this is a QR code with metadata
+                if (layer.type === 'Image' && layer.props.qrMetadata) {
+                    const qrMetadata = layer.props.qrMetadata;
+
+                    try {
+                        // Dynamically import react-qrcode-logo
+                        const { QRCode } = await import('react-qrcode-logo');
+                        const ReactDOM = await import('react-dom/client');
+                        const React = await import('react');
+
+                        // Create a temporary container
+                        const container = document.createElement('div');
+                        container.style.position = 'absolute';
+                        container.style.left = '-9999px';
+                        container.style.top = '-9999px';
+                        document.body.appendChild(container);
+
+                        // Create root and render QR code
+                        const root = ReactDOM.createRoot(container);
+
+                        // Render the QR code component
+                        root.render(
+                            React.createElement(QRCode, {
+                                value: qrMetadata.value,
+                                size: 400,
+                                fgColor: qrMetadata.fgColor,
+                                bgColor: qrMetadata.bgColor === 'transparent' ? '#FFFFFF00' : qrMetadata.bgColor,
+                                qrStyle: qrMetadata.dotStyle || 'squares',
+                                eyeRadius: (qrMetadata as any).eyeRadius || [0, 0, 0],
+                                ecLevel: (qrMetadata as any).ecLevel || 'Q',
+                                logoImage: (qrMetadata as any).logoSource || undefined,
+                                id: 'temp-qr-code'
+                            })
+                        );
+
+                        // Wait for render and extract canvas
+                        await new Promise<void>((resolve) => {
+                            setTimeout(() => {
+                                const qrCanvas = container.querySelector('canvas');
+                                if (qrCanvas) {
+                                    const dataUrl = qrCanvas.toDataURL('image/png');
+                                    dispatch({
+                                        type: 'CHANGE_NODE_DEFINITION',
+                                        index,
+                                        updates: {
+                                            props: {
+                                                ...layer.props,
+                                                src: dataUrl
+                                            }
+                                        }
+                                    });
+                                }
+
+                                // Cleanup
+                                root.unmount();
+                                document.body.removeChild(container);
+                                resolve();
+                            }, 200); // Give it time to render
+                        });
+
+                    } catch (error) {
+                        console.error('Failed to regenerate QR code:', error);
+                    }
+                }
+            }
+        };
+
+        regenerateQRCodes();
+    }, [templateId, currentPage.layers.length]); // Run when template or layer count changes
+
 
     const onNodeChange = useCallback((index: number, updates: Partial<KonvaNodeProps>) => {
         dispatch({ type: 'CHANGE_NODE', index, updates });

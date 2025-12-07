@@ -10,9 +10,9 @@
     "color1": "#eee7ec"
   },
   "colorRoles": {
-    "node_text_01": "surface",
-    "node_text_02": "surface",
-    "qrcode_01": "surface"
+    "node_text_01": "primary-text",
+    "node_text_02": "primary-text",
+    "qrcode_01": "primary-text"
   },
   "layers": [
     {

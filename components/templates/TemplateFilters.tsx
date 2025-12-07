@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Search, Filter, X, ChevronDown, ChevronUp } from "lucide-react";
 import { TemplateFilterOptions, templateRegistry } from "@/lib/templateRegistry";
 
@@ -9,8 +9,16 @@ interface TemplateFiltersProps {
 
 export default function TemplateFilters({ filters, onFilterChange }: TemplateFiltersProps) {
     const [isOpen, setIsOpen] = useState(false);
-    const categories = ['All', ...templateRegistry.getCategories()];
+    const [categories, setCategories] = useState<string[]>(['All']);
     const colors = templateRegistry.getAvailableColors();
+
+    useEffect(() => {
+        const loadCategories = async () => {
+            const cats = await templateRegistry.getCategories();
+            setCategories(['All', ...cats]);
+        };
+        loadCategories();
+    }, []);
 
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         onFilterChange({ ...filters, search: e.target.value });

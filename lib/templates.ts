@@ -103,10 +103,44 @@ export function loadTemplates(): CardTemplate[] {
 }
 
 /**
- * Function to get single template by id, enforcing standard dimensions.
- * Returns the enhanced CardTemplate type.
+ * Function to get single template by id SYNCHRONOUSLY, enforcing standard dimensions.
+ * Use this for editor initialization where async is not possible.
+ * Note: This version does NOT regenerate QR codes - they keep original appearance.
  */
 export function loadTemplate(id: string): CardTemplate {
+    // Check if it's a direct match (base template)
+    if (templateMap[id]) {
+        return enforceStandardDimensions(templateMap[id]);
+    }
+
+    // For variations, apply palette synchronously (without QR regeneration)
+    if (id.includes('_gen_')) {
+        const parts = id.split('_gen_');
+        const baseId = parts[0];
+        const seedStr = parts[1];
+        const baseTemplate = templateMap[baseId];
+
+        if (baseTemplate && seedStr) {
+            // Import synchronous palette application
+            const { applyPaletteSync } = require("./paletteSync");
+            const { generateRandomPalette } = require("./colorGenerator");
+
+            // Generate the palette and apply it synchronously
+            const palette = generateRandomPalette(seedStr);
+            const variant = applyPaletteSync(baseTemplate, palette);
+            return enforceStandardDimensions(variant);
+        }
+    }
+
+    throw new Error(`Template with id "${id}" not found`);
+}
+
+/**
+ * Function to get single template by id ASYNCHRONOUSLY, enforcing standard dimensions.
+ * Use this for template browsing/variations where QR codes need to be regenerated.
+ * Returns the enhanced CardTemplate type with regenerated QR codes.
+ */
+export async function loadTemplateAsync(id: string): Promise<CardTemplate> {
     // Check if it's a direct match (base template)
     if (templateMap[id]) {
         return enforceStandardDimensions(templateMap[id]);
@@ -128,8 +162,8 @@ export function loadTemplate(id: string): CardTemplate {
             // Re-generate the specific palette using the seed
             const palette = generateRandomPalette(seedStr);
 
-            // Apply it
-            const variant = applyPalette(baseTemplate, palette);
+            // Apply it (now async with QR regeneration)
+            const variant = await applyPalette(baseTemplate, palette);
             return enforceStandardDimensions(variant);
         }
     }
