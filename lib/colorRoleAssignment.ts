@@ -185,3 +185,28 @@ export function getLayerRole(
 
     return undefined;
 }
+
+/**
+ * Extracts opacity from an rgba/hex color string.
+ * Used for preserving shadow opacity when applying color roles.
+ */
+export function extractOpacity(color: string): number {
+    if (color.startsWith('rgba')) {
+        const match = color.match(/rgba?\([^,]+,[^,]+,[^,]+,\s*([0-9.]+)\)/);
+        return match ? parseFloat(match[1]) : 1.0;
+    }
+    return 1.0; // Hex colors are fully opaque
+}
+
+/**
+ * Applies opacity to a hex color, returning rgba string.
+ * Used for applying color roles to shadows while preserving opacity.
+ */
+export function applyOpacity(hexColor: string, opacity: number): string {
+    // Convert hex to RGB
+    const r = parseInt(hexColor.slice(1, 3), 16);
+    const g = parseInt(hexColor.slice(3, 5), 16);
+    const b = parseInt(hexColor.slice(5, 7), 16);
+
+    return `rgba(${r}, ${g}, ${b}, ${opacity})`;
+}

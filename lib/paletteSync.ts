@@ -1,7 +1,7 @@
 // lib/paletteSync.ts
 // Synchronous palette application for editor (without QR regeneration)
 
-import { CardTemplate, KonvaNodeDefinition, BackgroundPattern, ColorPalette, ColorRoleMap } from "@/types/template";
+import { CardTemplate, KonvaNodeDefinition, BackgroundPattern, ColorPalette, ColorRoleMap, ColorRole } from "@/types/template";
 import { analyzeTemplate, TemplateContextMap } from "./semanticAnalysis";
 import { getContrastRatio } from "./smartTheme";
 import { assignColorByRole, inferColorRoles, getLayerRole } from "./colorRoleAssignment";
@@ -196,6 +196,17 @@ function updateLayerSync(
                 }
             }
         }
+
+        // Apply shadow color role if specified
+        if (newLayer.props.shadowColor && (newLayer.props as any).shadowColorRole) {
+            const { extractOpacity, applyOpacity } = require('./colorRoleAssignment');
+            const shadowRole = (newLayer.props as any).shadowColorRole as ColorRole;
+            const shadowColor = assignColorByRole(shadowRole, palette, bgHex);
+
+            // Preserve opacity from original shadow
+            const originalOpacity = extractOpacity(newLayer.props.shadowColor);
+            newLayer.props.shadowColor = applyOpacity(shadowColor, originalOpacity);
+        }
     } else if (['Rect', 'Circle', 'RegularPolygon', 'Star', 'Path', 'Icon', 'ComplexShape'].includes(newLayer.type)) {
         const assignedColor = layerColorMap.get(layer.id);
         const strokeWidth = (newLayer.props as any).strokeWidth || 0;
@@ -217,6 +228,17 @@ function updateLayerSync(
             } else {
                 newLayer.props.stroke = palette.secondary;
             }
+        }
+
+        // Apply shadow color role if specified
+        if (newLayer.props.shadowColor && (newLayer.props as any).shadowColorRole) {
+            const { extractOpacity, applyOpacity } = require('./colorRoleAssignment');
+            const shadowRole = (newLayer.props as any).shadowColorRole as ColorRole;
+            const shadowColor = assignColorByRole(shadowRole, palette, bgHex);
+
+            // Preserve opacity from original shadow
+            const originalOpacity = extractOpacity(newLayer.props.shadowColor);
+            newLayer.props.shadowColor = applyOpacity(shadowColor, originalOpacity);
         }
     } else if (newLayer.type === 'Arrow' || newLayer.type === 'Line') {
         newLayer.props.stroke = palette.primary;

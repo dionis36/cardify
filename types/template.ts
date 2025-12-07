@@ -139,6 +139,7 @@ export interface NodeCommonProps {
     shadowBlur?: number;
     shadowOffsetX?: number;
     shadowOffsetY?: number;
+    shadowColorRole?: ColorRole;  // NEW: Optional color role for shadow
 
     // Logo Identification
     isLogo?: boolean;

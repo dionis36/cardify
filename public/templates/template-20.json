@@ -1,0 +1,324 @@
+{
+  "$schema": "./schema.json",
+  "id": "template_20",
+  "name": "Contemporary Elevate Business Card",
+  "width": 1050,
+  "height": 600,
+  "orientation": "horizontal",
+  "background": {
+    "type": "solid",
+    "color1": "#f4f1de",
+    "opacity": 1
+  },
+  "colorRoles": {
+    "node_path_01": "accent",
+    "node_text_fullName": "primary-text",
+    "node_text_jobTitle": "primary-text",
+    "node_text_phone": "primary-text",
+    "node_text_email": "primary-text",
+    "node_text_address": "primary-text",
+    "icon_email": "primary-text",
+    "icon_phone": "primary-text",
+    "icon_address": "primary-text"
+  },
+  "layers": [
+    {
+      "id": "node_path_01",
+      "type": "Path",
+      "props": {
+        "id": "node_path_01",
+        "x": 553.7089200516011,
+        "y": 165.62966324850655,
+        "width": 0,
+        "height": 0,
+        "data": "",
+        "paths": [
+          {
+            "d": "M26.1487 24.6205L28.3556 22.4136H37.1829L39.3898 24.6205H26.1487Z",
+            "fillRule": "nonzero"
+          },
+          {
+            "d": "M21.7345 29.0347L23.9414 26.8278H41.5971L43.804 29.0347H21.7345Z",
+            "fillRule": "nonzero"
+          },
+          {
+            "d": "M18.6791 33.4484L18 32.7692L19.5277 31.2415H46.0107L48.2176 33.4484H18.6791Z",
+            "fillRule": "nonzero"
+          },
+          {
+            "d": "M23.0928 37.862L20.8859 35.6551H79.1141L76.9072 37.862H23.0928Z",
+            "fillRule": "nonzero"
+          },
+          {
+            "d": "M27.5064 42.2756L25.2995 40.0688H74.7005L72.4936 42.2756H27.5064Z",
+            "fillRule": "nonzero"
+          },
+          {
+            "d": "M31.9206 46.6899L29.7137 44.483H70.2863L68.0794 46.6899H31.9206Z",
+            "fillRule": "nonzero"
+          },
+          {
+            "d": "M34.1273 51.1035L35.2308 50L34.1274 48.8966H65.8726L64.7692 50L65.8727 51.1035H34.1273Z",
+            "fillRule": "nonzero"
+          },
+          {
+            "d": "M29.7137 55.5171L31.9206 53.3102H68.0794L70.2863 55.5171H29.7137Z",
+            "fillRule": "nonzero"
+          },
+          {
+            "d": "M25.3 59.9308L27.5069 57.7239H72.4931L74.7 59.9308H25.3Z",
+            "fillRule": "nonzero"
+          },
+          {
+            "d": "M20.8858 64.345L23.0927 62.1381H76.9073L79.1142 64.345H20.8858Z",
+            "fillRule": "nonzero"
+          },
+          {
+            "d": "M19.5279 68.7586L18 67.2308L18.6791 66.5517H48.2175L46.0106 68.7586H19.5279Z",
+            "fillRule": "nonzero"
+          },
+          {
+            "d": "M23.9415 73.1722L21.7346 70.9653H43.8039L41.597 73.1722H23.9415Z",
+            "fillRule": "nonzero"
+          },
+          {
+            "d": "M28.3557 77.5864L26.1488 75.3796H39.3897L37.1828 77.5864H28.3557Z",
+            "fillRule": "nonzero"
+          },
+          {
+            "d": "M73.8512 75.3796L71.6443 77.5864H62.8172L60.6103 75.3796H73.8512Z",
+            "fillRule": "nonzero"
+          },
+          {
+            "d": "M78.2654 70.9653L76.0585 73.1722H58.403L56.1961 70.9653H78.2654Z",
+            "fillRule": "nonzero"
+          },
+          {
+            "d": "M81.3209 66.5517L82 67.2308L80.4721 68.7586H53.9894L51.7825 66.5517H81.3209Z",
+            "fillRule": "nonzero"
+          },
+          {
+            "d": "M65.024 79.7932H69.4375L67.2307 82L65.024 79.7932Z",
+            "fillRule": "nonzero"
+          },
+          {
+            "d": "M34.976 79.7932L32.7693 82L30.5625 79.7932H34.976Z",
+            "fillRule": "nonzero"
+          },
+          {
+            "d": "M80.4723 31.2415L82 32.7692L81.3209 33.4484H51.7824L53.9893 31.2415H80.4723Z",
+            "fillRule": "nonzero"
+          },
+          {
+            "d": "M76.0586 26.8278L78.2655 29.0347H56.196L58.4029 26.8278H76.0586Z",
+            "fillRule": "nonzero"
+          },
+          {
+            "d": "M71.6444 22.4136L73.8513 24.6205H60.6102L62.8171 22.4136H71.6444Z",
+            "fillRule": "nonzero"
+          },
+          {
+            "d": "M67.2308 18L69.4377 20.2069H65.0239L67.2308 18Z",
+            "fillRule": "nonzero"
+          },
+          {
+            "d": "M32.7692 18L30.5623 20.2069H34.9761L32.7692 18Z",
+            "fillRule": "nonzero"
+          }
+        ],
+        "fill": "#e07a5f",
+        "stroke": "#e07a5f",
+        "strokeWidth": 0,
+        "opacity": 1,
+        "rotation": 0,
+        "scaleX": 6.097496781092627,
+        "scaleY": 6.097496781092627,
+        "shadowColor": "#000000",
+        "shadowOffsetX": 0
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "node_text_fullName",
+      "type": "Text",
+      "props": {
+        "id": "node_text_fullName",
+        "x": 49.99999999999965,
+        "y": 90.30303030302998,
+        "text": "FULL NAME",
+        "fontSize": 90,
+        "fill": "#3d405b",
+        "fontFamily": "Libre Baskerville",
+        "rotation": 0,
+        "opacity": 1,
+        "width": 640.3030303030307,
+        "height": 90.90909090909123,
+        "shadowOffsetX": 0,
+        "shadowBlur": 0
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "node_text_jobTitle",
+      "type": "Text",
+      "props": {
+        "id": "node_text_jobTitle",
+        "x": 49.999999999999744,
+        "y": 219.39393939393895,
+        "text": "Job Title",
+        "fontSize": 60,
+        "fill": "#3d405b",
+        "fontFamily": "Inter",
+        "rotation": 0,
+        "opacity": 1,
+        "width": 258.4848484848485,
+        "height": 52.727272727273025,
+        "shadowColor": "#000000",
+        "shadowOffsetX": 0,
+        "shadowBlur": 0
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "node_text_phone",
+      "type": "Text",
+      "props": {
+        "id": "node_text_phone",
+        "x": 99.99999999999997,
+        "y": 448,
+        "text": "Phone",
+        "fontSize": 30,
+        "fill": "#3d405b",
+        "fontFamily": "Inter",
+        "rotation": 0,
+        "opacity": 1,
+        "width": 250,
+        "height": 40
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "node_text_email",
+      "type": "Text",
+      "props": {
+        "id": "node_text_email",
+        "x": 99.99999999999999,
+        "y": 387,
+        "text": "Email",
+        "fontSize": 30,
+        "fill": "#3d405b",
+        "fontFamily": "Inter",
+        "rotation": 0,
+        "opacity": 1,
+        "width": 250,
+        "height": 40
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "node_text_address",
+      "type": "Text",
+      "props": {
+        "id": "node_text_address",
+        "x": 100,
+        "y": 513,
+        "text": "Address",
+        "fontSize": 30,
+        "fill": "#3d405b",
+        "fontFamily": "Inter",
+        "rotation": 0,
+        "opacity": 1,
+        "width": 250,
+        "height": 40
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "icon_email",
+      "type": "Icon",
+      "props": {
+        "id": "icon_email",
+        "x": 49.99999999999977,
+        "y": 386.3636363636363,
+        "width": 30,
+        "height": 30,
+        "rotation": 0,
+        "opacity": 1,
+        "visible": true,
+        "category": "Icon",
+        "iconName": "lucide:mail",
+        "fill": "transparent",
+        "stroke": "#3d405b",
+        "strokeWidth": 2,
+        "data": ""
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "icon_phone",
+      "type": "Icon",
+      "props": {
+        "id": "icon_phone",
+        "x": 49.99999999999977,
+        "y": 447.5757575757574,
+        "width": 30,
+        "height": 30,
+        "rotation": 0,
+        "opacity": 1,
+        "visible": true,
+        "category": "Icon",
+        "iconName": "lucide:phone",
+        "fill": "transparent",
+        "stroke": "#3d405b",
+        "strokeWidth": 2,
+        "data": ""
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "icon_address",
+      "type": "Icon",
+      "props": {
+        "id": "icon_address",
+        "x": 49.99999999999977,
+        "y": 511.21212121212096,
+        "width": 30,
+        "height": 30,
+        "rotation": 0,
+        "opacity": 1,
+        "visible": true,
+        "category": "Icon",
+        "iconName": "lucide:map-pin",
+        "fill": "transparent",
+        "stroke": "#3d405b",
+        "strokeWidth": 2,
+        "data": ""
+      },
+      "editable": true,
+      "locked": false
+    }
+  ],
+  "groups": [],
+  "thumbnail": "",
+  "preview": "",
+  "tags": [
+    "creative",
+    "artistic",
+    "elevate"
+  ],
+  "category": "creative",
+  "colors": [
+    "#e07a5f",
+    "#3d405b",
+    "transparent"
+  ],
+  "features": []
+}

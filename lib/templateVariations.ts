@@ -1,4 +1,4 @@
-import { CardTemplate, KonvaNodeDefinition, BackgroundPattern, ColorPalette, ColorRoleMap } from "@/types/template";
+import { CardTemplate, KonvaNodeDefinition, BackgroundPattern, ColorPalette, ColorRoleMap, ColorRole } from "@/types/template";
 import { generateRandomPalette } from "./colorGenerator";
 import { analyzeTemplate, TemplateContextMap } from "./semanticAnalysis";
 import { getContrastRatio } from "./smartTheme";
@@ -240,6 +240,17 @@ async function updateLayer(
             }
         }
 
+        // Apply shadow color role if specified
+        if (newLayer.props.shadowColor && (newLayer.props as any).shadowColorRole) {
+            const { extractOpacity, applyOpacity } = require('./colorRoleAssignment');
+            const shadowRole = (newLayer.props as any).shadowColorRole as ColorRole;
+            const shadowColor = assignColorByRole(shadowRole, palette, bgHex);
+
+            // Preserve opacity from original shadow
+            const originalOpacity = extractOpacity(newLayer.props.shadowColor);
+            newLayer.props.shadowColor = applyOpacity(shadowColor, originalOpacity);
+        }
+
     } else if (['Rect', 'Circle', 'RegularPolygon', 'Star', 'Path', 'Icon', 'ComplexShape'].includes(newLayer.type)) {
         // Apply the pre-calculated color from the map (which now uses role-based assignment)
         const assignedColor = layerColorMap.get(layer.id);
@@ -262,6 +273,17 @@ async function updateLayer(
             } else {
                 newLayer.props.stroke = palette.secondary;
             }
+        }
+
+        // Apply shadow color role if specified
+        if (newLayer.props.shadowColor && (newLayer.props as any).shadowColorRole) {
+            const { extractOpacity, applyOpacity } = require('./colorRoleAssignment');
+            const shadowRole = (newLayer.props as any).shadowColorRole as ColorRole;
+            const shadowColor = assignColorByRole(shadowRole, palette, bgHex);
+
+            // Preserve opacity from original shadow
+            const originalOpacity = extractOpacity(newLayer.props.shadowColor);
+            newLayer.props.shadowColor = applyOpacity(shadowColor, originalOpacity);
         }
 
     } else if (newLayer.type === 'Arrow' || newLayer.type === 'Line') {

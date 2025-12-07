@@ -389,6 +389,50 @@ EXAMPLES:
 "elem_3": "decorative"  }
 
 
+
+================================================================================
+SHADOW COLOR ROLES (NEW FEATURE)
+================================================================================
+
+You can now control the color of element shadows using color roles!
+
+HOW TO USE:
+-----------
+Add the "shadowColorRole" property to your element's props in the JSON.
+
+EXAMPLE:
+--------
+{
+  "id": "text_element",
+  "type": "Text",
+  "props": {
+    "text": "Hello World",
+    "fill": "#000000",
+    
+    // Shadow properties
+    "shadowColor": "rgba(0, 0, 0, 0.3)",  // Defines opacity (0.3)
+    "shadowBlur": 10,
+    "shadowOffsetX": 5,
+    "shadowOffsetY": 5,
+    
+    // NEW: Control shadow color with a role!
+    "shadowColorRole": "accent"
+  }
+}
+
+BEHAVIOR:
+---------
+1. Color: The shadow takes the color from the assigned role (e.g., palette.accent)
+2. Opacity: It PRESERVES the opacity from your original shadowColor
+   - If original is rgba(0,0,0,0.3), the new shadow will be [AccentColor] at 0.3 opacity
+
+USE CASES:
+----------
+- Glowing text: Use "accent" role for shadow + high blur
+- Colored drop shadows: Use "primary" or "secondary" for subtle depth
+- Match background: Use "background" for seamless integration
+
+
 ================================================================================
 TRY IT YOURSELF!
 ================================================================================
