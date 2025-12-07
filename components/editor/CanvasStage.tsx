@@ -397,6 +397,8 @@ const CanvasStage = forwardRef<KonvaStageType, CanvasStageProps>(
             onSelectNodes,
             onDeselectNode,
             layers,
+            onEditQRCode,
+            onEditLogo,
         });
 
         // Transformer Reference
@@ -610,15 +612,9 @@ const CanvasStage = forwardRef<KonvaStageType, CanvasStageProps>(
                     if (selectedNodeDef && selectedNodeDef.type === 'Text' && mode === 'FULL_EDIT' && !selectedNodeDef.locked) {
                         onStartEditing(e.target as Konva.Text);
                     }
-                    // Legacy support for QR/Logo
-                    if (selectedNodeDef && selectedNodeDef.type === 'Image' && (selectedNodeDef.props as any).qrMetadata && onEditQRCode) {
-                        onEditQRCode();
-                    } else if (selectedNodeDef && selectedNodeDef.type === 'Image' && (selectedNodeDef.props as any).isLogo && onEditLogo) {
-                        onEditLogo();
-                    }
                 }
             }
-        }, [layers, mode, onStartEditing, onEditQRCode, onEditLogo, handleDoubleClick]);
+        }, [layers, mode, onStartEditing, handleDoubleClick]);
 
         // NEW: Zoom with Ctrl+Scroll
         const handleWheel = useCallback((e: Konva.KonvaEventObject<WheelEvent>) => {

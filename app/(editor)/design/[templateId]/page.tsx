@@ -827,6 +827,7 @@ export default function Editor() {
                     onDefinitionChange={onNodeDefinitionChange}
                     onAddNode={onAddNode}
                     onAddImage={onAddImage}
+                    onNodeChange={onNodeChange} // NEW: Pass onNodeChange for QR code updates
 
                     // Page Controls
                     addPage={addPage}

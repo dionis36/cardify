@@ -1,12 +1,15 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { QRCode } from 'react-qrcode-logo';
 import { Download, Upload, Plus, RefreshCw, ChevronDown } from 'lucide-react';
-import { KonvaNodeDefinition } from '@/types/template';
+import { KonvaNodeDefinition, KonvaNodeProps } from '@/types/template';
 import { AVAILABLE_LOGOS, LogoVariant } from '@/lib/logoIndex';
+import ColorPicker from '@/components/editor/ColorPicker';
 
 interface QRCodeDesignerProps {
     onAddImage: (file: File) => void;
     onAddNode: (node: KonvaNodeDefinition) => void;
+    onNodeChange?: (index: number, updates: Partial<KonvaNodeProps>) => void;
+    selectedNodeIndex?: number | null;
     initialData?: any; // Type this properly if possible, but 'any' avoids circular deps for now
 }
 
@@ -16,7 +19,7 @@ type EyeStyle = 'square' | 'round';
 type ECLevel = 'L' | 'M' | 'Q' | 'H'; // Error correction: L=7%, M=15%, Q=25%, H=30%
 type LogoSource = 'library' | 'custom' | null;
 
-export default function QRCodeDesigner({ onAddImage, onAddNode, initialData }: QRCodeDesignerProps) {
+export default function QRCodeDesigner({ onAddImage, onAddNode, onNodeChange, selectedNodeIndex, initialData }: QRCodeDesignerProps) {
     // --- State ---
     const [contentType, setContentType] = useState<ContentType>('Website');
     const [qrValue, setQrValue] = useState<string>('https://example.com');
@@ -162,7 +165,6 @@ export default function QRCodeDesigner({ onAddImage, onAddNode, initialData }: Q
                         reader.onload = (e) => {
                             const base64 = e.target?.result as string;
                             const timestamp = Date.now();
-                            const id = `qrcode_${timestamp}`;
 
                             // Construct Metadata
                             const metadata = {
@@ -179,23 +181,34 @@ export default function QRCodeDesigner({ onAddImage, onAddNode, initialData }: Q
                                 inputs
                             };
 
-                            const newNode: KonvaNodeDefinition = {
-                                id,
-                                type: 'Image',
-                                props: {
-                                    id,
-                                    x: 50, y: 50,
-                                    width: 200, height: 200, // Default size
-                                    rotation: 0, opacity: 1,
+                            // Check if we're updating an existing QR code
+                            if (selectedNodeIndex !== null && selectedNodeIndex !== undefined && onNodeChange) {
+                                // Update existing QR code
+                                onNodeChange(selectedNodeIndex, {
                                     src: base64,
-                                    category: 'Image',
-                                    qrMetadata: metadata // Store metadata for editing
-                                },
-                                editable: true,
-                                locked: false,
-                            };
+                                    qrMetadata: metadata
+                                } as any);
+                            } else {
+                                // Add new QR code
+                                const id = `qrcode_${timestamp}`;
+                                const newNode: KonvaNodeDefinition = {
+                                    id,
+                                    type: 'Image',
+                                    props: {
+                                        id,
+                                        x: 50, y: 50,
+                                        width: 200, height: 200, // Default size
+                                        rotation: 0, opacity: 1,
+                                        src: base64,
+                                        category: 'Image',
+                                        qrMetadata: metadata // Store metadata for editing
+                                    },
+                                    editable: true,
+                                    locked: false,
+                                };
 
-                            onAddNode(newNode);
+                                onAddNode(newNode);
+                            }
                         };
                         reader.readAsDataURL(blob);
                     }
@@ -417,39 +430,27 @@ export default function QRCodeDesigner({ onAddImage, onAddNode, initialData }: Q
                 </div>
 
                 {/* Colors */}
-                <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-1">
-                        <label className="text-xs text-gray-500">Foreground</label>
-                        <div className="flex items-center gap-2">
-                            <input
-                                type="color"
-                                value={fgColor}
-                                onChange={(e) => setFgColor(e.target.value)}
-                                className="w-8 h-8 p-0 border-0 rounded cursor-pointer"
-                            />
-                            <span className="text-xs font-mono">{fgColor}</span>
-                        </div>
-                    </div>
-                    <div className="space-y-1">
-                        <label className="text-xs text-gray-500">Background</label>
-                        <div className="flex items-center gap-2">
-                            <input
-                                type="color"
-                                value={bgColor}
-                                onChange={(e) => setBgColor(e.target.value)}
-                                disabled={transparentBg}
-                                className={`w-8 h-8 p-0 border-0 rounded cursor-pointer ${transparentBg ? 'opacity-50 cursor-not-allowed' : ''}`}
-                            />
-                            <span className="text-xs font-mono">{transparentBg ? 'None' : bgColor}</span>
-                        </div>
-                        <label className="flex items-center gap-2 text-xs text-gray-600 mt-1 cursor-pointer">
+                <div className="space-y-3">
+                    <ColorPicker
+                        label="Foreground Color"
+                        color={fgColor}
+                        onChange={setFgColor}
+                    />
+                    <div className="space-y-2">
+                        <ColorPicker
+                            label="Background Color"
+                            color={bgColor}
+                            onChange={setBgColor}
+                            disabled={transparentBg}
+                        />
+                        <label className="flex items-center gap-2 text-xs text-gray-600 cursor-pointer">
                             <input
                                 type="checkbox"
                                 checked={transparentBg}
                                 onChange={(e) => setTransparentBg(e.target.checked)}
                                 className="rounded text-blue-600 focus:ring-blue-500"
                             />
-                            Transparent
+                            Transparent Background
                         </label>
                     </div>
                 </div>
@@ -591,7 +592,7 @@ export default function QRCodeDesigner({ onAddImage, onAddNode, initialData }: Q
                         className="flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors text-sm"
                     >
                         <Plus size={16} />
-                        {initialData ? 'Update Card' : 'Add to Card'}
+                        {(selectedNodeIndex !== null && selectedNodeIndex !== undefined) ? 'Update QR Code' : 'Add to Card'}
                     </button>
                 </div>
             </div>

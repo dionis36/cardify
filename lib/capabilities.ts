@@ -9,6 +9,8 @@ export interface NodeCapabilities {
     canEditText: boolean;
     canEnterIsolationMode: boolean;
     hasFilters: boolean;
+    canEditQRCode: boolean;
+    canEditLogo: boolean;
 }
 
 export const DEFAULT_CAPABILITIES: NodeCapabilities = {
@@ -20,6 +22,8 @@ export const DEFAULT_CAPABILITIES: NodeCapabilities = {
     canEditText: false,
     canEnterIsolationMode: false,
     hasFilters: false,
+    canEditQRCode: false,
+    canEditLogo: false,
 };
 
 export function getNodeCapabilities(node: KonvaNodeDefinition): NodeCapabilities {
@@ -35,12 +39,18 @@ export function getNodeCapabilities(node: KonvaNodeDefinition): NodeCapabilities
             };
 
         case "Image":
+            // Check if this is a QR code or logo
+            const isQRCode = !!(node.props as any).qrMetadata;
+            const isLogo = !!(node.props as any).isLogo;
+
             return {
                 ...DEFAULT_CAPABILITIES,
                 hasFill: false,
                 hasStroke: true, // Border
-                hasCrop: true,
+                hasCrop: !isQRCode && !isLogo, // QR codes and logos shouldn't be cropped
                 hasFilters: true,
+                canEditQRCode: isQRCode,
+                canEditLogo: isLogo,
             };
 
         case "Rect":

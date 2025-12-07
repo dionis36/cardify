@@ -9,6 +9,8 @@ interface UseSelectionManagerProps {
     onSelectNodes: (indices: number[]) => void;
     onDeselectNode: () => void;
     layers: KonvaNodeDefinition[];
+    onEditQRCode?: () => void;
+    onEditLogo?: () => void;
 }
 
 export function useSelectionManager({
@@ -16,6 +18,8 @@ export function useSelectionManager({
     onSelectNodes,
     onDeselectNode,
     layers,
+    onEditQRCode,
+    onEditLogo,
 }: UseSelectionManagerProps) {
     const [editMode, setEditMode] = useState<EditMode>('none');
     const [isolationGroupId, setIsolationGroupId] = useState<string | null>(null);
@@ -63,7 +67,11 @@ export function useSelectionManager({
 
         const caps = getNodeCapabilities(node);
 
-        if (caps.canEditText) {
+        if (caps.canEditQRCode && onEditQRCode) {
+            onEditQRCode();
+        } else if (caps.canEditLogo && onEditLogo) {
+            onEditLogo();
+        } else if (caps.canEditText) {
             enterEditMode('text');
         } else if (caps.hasCrop) {
             enterEditMode('crop');
@@ -72,7 +80,7 @@ export function useSelectionManager({
         } else if (caps.canEditPoints) {
             // enterEditMode('points'); // Future
         }
-    }, [layers, enterEditMode]);
+    }, [layers, enterEditMode, onEditQRCode, onEditLogo]);
 
     const clearSelection = useCallback(() => {
         onDeselectNode();

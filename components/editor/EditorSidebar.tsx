@@ -29,6 +29,7 @@ interface EditorSidebarProps {
     // NEW SIMPLIFIED ELEMENT CREATION PROPS
     onAddNode: (node: KonvaNodeDefinition) => void;
     onAddImage: (file: File) => void; // Used for asset uploads
+    onNodeChange?: (index: number, updates: Partial<KonvaNodeDefinition['props']>) => void; // NEW: For updating nodes
 
     // NEW PROP for background updates (Inferred for BackgroundPanel)
     currentBackground: BackgroundPattern;
@@ -68,6 +69,7 @@ interface EditorSidebarProps {
 export default function EditorSidebar({
     onAddNode,
     onAddImage,
+    onNodeChange, // NEW: Destructure onNodeChange
     currentBackground,
     onBackgroundChange, // Destructure new prop
     onSelectLogo, // Destructure new prop
@@ -216,7 +218,13 @@ export default function EditorSidebar({
                     <div className="flex flex-col h-full">
                         <PanelHeader title="QR Code" icon={QrCode} />
                         <div className="p-4">
-                            <QRCodeDesigner onAddImage={onAddImage} onAddNode={onAddNode} initialData={qrMetadata} />
+                            <QRCodeDesigner
+                                onAddImage={onAddImage}
+                                onAddNode={onAddNode}
+                                onNodeChange={onNodeChange}
+                                selectedNodeIndex={selectedIndex}
+                                initialData={qrMetadata}
+                            />
                         </div>
                     </div>
                 );
