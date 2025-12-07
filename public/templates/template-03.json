@@ -10,18 +10,18 @@
     "color1": "#d0d0cc"
   },
   "colorRoles": {
-    "node_rect_1765023001193": "surface",
-    "node_path_1765023052809": "accent",
-    "node_text_1765023175791": "primary-text",
-    "node_text_1765023282421": "secondary-text",
-    "node_text_1765023362424": "secondary-text"
+    "node_rect_surface": "surface",
+    "node_path_triangles": "accent",
+    "node_text_fullName": "primary-text",
+    "node_text_position": "secondary-text",
+    "node_text_contact": "secondary-text"
   },
   "layers": [
     {
-      "id": "node_rect_1765023001193",
+      "id": "node_rect_surface",
       "type": "Rect",
       "props": {
-        "id": "node_rect_1765023001193",
+        "id": "node_rect_surface",
         "x": 682.1212121212116,
         "y": -23.93939393939406,
         "width": 486.0606060606063,
@@ -35,10 +35,10 @@
       "locked": false
     },
     {
-      "id": "node_path_1765023052809",
+      "id": "node_path_triangles",
       "type": "Path",
       "props": {
-        "id": "node_path_1765023052809",
+        "id": "node_path_triangles",
         "x": 580,
         "y": -64.95102916443712,
         "width": 0,
@@ -122,10 +122,10 @@
       "locked": false
     },
     {
-      "id": "node_text_1765023175791",
+      "id": "node_text_fullName",
       "type": "Text",
       "props": {
-        "id": "node_text_1765023175791",
+        "id": "node_text_fullName",
         "x": 45.75757575757554,
         "y": 96.66666666666652,
         "text": "Full Name",
@@ -141,10 +141,10 @@
       "locked": false
     },
     {
-      "id": "node_text_1765023282421",
+      "id": "node_text_position",
       "type": "Text",
       "props": {
-        "id": "node_text_1765023282421",
+        "id": "node_text_position",
         "x": 46,
         "y": 199.39393939393935,
         "text": "Position",
@@ -160,10 +160,10 @@
       "locked": false
     },
     {
-      "id": "node_text_1765023362424",
+      "id": "node_text_contact",
       "type": "Text",
       "props": {
-        "id": "node_text_1765023362424",
+        "id": "node_text_contact",
         "x": 46,
         "y": 444.54545454545354,
         "text": "+255 000 000 000\nEmail Address",
