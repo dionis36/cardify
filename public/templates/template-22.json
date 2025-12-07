@@ -1,0 +1,287 @@
+{
+  "$schema": "./schema.json",
+  "id": "template_22",
+  "name": "Boxed Pattern Business Card",
+  "width": 1050,
+  "height": 600,
+  "orientation": "horizontal",
+  "background": {
+    "type": "pattern",
+    "color1": "#faf4d3",
+    "opacity": 1,
+    "rotation": 0,
+    "scale": 1,
+    "blur": 0,
+    "color2": "#0F172A",
+    "gradientType": "radial",
+    "gradientStops": [
+      {
+        "offset": 0,
+        "color": "#1E293B"
+      },
+      {
+        "offset": 1,
+        "color": "#0F172A"
+      }
+    ],
+    "patternImageURL": "data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h40v40H0V0zm1 1h38v38H1V1z' fill='%23064789' fill-opacity='0.4' fill-rule='evenodd'/%3E%3C/svg%3E",
+    "patternId": "grid",
+    "patternColor": "#064789"
+  },
+  "layers": [
+    {
+      "id": "full_name",
+      "type": "Text",
+      "props": {
+        "id": "full_name",
+        "x": 75,
+        "y": 124.84848484848483,
+        "width": 500,
+        "height": 70,
+        "text": "FULL NAME",
+        "fontSize": 80,
+        "fontFamily": "Rubik",
+        "fill": "#0c1618",
+        "rotation": 0,
+        "opacity": 1,
+        "align": "left",
+        "fontStyle": "",
+        "letterSpacing": 1
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "job_title",
+      "type": "Text",
+      "props": {
+        "id": "job_title",
+        "x": 80,
+        "y": 239.3181818181817,
+        "width": 500,
+        "height": 45,
+        "text": "CEO & Founder",
+        "fontSize": 40,
+        "fontFamily": "Rubik",
+        "fill": "#0c1618",
+        "rotation": 0,
+        "opacity": 1,
+        "align": "left"
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "divider_line",
+      "type": "Rect",
+      "props": {
+        "id": "divider_line",
+        "x": 80,
+        "y": 316,
+        "width": 200,
+        "height": 6,
+        "fill": "#0c1618",
+        "rotation": 0,
+        "opacity": 1
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "phone_icon",
+      "type": "Icon",
+      "props": {
+        "id": "phone_icon",
+        "x": 80,
+        "y": 369,
+        "width": 30,
+        "height": 30,
+        "data": "M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z",
+        "iconName": "Phone",
+        "category": "Icon",
+        "fill": "#604e98",
+        "rotation": 0,
+        "opacity": 1
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "phone_text",
+      "type": "Text",
+      "props": {
+        "id": "phone_text",
+        "x": 120,
+        "y": 368,
+        "width": 350,
+        "height": 30,
+        "text": "+255 000 000 000",
+        "fontSize": 30,
+        "fontFamily": "Rubik",
+        "fill": "#0c1618",
+        "rotation": 0,
+        "opacity": 1,
+        "align": "left"
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "email_icon",
+      "type": "Icon",
+      "props": {
+        "id": "email_icon",
+        "x": 80,
+        "y": 447,
+        "width": 30,
+        "height": 30,
+        "data": "M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z",
+        "iconName": "Mail",
+        "category": "Icon",
+        "fill": "#604e98",
+        "rotation": 0,
+        "opacity": 1
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "email_text",
+      "type": "Text",
+      "props": {
+        "id": "email_text",
+        "x": 120,
+        "y": 444,
+        "width": 350,
+        "height": 30,
+        "text": "example@company.com",
+        "fontSize": 30,
+        "fontFamily": "Rubik",
+        "fill": "#0c1618",
+        "rotation": 0,
+        "opacity": 1,
+        "align": "left"
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "website_text",
+      "type": "Text",
+      "props": {
+        "id": "website_text",
+        "x": 120,
+        "y": 404,
+        "width": 350,
+        "height": 30,
+        "text": "company.com",
+        "fontSize": 30,
+        "fontFamily": "Rubik",
+        "fill": "#0c1618",
+        "rotation": 0,
+        "opacity": 1,
+        "align": "left"
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "main_logo",
+      "type": "Image",
+      "props": {
+        "id": "main_logo",
+        "x": 700,
+        "y": 164.3181818181817,
+        "width": 120,
+        "height": 120,
+        "src": "/logos/LogoTaco_Logo-01/SVG/Logo1_Black.svg",
+        "rotation": 0,
+        "opacity": 1,
+        "category": "Image",
+        "isLogo": true
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "company_name",
+      "type": "Text",
+      "props": {
+        "id": "company_name",
+        "x": 560,
+        "y": 323,
+        "width": 400,
+        "height": 60,
+        "text": "LOGO TEXT HERE",
+        "fontSize": 46,
+        "fontFamily": "Rubik",
+        "fill": "#0c1618",
+        "rotation": 0,
+        "opacity": 1,
+        "align": "center",
+        "fontStyle": "",
+        "letterSpacing": 1
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "company_slogan",
+      "type": "Text",
+      "props": {
+        "id": "company_slogan",
+        "x": 560,
+        "y": 402,
+        "width": 400,
+        "height": 40,
+        "text": "SLOGAN HERE",
+        "fontSize": 29,
+        "fontFamily": "Rubik",
+        "fill": "#0c1618",
+        "rotation": 0,
+        "opacity": 1,
+        "align": "center"
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "website_icon",
+      "type": "Icon",
+      "props": {
+        "id": "website_icon",
+        "x": 80,
+        "y": 407,
+        "width": 30,
+        "height": 30,
+        "rotation": 0,
+        "opacity": 1,
+        "visible": true,
+        "category": "Icon",
+        "iconName": "mdi:web",
+        "fill": "#0c1618",
+        "stroke": "transparent",
+        "strokeWidth": 0,
+        "data": ""
+      },
+      "editable": true,
+      "locked": false
+    }
+  ],
+  "groups": [],
+  "thumbnail": "",
+  "preview": "",
+  "tags": [
+    "vintage",
+    "classic",
+    "boxed",
+    "pattern"
+  ],
+  "category": "vintage",
+  "colors": [
+    "#0c1618",
+    "#604e98",
+    "transparent"
+  ],
+  "features": []
+}
