@@ -1,0 +1,237 @@
+{
+  "$schema": "./schema.json",
+  "id": "template_26",
+  "name": "Interior Design Business Card",
+  "width": 1050,
+  "height": 600,
+  "orientation": "horizontal",
+  "background": {
+    "type": "solid",
+    "color1": "#546078"
+  },
+  "colorRoles": {
+    "node_text_fullName": "primary-text",
+    "node_text_jobTitle": "primary-text",
+    "node_text_phone_text": "primary-text",
+    "node_text_email_text": "primary-text",
+    "node_text_address_text": "primary-text",
+    "node_icon_phone_icon": "primary-text",
+    "node_icon_email_icon": "primary-text",
+    "node_icon_address_icon": "primary-text",
+    "node_rect_top": "primary-text",
+    "node_rect_bottom": "accent"
+  },
+  "layers": [
+    {
+      "id": "node_rect_top",
+      "type": "Rect",
+      "props": {
+        "id": "node_rect_top",
+        "x": 996.060606060605,
+        "y": -601.2121212121214,
+        "width": 773,
+        "height": 654,
+        "fill": "#ffe7d6",
+        "cornerRadius": 0,
+        "rotation": 60,
+        "opacity": 1
+      },
+      "editable": true,
+      "locked": true
+    },
+    {
+      "id": "node_rect_bottom",
+      "type": "Rect",
+      "props": {
+        "id": "node_rect_bottom",
+        "x": 123.33333333333339,
+        "y": 682.7272727272726,
+        "width": 1127,
+        "height": 450.0000000000001,
+        "fill": "#d88688",
+        "cornerRadius": 0,
+        "rotation": -30,
+        "opacity": 1
+      },
+      "editable": true,
+      "locked": true
+    },
+    {
+      "id": "node_text_fullName",
+      "type": "Text",
+      "props": {
+        "id": "node_text_fullName",
+        "x": 56.51515151515163,
+        "y": 49.999999999999936,
+        "text": "Full Name",
+        "fontSize": 100,
+        "fill": "#ffe7d6",
+        "fontFamily": "PT Serif",
+        "rotation": 0,
+        "opacity": 1,
+        "width": 468.4848484848484,
+        "height": 88.78787878787881,
+        "fontStyle": "normal"
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "node_text_jobTitle",
+      "type": "Text",
+      "props": {
+        "id": "node_text_jobTitle",
+        "x": 56.51515151515163,
+        "y": 164.54545454545433,
+        "text": "Founder & CEO",
+        "fontSize": 40,
+        "fill": "#ffe7d6",
+        "fontFamily": "Montserrat",
+        "rotation": 0,
+        "opacity": 1,
+        "width": 349.6969696969699,
+        "height": 46.363636363636545
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "node_text_phone_text",
+      "type": "Text",
+      "props": {
+        "id": "node_text_phone_text",
+        "x": 100,
+        "y": 465,
+        "text": "Phone",
+        "fontSize": 30,
+        "fill": "#ffe7d6",
+        "fontFamily": "Montserrat",
+        "rotation": 0,
+        "opacity": 1,
+        "width": 160.909090909091,
+        "height": 50.60606060606149
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "node_text_email_text",
+      "type": "Text",
+      "props": {
+        "id": "node_text_email_text",
+        "x": 100,
+        "y": 510,
+        "text": "Email",
+        "fontSize": 30,
+        "fill": "#ffe7d6",
+        "fontFamily": "Montserrat",
+        "rotation": 0,
+        "opacity": 1,
+        "width": 131.21212121212147,
+        "height": 50.60606060606265
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "node_icon_phone_icon",
+      "type": "Icon",
+      "props": {
+        "id": "node_icon_phone_icon",
+        "x": 56.51515151515163,
+        "y": 465,
+        "width": 30,
+        "height": 30,
+        "rotation": 0,
+        "opacity": 1,
+        "visible": true,
+        "category": "Icon",
+        "iconName": "lucide:phone",
+        "fill": "transparent",
+        "stroke": "#ffe7d6",
+        "strokeWidth": 2,
+        "data": ""
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "node_icon_email_icon",
+      "type": "Icon",
+      "props": {
+        "id": "node_icon_email_icon",
+        "x": 56.51515151515163,
+        "y": 510,
+        "width": 30,
+        "height": 30,
+        "rotation": 0,
+        "opacity": 1,
+        "visible": true,
+        "category": "Icon",
+        "iconName": "lucide:mail",
+        "fill": "transparent",
+        "stroke": "#ffe7d6",
+        "strokeWidth": 2,
+        "data": ""
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "node_icon_address_icon",
+      "type": "Icon",
+      "props": {
+        "id": "node_icon_address_icon",
+        "x": 784,
+        "y": 510,
+        "width": 30,
+        "height": 30,
+        "rotation": 0,
+        "opacity": 1,
+        "visible": true,
+        "category": "Icon",
+        "iconName": "lucide:map-pin",
+        "fill": "transparent",
+        "stroke": "#ffe7d6",
+        "strokeWidth": 2,
+        "data": ""
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "node_text_address_text",
+      "type": "Text",
+      "props": {
+        "id": "node_text_address_text",
+        "x": 827,
+        "y": 509.9999999999948,
+        "text": "123 Address",
+        "fontSize": 30,
+        "fill": "#ffe7d6",
+        "fontFamily": "Inter",
+        "rotation": 0,
+        "opacity": 1,
+        "width": 241.51515151515406,
+        "height": 54.84848484848782
+      },
+      "editable": true,
+      "locked": false
+    }
+  ],
+  "groups": [],
+  "thumbnail": "",
+  "preview": "",
+  "tags": [
+    "professional",
+    "corporate",
+    "desin"
+  ],
+  "category": "professional",
+  "colors": [
+    "#ffe7d6",
+    "#d88688",
+    "transparent"
+  ],
+  "features": []
+}

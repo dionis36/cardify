@@ -1,0 +1,91 @@
+{
+  "$schema": "./schema.json",
+  "id": "template_25",
+  "name": "Company Business Card",
+  "width": 1050,
+  "height": 600,
+  "orientation": "horizontal",
+  "background": {
+    "type": "solid",
+    "color1": "#001524"
+  },
+  "colorRoles": {
+    "node_text_company": "accent", 
+    "node_text_address": "accent",
+    "node_text_email": "accent"
+  },
+  "layers": [
+    {
+      "id": "node_text_company",
+      "type": "Text",
+      "props": {
+        "id": "node_text_company",
+        "x": 17.121212121212075,
+        "y": 0,
+        "text": "company",
+        "fontSize": 210,
+        "fill": "#ffecd1",
+        "fontFamily": "Righteous",
+        "rotation": 0,
+        "opacity": 1,
+        "width": 1015.7575757575758,
+        "height": 230.90909090909113,
+        "letterSpacing": 10,
+        "align": "center"
+      },
+      "editable": true,
+      "locked": true
+    },
+    {
+      "id": "node_text_address",
+      "type": "Text",
+      "props": {
+        "id": "node_text_address",
+        "x": 56.36363636363614,
+        "y": 436.06060606060316,
+        "text": "123 Uhuru Street, DSM",
+        "fontSize": 40,
+        "fill": "#ffecd1",
+        "fontFamily": "Inter",
+        "rotation": 0,
+        "opacity": 1,
+        "width": 487.57575757575734,
+        "height": 56.969696969698575
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "node_text_email",
+      "type": "Text",
+      "props": {
+        "id": "node_text_email",
+        "x": 56.36363636363614,
+        "y": 506.0606060606031,
+        "text": "example@company.com",
+        "fontSize": 30,
+        "fill": "#ffecd1",
+        "fontFamily": "Inter",
+        "rotation": 0,
+        "opacity": 1,
+        "width": 428.1818181818183,
+        "height": 52.727272727275654
+      },
+      "editable": true,
+      "locked": false
+    }
+  ],
+  "groups": [],
+  "thumbnail": "",
+  "preview": "",
+  "tags": [
+    "minimal",
+    "clean",
+    "company"
+  ],
+  "category": "minimal",
+  "colors": [
+    "#ffecd1"
+  ],
+  "features": []
+}
