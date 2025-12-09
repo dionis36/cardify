@@ -75,6 +75,14 @@ const IconNode: React.FC<IconNodeProps> = ({
     // Load image
     const [image] = useImage(svgUrl);
 
+    // Force layer redraw when image loads to update transformer
+    React.useEffect(() => {
+        if (image && nodeRef.current) {
+            const layer = nodeRef.current.getLayer();
+            layer?.batchDraw();
+        }
+    }, [image]);
+
     return (
         <Group
             {...commonKonvaProps} // Includes scaleX/scaleY for transform handling
