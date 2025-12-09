@@ -43,7 +43,7 @@ export default function EditorTopbar({
             {/* 1. Left: Back & Title */}
             <div className="flex items-center space-x-4">
                 <button
-                    onClick={() => onBack ? onBack() : window.history.back()}
+                    onClick={() => window.history.back()}
                     className="p-2 hover:bg-gray-100 rounded-full text-gray-600 transition-colors"
                     title="Back"
                 >

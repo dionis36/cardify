@@ -33,10 +33,14 @@ export default function TemplateFilters({ filters, onFilterChange }: TemplateFil
     };
 
     const clearFilters = () => {
-        onFilterChange({ search: filters.search }); // Keep search, clear others
+        onFilterChange({ search: '' }); // Clear search and all other filters
     };
 
-    const activeFiltersCount = (filters.category ? 1 : 0) + (filters.color ? 1 : 0) + (filters.tone ? 1 : 0);
+    // Only count filters that are not default values (All)
+    const activeFiltersCount =
+        (filters.category && filters.category !== 'All' ? 1 : 0) +
+        (filters.color ? 1 : 0) +
+        (filters.tone && filters.tone !== 'All' ? 1 : 0);
 
     return (
         <div className="w-full bg-white border-b border-gray-200 sticky top-0 z-10 shadow-sm">

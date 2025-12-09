@@ -11,7 +11,7 @@ interface TemplateCardProps {
 export default function TemplateCard({ template, onUseTemplate }: TemplateCardProps) {
   return (
     <Link href={`/design/${template.id}`} className="block group">
-      <div className="relative bg-white rounded-xl overflow-hidden border border-gray-200 shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+      <div className="relative bg-white rounded-xl overflow-hidden border border-gray-200 shadow-sm hover:shadow-2xl hover:border-gray-300 transition-all duration-300 transform hover:-translate-y-1">
         {/* Thumbnail Container - Aspect Ratio 1.75:1 (Standard Business Card) */}
         <div className="relative aspect-[1.75/1] w-full bg-gray-100 overflow-hidden">
           {/* Live Template Preview */}
