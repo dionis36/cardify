@@ -23,6 +23,7 @@ import { trackLogoUsage } from "@/lib/logoAssignments";
 import { loadTemplate, prepareTemplateForExport } from "@/lib/templates";
 import { exportWithOptions } from "@/lib/pdf";
 import { useKeyboardShortcuts } from "@/lib/useKeyboardShortcuts";
+import { renumberNodes, assignColorRoles } from "@/lib/exportUtils";
 
 // Define the editor modes
 type EditorMode = "FULL_EDIT" | "DATA_ONLY";
@@ -795,29 +796,68 @@ export default function Editor() {
         }
     }, [currentPage]);
 
-    const handleExportAsTemplate = useCallback(async (metadata: TemplateExportMetadata) => {
+    const handleExportAsTemplate = useCallback(async (
+        metadata: TemplateExportMetadata,
+        options?: { strictColorRoles: boolean; forceId?: string }
+    ) => {
         try {
-            const templateData = prepareTemplateForExport(currentPage, metadata);
+            // 1. Clone & Prepare
+            const templateToProcess = JSON.parse(JSON.stringify(currentPage));
 
+            // Override ID if forceId is provided (e.g. sequential ID from modal)
+            if (options?.forceId) {
+                templateToProcess.id = options.forceId;
+            }
+
+            // 2. Renumber Nodes
+            templateToProcess.layers = renumberNodes(templateToProcess.layers);
+
+            // 3. Assign Color Roles
+            // Determine roles based on colors used, but DO NOT modify layers directly
+            // The roles will be stored in the root 'colorRoles' property
+            const roles = assignColorRoles(templateToProcess.layers, options?.strictColorRoles);
+
+            // 4. Prepare Final JSON
+            // Note: prepareTemplateForExport might regen ID, so we set it back after if needed
+            const templateData = prepareTemplateForExport(templateToProcess, metadata);
+
+            if (options?.forceId) {
+                // Filename uses hyphen (template-30), but internal ID uses underscore (template_30)
+                templateData.id = options.forceId.replace(/-/g, '_');
+            }
+
+            // Attach Top-Level Properties (as per Schema)
+            templateData.colorRoles = roles;
+            templateData.strictColorRoles = options?.strictColorRoles;
+
+            // 5. Send to API
             const response = await fetch('/api/templates/export', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    template: templateData,
-                    metadata,
+                    template: {
+                        "$schema": "./schema.json",
+                        ...templateData
+                    },
+                    metadata: metadata,
+                    // Use forceId as filename if provided (e.g. template-29.json)
+                    // Otherwise default to metadata name which might be "My Card"
+                    filename: options?.forceId || metadata.name
                 }),
             });
 
-            const result: TemplateExportResponse = await response.json();
-
-            if (result.success) {
-                alert(`✅ Template saved successfully as "${result.filename}"!`);
-            } else {
-                alert(`❌ Failed to save template: ${result.error}`);
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Export failed');
             }
+
+            const result: TemplateExportResponse = await response.json();
+            console.log('Template saved:', result);
+
         } catch (error) {
             console.error("Template export failed:", error);
-            alert('❌ Failed to save template. Check console for details.');
+            alert('Failed to save template');
+            throw error;
         }
     }, [currentPage]);
 

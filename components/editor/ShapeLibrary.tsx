@@ -205,7 +205,17 @@ export function ShapeLibrary({ onAddNode }: ShapeLibraryProps) {
     const viewBox = hasScaleTransform ? '0 0 480 480' : shape.viewBox;
 
     // Don't apply transform in thumbnail - just use correct viewBox
-    const svgContent = `<path d="${shape.pathData}" fill="${shape.displayFill}" stroke="${shape.displayStroke}" stroke-width="${shape.strokeWidth}" />`;
+    let svgContent;
+
+    if (shape.paths && shape.paths.length > 0) {
+      // NEW: Handle multi-path shapes
+      svgContent = shape.paths.map(p =>
+        `<path d="${p.d}" fill="${shape.displayFill}" stroke="${shape.displayStroke}" stroke-width="${shape.strokeWidth}" fill-rule="${p.fillRule || 'nonzero'}" />`
+      ).join('');
+    } else {
+      // Fallback for single path shapes
+      svgContent = `<path d="${shape.pathData}" fill="${shape.displayFill}" stroke="${shape.displayStroke}" stroke-width="${shape.strokeWidth}" />`;
+    }
 
     return (
       <svg

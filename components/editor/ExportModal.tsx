@@ -1,28 +1,32 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { X, FileImage, FileText, Download, Loader, Save, LayoutTemplate, Tag, List, Type } from "lucide-react";
+import { X, FileImage, FileText, Download, Loader, Save, LayoutTemplate, Tag, List, Type, Palette, CheckCircle, Info } from "lucide-react";
 import { ExportOptions, ExportFormat, TemplateExportMetadata } from "@/types/template";
-import { estimateFileSize } from "@/lib/exportUtils";
 import { TEMPLATE_CATEGORIES, TemplateCategoryKey } from "@/lib/templateCategories";
 
 interface ExportModalProps {
     isOpen: boolean;
     onClose: () => void;
     onExport: (options: ExportOptions) => Promise<void>;
-    onExportAsTemplate?: (metadata: TemplateExportMetadata) => Promise<void>;
+    onExportAsTemplate?: (
+        metadata: TemplateExportMetadata,
+        options?: { strictColorRoles: boolean; forceId?: string }
+    ) => Promise<void>;
     templateWidth: number;
     templateHeight: number;
 }
 
 export default function ExportModal({
-    isOpen,
+    isOpen: propIsOpen,
     onClose,
     onExport,
     onExportAsTemplate,
     templateWidth,
     templateHeight,
 }: ExportModalProps) {
+    const isOpen = propIsOpen; // Use prop directly
+
     type ExportTab = 'file' | 'template';
     const [activeTab, setActiveTab] = useState<ExportTab>('file');
     const [format, setFormat] = useState<ExportFormat>("PNG");
@@ -34,6 +38,32 @@ export default function ExportModal({
     const [templateCategory, setTemplateCategory] = useState<TemplateCategoryKey>('professional');
     const [templateTags, setTemplateTags] = useState('');
     const [templateFeatures, setTemplateFeatures] = useState('');
+    const [strictColorRoles, setStrictColorRoles] = useState(false);
+    const [nextId, setNextId] = useState<string>(''); // NEW: Store the sequential ID separately
+
+    // UI Feedback state
+    const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+    // Fetch next sequential ID when modal opens or tab switches
+    useEffect(() => {
+        if (isOpen && activeTab === 'template') {
+            const fetchNextId = async () => {
+                try {
+                    const res = await fetch('/api/templates/next-id');
+                    if (res.ok) {
+                        const data = await res.json();
+                        if (data.nextId) {
+                            setNextId(data.nextId); // Store ID for filename
+                            // DO NOT pre-fill templateName with ID anymore
+                        }
+                    }
+                } catch (error) {
+                    console.error("Failed to fetch next template ID", error);
+                }
+            };
+            fetchNextId();
+        }
+    }, [isOpen, activeTab]); // Dependencies adjusted
 
     // Close on ESC key
     useEffect(() => {
@@ -49,6 +79,8 @@ export default function ExportModal({
     if (!isOpen) return null;
 
     const handleExport = async () => {
+        setSuccessMessage(null); // Reset feedback
+
         if (activeTab === 'template') {
             if (!onExportAsTemplate) return;
             if (!templateName.trim()) {
@@ -57,7 +89,7 @@ export default function ExportModal({
             }
 
             const metadata: TemplateExportMetadata = {
-                name: templateName.trim(),
+                name: templateName.trim(), // User entered name (e.g. Modern Business Card)
                 category: templateCategory,
                 tags: templateTags.split(',').map(t => t.trim()).filter(Boolean),
                 features: templateFeatures.split(',').map(f => f.trim()).filter(Boolean),
@@ -65,18 +97,35 @@ export default function ExportModal({
 
             setExporting(true);
             try {
-                await onExportAsTemplate(metadata);
+                // Pass metadata AND the enforced filename/ID
+                // effectively treating nextId as the forced ID/Filename
+                await onExportAsTemplate(metadata, {
+                    strictColorRoles,
+                    forceId: nextId
+                });
+
+                // Show success UI inside modal instead of alert
+                setSuccessMessage(nextId || templateName.trim()); // Show ID or Name on success
+                setExporting(false);
+
+                // Auto-close after a delay
                 setTimeout(() => {
                     onClose();
-                    setExporting(false);
-                    // Reset form
-                    setTemplateName('');
-                    setTemplateTags('');
-                    setTemplateFeatures('');
-                }, 500);
+                    // Reset form after closing
+                    setTimeout(() => {
+                        setSuccessMessage(null);
+                        setTemplateName('');
+                        setTemplateTags('');
+                        setTemplateFeatures('');
+                        setStrictColorRoles(false);
+                        setNextId('');
+                    }, 300);
+                }, 1500);
+
             } catch (error) {
                 console.error("Template export failed:", error);
                 setExporting(false);
+                alert('Failed to export. See console for details.');
             }
         } else {
             const options: ExportOptions = {
@@ -97,6 +146,36 @@ export default function ExportModal({
             }
         }
     };
+
+    // Render Success State
+    if (successMessage) {
+        return (
+            <div
+                className="fixed inset-0 z-[100] flex items-center justify-center animate-fadeIn p-4"
+                style={{
+                    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+                    backdropFilter: 'blur(8px)',
+                    WebkitBackdropFilter: 'blur(8px)'
+                }}
+            >
+                <div className="bg-white rounded-2xl shadow-2xl p-8 flex flex-col items-center max-w-sm w-full animate-scaleIn">
+                    <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center text-green-600 mb-4">
+                        <CheckCircle size={32} />
+                    </div>
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">Export Successful!</h3>
+                    <p className="text-gray-500 text-center mb-6">
+                        Template <strong>{successMessage}</strong> has been saved.
+                    </p>
+                    <div className="w-full bg-gray-100 rounded-full h-1.5 overflow-hidden">
+                        <div className="h-full bg-green-500 animate-[width_1.5s_linear_forwards]" style={{ width: '0%' }} />
+                    </div>
+                </div>
+                <style jsx>{`
+                    @keyframes width { from { width: 0%; } to { width: 100%; } }
+                `}</style>
+            </div>
+        );
+    }
 
     return (
         <div
@@ -131,8 +210,8 @@ export default function ExportModal({
                             <button
                                 onClick={() => setActiveTab('file')}
                                 className={`pb-3 px-4 text-sm font-medium transition-all relative ${activeTab === 'file'
-                                        ? 'text-blue-600'
-                                        : 'text-gray-500 hover:text-gray-700'
+                                    ? 'text-blue-600'
+                                    : 'text-gray-500 hover:text-gray-700'
                                     }`}
                             >
                                 <div className="flex items-center gap-2">
@@ -148,8 +227,8 @@ export default function ExportModal({
                                 <button
                                     onClick={() => setActiveTab('template')}
                                     className={`pb-3 px-4 text-sm font-medium transition-all relative ${activeTab === 'template'
-                                            ? 'text-blue-600'
-                                            : 'text-gray-500 hover:text-gray-700'
+                                        ? 'text-blue-600'
+                                        : 'text-gray-500 hover:text-gray-700'
                                         }`}
                                 >
                                     <div className="flex items-center gap-2">
@@ -249,7 +328,24 @@ export default function ExportModal({
                                             placeholder="e.g., Modern Business Card"
                                             className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                                             required
+                                            list="template-name-suggestions"
                                         />
+                                        <datalist id="template-name-suggestions">
+                                            <option value="Modern Business Card" />
+                                            <option value="Business Card" />
+                                            <option value="Professional ID" />
+                                            <option value="Event Badge" />
+                                        </datalist>
+                                        <p className="text-[10px] text-gray-400 mt-1 ml-1 flex items-center gap-1">
+                                            {nextId ? (
+                                                <>
+                                                    <Info size={10} />
+                                                    Filename will be <strong>{nextId}.json</strong>
+                                                </>
+                                            ) : (
+                                                'Format: "template-XX" for automatic ordering'
+                                            )}
+                                        </p>
                                     </div>
                                 </div>
 
@@ -263,15 +359,46 @@ export default function ExportModal({
                                             onChange={(e) => setTemplateCategory(e.target.value as TemplateCategoryKey)}
                                             className="w-full pl-4 pr-10 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all appearance-none bg-white"
                                         >
+                                            {/* Extended Categories matching the comprehensive list if possible */}
                                             {Object.entries(TEMPLATE_CATEGORIES).map(([key, categoryName]) => (
                                                 <option key={key} value={key}>{categoryName}</option>
                                             ))}
+                                            {/* Fallback extensions if not in TEMPLATE_CATEGORIES yet */}
+                                            <optgroup label="More Categories">
+                                                <option value="creative">Creative & Artistic</option>
+                                                <option value="tech">Technology & Startups</option>
+                                                <option value="luxury">Luxury & Premium</option>
+                                            </optgroup>
                                         </select>
                                         <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500">
                                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
                                         </div>
                                     </div>
                                 </div>
+                            </div>
+
+                            {/* Color Roles Feature */}
+                            <div className="bg-blue-50 border border-blue-100 rounded-lg p-4">
+                                <div className="flex items-center justify-between mb-2">
+                                    <div className="flex items-center gap-2 text-blue-800 font-semibold">
+                                        <Palette size={16} />
+                                        <span>Color Roles Integration</span>
+                                    </div>
+                                    <label className="relative inline-flex items-center cursor-pointer">
+                                        <input
+                                            type="checkbox"
+                                            checked={strictColorRoles}
+                                            onChange={(e) => setStrictColorRoles(e.target.checked)}
+                                            className="sr-only peer"
+                                        />
+                                        <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
+                                        <span className="ml-3 text-sm font-medium text-gray-700">Strict Mode</span>
+                                    </label>
+                                </div>
+                                <p className="text-xs text-blue-600/80 leading-relaxed">
+                                    Automatically assigns functional roles (surface, accent, text) to elements.
+                                    Enable <strong>Strict Mode</strong> to enforce rigorous color mapping based on palette analysis.
+                                </p>
                             </div>
 
                             {/* Row 2: Tags & Features */}
@@ -288,11 +415,10 @@ export default function ExportModal({
                                             value={templateTags}
                                             onChange={(e) => setTemplateTags(e.target.value)}
                                             placeholder="modern, clean, corporate..."
-                                            rows={3}
+                                            rows={2}
                                             className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
                                         />
                                     </div>
-                                    <p className="text-xs text-gray-500 mt-1.5">Comma-separated keywords</p>
                                 </div>
 
                                 <div>
@@ -307,26 +433,13 @@ export default function ExportModal({
                                             value={templateFeatures}
                                             onChange={(e) => setTemplateFeatures(e.target.value)}
                                             placeholder="QR Code, Logo Placeholder, Social Icons..."
-                                            rows={3}
+                                            rows={2}
                                             className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
                                         />
                                     </div>
-                                    <p className="text-xs text-gray-500 mt-1.5">Comma-separated features list</p>
                                 </div>
                             </div>
 
-                            {/* Admin Notice */}
-                            <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 flex items-start gap-3">
-                                <div className="p-1 bg-amber-100 rounded-full text-amber-600 mt-0.5">
-                                    <LayoutTemplate size={16} />
-                                </div>
-                                <div>
-                                    <h4 className="text-sm font-semibold text-amber-900">Admin Access Only</h4>
-                                    <p className="text-sm text-amber-700 mt-0.5">
-                                        This feature creates a new template in the public gallery. It will be restricted when authentication is implemented.
-                                    </p>
-                                </div>
-                            </div>
                         </div>
                     )}
                 </div>
