@@ -77,7 +77,7 @@ const IconNode: React.FC<IconNodeProps> = ({
 
     return (
         <Group
-            {...commonKonvaProps}
+            {...commonKonvaProps} // Includes scaleX/scaleY for transform handling
             ref={nodeRef}
             x={x}
             y={y}

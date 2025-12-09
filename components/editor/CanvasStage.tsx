@@ -856,11 +856,14 @@ const CanvasStage = forwardRef<KonvaStageType, CanvasStageProps>(
 
                                     // ADDED bounding box check for minimum size and template bounds
                                     boundBoxFunc={(oldBox, newBox) => {
-                                        // Prevent scaling down too small
-                                        if (newBox.width * stageSize.scale < 10 || newBox.height * stageSize.scale < 10) { // check scaled minimum size
+                                        // Prevent scaling down too small (in TEMPLATE coordinates, not screen pixels)
+                                        const MIN_SIZE = 10; // 10 pixels in template space
+
+                                        if (newBox.width < MIN_SIZE || newBox.height < MIN_SIZE) {
                                             return oldBox;
                                         }
 
+                                        // Template bounds clamping
                                         const templateMaxX = template.width;
                                         const templateMaxY = template.height;
 

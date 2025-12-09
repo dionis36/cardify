@@ -147,6 +147,25 @@ const KonvaNodeRendererBase: React.FC<KonvaNodeRendererProps> = ({
       updates.width = node.width();
       updates.height = node.height();
     }
+    // Special handling for Icon (Group with Image): Keep scale as source of truth
+    else if (node.getClassName() === 'Group' && (node as any).children?.[0]?.className === 'Image') {
+      // For Icon nodes, scaleX/scaleY ARE the source of truth (similar to Path)
+      // Use uniform scaling to maintain aspect ratio
+      const uniformScale = Math.max(Math.abs(scaleX), Math.abs(scaleY));
+
+      // Set both scales to uniform value for aspect ratio lock
+      node.scaleX(uniformScale);
+      node.scaleY(uniformScale);
+
+      // Update the stored scale values
+      (updates as any).scaleX = uniformScale;
+      (updates as any).scaleY = uniformScale;
+
+      // CRITICAL: Width/height must come from the original node definition, not from node.width()
+      // Groups don't have inherent dimensions, so node.width() returns 0!
+      // We need to preserve the original width/height values from the node definition
+      // Don't update width/height - they should remain as the base size (e.g., 60x60)
+    }
     else {
       // Standard Rect/Image/Text handling - reset scale and bake into width/height
       node.scaleX(1);

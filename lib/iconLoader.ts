@@ -128,4 +128,9 @@ export const getDefaultIconProps = (iconName: string): Partial<IconProps> => ({
     strokeWidth: 0,
 
     data: '',
-});
+
+    // CRITICAL: Initialize scale for proper transform handling
+    scaleX: 1,
+    scaleY: 1,
+} as any); // Cast to any to allow scaleX/scaleY which aren't in IconProps interface
+

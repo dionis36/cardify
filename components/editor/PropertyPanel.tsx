@@ -439,22 +439,25 @@ export default function PropertyPanel({
           <InputGroup
             label="Size (Uniform)"
             type="number"
-            value={Math.round(isUniformSize ? iconWidth : Math.min(iconWidth, iconHeight))}
-            min={1}
+            value={Math.round(iconWidth * ((node.props as any).scaleX || 1))}
+            min={10}
             onChange={(v) => {
-              const newSize = Number(v);
-              handlePropChange('width', newSize);
-              handlePropChange('height', newSize);
+              const newVisualSize = Number(v);
+              // For Icons, width/height are the BASE size (60x60)
+              // Scale is the multiplier for visual size
+              // Keep width/height at base size, only update scale
+              const baseSize = 60;
+              const newScale = newVisualSize / baseSize;
+              onPropChange(id, {
+                scaleX: newScale,
+                scaleY: newScale
+              });
             }}
             disabled={layoutControlsDisabled}
           />
           <p className="text-[10px] text-gray-500 mt-1">
-            {isUniformSize ? '✓ Icon is square' : '⚠ Icon is not square - using smaller dimension'}
+            Base: {iconWidth}×{iconHeight}px · Scale: {((node.props as any).scaleX || 1).toFixed(2)}x
           </p>
-        </div>
-        <div className="grid grid-cols-2 gap-3 border-t border-gray-100 pt-3">
-          <InputGroup label="Width" type="number" value={Math.round(iconWidth)} min={1} onChange={(v) => handlePropChange('width', Number(v))} disabled={layoutControlsDisabled} />
-          <InputGroup label="Height" type="number" value={Math.round(iconHeight)} min={1} onChange={(v) => handlePropChange('height', Number(v))} disabled={layoutControlsDisabled} />
         </div>
       </SectionContainer>
     );
@@ -639,8 +642,8 @@ export default function PropertyPanel({
         </div>
       )}
 
-      {/* Regular Width/Height for other shapes */}
-      {node.type !== 'Path' && (
+      {/* Regular Width/Height for other shapes (exclude Path and Icon) */}
+      {node.type !== 'Path' && node.type !== 'Icon' && (
         <div className="grid grid-cols-2 gap-3 mt-3 pt-3 border-t border-gray-100">
           {node.type === 'Circle' ? (
             <>
