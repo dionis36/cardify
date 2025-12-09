@@ -31,7 +31,9 @@ export async function applyPalette(baseTemplate: CardTemplate, palette: ColorPal
             let effectiveBg = palette.background;
 
             // Determine the actual background this layer sits on
-            if (context && context.backgroundLayerId !== 'main_bg') {
+            // If strictColorRoles is enabled, we IGNORE the spatial context and always compare against the main background
+            // This ensures consistent color assignments regardless of placement
+            if (!baseTemplate.strictColorRoles && context && context.backgroundLayerId !== 'main_bg') {
                 const bgId = context.backgroundLayerId;
                 if (layerColorMap.has(bgId)) {
                     effectiveBg = layerColorMap.get(bgId)!;
@@ -65,7 +67,7 @@ export async function applyPalette(baseTemplate: CardTemplate, palette: ColorPal
 
     // 5. Update layers (colors + logo + QR codes)
     const updatedLayers = await Promise.all(baseTemplate.layers.map(async (layer) => {
-        const updatedLayer = await updateLayer(layer, palette, contextMap, layerColorMap, colorRoles);
+        const updatedLayer = await updateLayer(layer, palette, contextMap, layerColorMap, colorRoles, baseTemplate.strictColorRoles);
 
         // Update logo layer if it exists
         if ((updatedLayer.type === 'Image' && updatedLayer.props.isLogo) ||
@@ -198,7 +200,8 @@ async function updateLayer(
     palette: ColorPalette,
     contextMap: TemplateContextMap,
     layerColorMap: Map<string, string>,
-    colorRoles: ColorRoleMap
+    colorRoles: ColorRoleMap,
+    strictMode: boolean = false
 ): Promise<KonvaNodeDefinition> {
     const newLayer = JSON.parse(JSON.stringify(layer)); // Deep copy
     const context = contextMap[layer.id];
@@ -206,7 +209,7 @@ async function updateLayer(
     // Determine the color of the background sitting immediately behind this layer
     let bgHex = palette.background; // Default to main card background
 
-    if (context && context.backgroundLayerId !== 'main_bg') {
+    if (!strictMode && context && context.backgroundLayerId !== 'main_bg') {
         // It's sitting on a shape. Get that shape's PRE-CALCULATED color.
         const shapeColor = layerColorMap.get(context.backgroundLayerId);
         if (shapeColor && shapeColor !== 'transparent') {
@@ -219,7 +222,7 @@ async function updateLayer(
 
     if (newLayer.type === 'Text') {
         // Use role-based text color assignment if role is defined
-        if (role && (role === 'primary-text' || role === 'secondary-text')) {
+        if (role) {
             newLayer.props.fill = assignColorByRole(role, palette, bgHex);
         } else {
             // Fallback to original text logic
@@ -267,8 +270,12 @@ async function updateLayer(
 
         // Handle stroke based on strokeWidth
         if (newLayer.props.stroke && newLayer.props.stroke !== 'transparent' && strokeWidth > 0) {
-            // Apply color role to stroke for shapes with visible stroke
-            if (role) {
+            // Apply stroke color role if specified
+            if ((newLayer.props as any).strokeColorRole) {
+                const strokeRole = (newLayer.props as any).strokeColorRole as ColorRole;
+                newLayer.props.stroke = assignColorByRole(strokeRole, palette, bgHex);
+            } else if (role) {
+                // Apply color role to stroke for shapes with visible stroke (fallback to main role if no specific stroke role)
                 newLayer.props.stroke = assignColorByRole(role, palette, bgHex);
             } else {
                 newLayer.props.stroke = palette.secondary;

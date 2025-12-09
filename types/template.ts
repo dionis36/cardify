@@ -140,6 +140,7 @@ export interface NodeCommonProps {
     shadowOffsetX?: number;
     shadowOffsetY?: number;
     shadowColorRole?: ColorRole;  // NEW: Optional color role for shadow
+    strokeColorRole?: ColorRole;  // NEW: Optional color role for stroke
 
     // Logo Identification
     isLogo?: boolean;
@@ -324,6 +325,7 @@ export interface CardTemplate {
 
     // (NEW) Color Role Definitions
     colorRoles?: ColorRoleMap;
+    strictColorRoles?: boolean; // NEW: If true, disables context-aware color adjustments
 
     layers: KonvaNodeDefinition[];
 

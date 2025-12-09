@@ -28,7 +28,7 @@ export function applyPaletteSync(baseTemplate: CardTemplate, palette: ColorPalet
             let effectiveBg = palette.background;
 
             // Determine the actual background this layer sits on
-            if (context && context.backgroundLayerId !== 'main_bg') {
+            if (!baseTemplate.strictColorRoles && context && context.backgroundLayerId !== 'main_bg') {
                 const bgId = context.backgroundLayerId;
                 if (layerColorMap.has(bgId)) {
                     effectiveBg = layerColorMap.get(bgId)!;
@@ -61,7 +61,7 @@ export function applyPaletteSync(baseTemplate: CardTemplate, palette: ColorPalet
 
     // 5. Update layers (colors + logo, NO QR regeneration)
     const updatedLayers = baseTemplate.layers.map(layer => {
-        const updatedLayer = updateLayerSync(layer, palette, contextMap, layerColorMap, colorRoles);
+        const updatedLayer = updateLayerSync(layer, palette, contextMap, layerColorMap, colorRoles, baseTemplate.strictColorRoles);
 
         // Update logo layer if it exists
         if ((updatedLayer.type === 'Image' && updatedLayer.props.isLogo) ||
@@ -160,14 +160,15 @@ function updateLayerSync(
     palette: ColorPalette,
     contextMap: TemplateContextMap,
     layerColorMap: Map<string, string>,
-    colorRoles: ColorRoleMap
+    colorRoles: ColorRoleMap,
+    strictMode: boolean = false
 ): KonvaNodeDefinition {
     const newLayer = JSON.parse(JSON.stringify(layer));
     const context = contextMap[layer.id];
 
     let bgHex = palette.background;
 
-    if (context && context.backgroundLayerId !== 'main_bg') {
+    if (!strictMode && context && context.backgroundLayerId !== 'main_bg') {
         const shapeColor = layerColorMap.get(context.backgroundLayerId);
         if (shapeColor && shapeColor !== 'transparent') {
             bgHex = shapeColor;
@@ -177,7 +178,7 @@ function updateLayerSync(
     const role = colorRoles[layer.id];
 
     if (newLayer.type === 'Text') {
-        if (role && (role === 'primary-text' || role === 'secondary-text')) {
+        if (role) {
             newLayer.props.fill = assignColorByRole(role, palette, bgHex);
         } else {
             const fontSize = newLayer.props.fontSize || 16;
@@ -222,8 +223,11 @@ function updateLayerSync(
 
         // Handle stroke based on strokeWidth
         if (newLayer.props.stroke && newLayer.props.stroke !== 'transparent' && strokeWidth > 0) {
-            // Apply color role to stroke for shapes with visible stroke
-            if (role) {
+            // Apply stroke color role if specified
+            if ((newLayer.props as any).strokeColorRole) {
+                const strokeRole = (newLayer.props as any).strokeColorRole as ColorRole;
+                newLayer.props.stroke = assignColorByRole(strokeRole, palette, bgHex);
+            } else if (role) {
                 newLayer.props.stroke = assignColorByRole(role, palette, bgHex);
             } else {
                 newLayer.props.stroke = palette.secondary;
