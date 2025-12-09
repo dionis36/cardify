@@ -662,6 +662,11 @@ export default function Editor() {
     const onAddNode = useCallback((node: KonvaNodeDefinition) => {
         dispatch({ type: 'ADD_NODE', node });
         setSelectedIndices([currentPage.layers.length]); // Select the new node
+
+        // NEW: If adding a text node, auto-focus the property panel editor
+        if (node.type === 'Text') {
+            setShouldFocusTextEditor(true);
+        }
     }, [dispatch, currentPage.layers.length]);
 
     // Placeholder for image upload
@@ -714,11 +719,18 @@ export default function Editor() {
     }, [currentPage.id]);
 
 
+    // NEW: State to trigger focus on the text editor in property panel
+    const [shouldFocusTextEditor, setShouldFocusTextEditor] = useState(false);
+
+    // Call back to reset the focus trigger once the PropertyPanel has handled it
+    const onTextEditorFocusHandled = useCallback(() => {
+        setShouldFocusTextEditor(false);
+    }, []);
+
     // Functionality for TextNode to communicate it wants to be edited (double click)
     const onStartEditing = useCallback((konvaNode: Konva.Text) => {
-        // This is where we would typically show a custom TextEditor overlay.
-        // For now, just log the intent.
-        console.log("Start editing text node:", konvaNode.id());
+        // Trigger focus on the property panel text editor
+        setShouldFocusTextEditor(true);
     }, []);
 
     // NEW: Handle QR Code Edit Request
@@ -1048,6 +1060,8 @@ export default function Editor() {
 
                         // NEW: Allow deleting nodes from property panel
                         onDelete={handleDelete}
+                        shouldFocus={shouldFocusTextEditor}
+                        onFocusHandled={onTextEditorFocusHandled}
                     />
                 </div>
             </div>

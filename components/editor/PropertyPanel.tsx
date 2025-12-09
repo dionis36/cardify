@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   Type,
   Layout,
@@ -193,6 +193,9 @@ interface PropertyPanelProps {
   onMoveToBack: () => void;
   // New prop for entering crop mode
   onEnterCropMode?: () => void;
+  // New props for text editor focus
+  shouldFocus?: boolean;
+  onFocusHandled?: () => void;
 }
 
 export default function PropertyPanel({
@@ -204,7 +207,9 @@ export default function PropertyPanel({
   onMoveDown,
   onMoveToFront,
   onMoveToBack,
-  onEnterCropMode
+  onEnterCropMode,
+  shouldFocus, // New prop
+  onFocusHandled // New prop
 }: PropertyPanelProps) {
   if (!node) {
     return (
@@ -330,6 +335,17 @@ export default function PropertyPanel({
     </SectionContainer>
   );
 
+  // --- Focus Handling ---
+  const textAreaRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    if (shouldFocus && textAreaRef.current && onFocusHandled) {
+      textAreaRef.current.focus();
+      textAreaRef.current.select(); // Optional: select all text for easy replacement
+      onFocusHandled();
+    }
+  }, [shouldFocus, onFocusHandled]);
+
   // 3. Text Style
   if (node.type === "Text") {
     panels.push(
@@ -337,6 +353,7 @@ export default function PropertyPanel({
         <div className="flex flex-col">
           <label className="text-xs font-semibold text-gray-700 mb-1">Content</label>
           <textarea
+            ref={textAreaRef} // Attached ref
             value={text}
             onChange={(e) => handlePropChange('text', e.target.value)}
             className="w-full border border-gray-300 p-2 rounded-md text-sm transition-all focus:ring-blue-500 focus:border-blue-500 max-h-24 overflow-y-auto"
