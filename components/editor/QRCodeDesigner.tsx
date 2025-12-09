@@ -11,6 +11,7 @@ interface QRCodeDesignerProps {
     onNodeChange?: (index: number, updates: Partial<KonvaNodeProps>) => void;
     selectedNodeIndex?: number | null;
     initialData?: any; // Type this properly if possible, but 'any' avoids circular deps for now
+    mode?: 'add' | 'update'; // NEW: Explicit mode control
 }
 
 type ContentType = 'Website' | 'Email' | 'Phone' | 'SMS' | 'Contact' | 'Event';
@@ -19,7 +20,7 @@ type EyeStyle = 'square' | 'round';
 type ECLevel = 'L' | 'M' | 'Q' | 'H'; // Error correction: L=7%, M=15%, Q=25%, H=30%
 type LogoSource = 'library' | 'custom' | null;
 
-export default function QRCodeDesigner({ onAddImage, onAddNode, onNodeChange, selectedNodeIndex, initialData }: QRCodeDesignerProps) {
+export default function QRCodeDesigner({ onAddImage, onAddNode, onNodeChange, selectedNodeIndex, initialData, mode = 'add' }: QRCodeDesignerProps) {
     // --- State ---
     const [contentType, setContentType] = useState<ContentType>('Website');
     const [qrValue, setQrValue] = useState<string>('https://example.com');
@@ -182,7 +183,8 @@ export default function QRCodeDesigner({ onAddImage, onAddNode, onNodeChange, se
                             };
 
                             // Check if we're updating an existing QR code
-                            if (selectedNodeIndex !== null && selectedNodeIndex !== undefined && onNodeChange) {
+                            // FIX: Only update if explicitly in update mode AND we have a selected node
+                            if (mode === 'update' && selectedNodeIndex !== null && selectedNodeIndex !== undefined && onNodeChange) {
                                 // Update existing QR code
                                 onNodeChange(selectedNodeIndex, {
                                     src: base64,
@@ -592,7 +594,7 @@ export default function QRCodeDesigner({ onAddImage, onAddNode, onNodeChange, se
                         className="flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors text-sm"
                     >
                         <Plus size={16} />
-                        {(selectedNodeIndex !== null && selectedNodeIndex !== undefined) ? 'Update QR Code' : 'Add to Card'}
+                        {mode === 'update' ? 'Update QR Code' : 'Add to Card'}
                     </button>
                 </div>
             </div>

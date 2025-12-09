@@ -276,6 +276,9 @@ export default function Editor() {
     // Export & Print State
     const [exportModalOpen, setExportModalOpen] = useState(false);
 
+    // NEW: QR Code Mode State ('add' | 'update')
+    const [qrCodeMode, setQrCodeMode] = useState<'add' | 'update'>('add');
+
 
 
     const selectedNode = selectedIndices.length === 1 ? currentPage.layers[selectedIndices[0]] : null;
@@ -719,7 +722,16 @@ export default function Editor() {
 
     // NEW: Handle QR Code Edit Request
     const onEditQRCode = useCallback(() => {
+        setQrCodeMode('update');
         setActiveTab('qrcode');
+    }, []);
+
+    // Wrapper for tab changing to reset QR mode to 'add' when manually opening tabs
+    const handleTabChange = useCallback((tab: SidebarTab | null) => {
+        if (tab === 'qrcode') {
+            setQrCodeMode('add');
+        }
+        setActiveTab(tab);
     }, []);
 
     // NEW: Zoom control handlers
@@ -933,7 +945,10 @@ export default function Editor() {
 
                     // NEW: Tab Control
                     activeTab={activeTab}
-                    onTabChange={setActiveTab}
+                    onTabChange={handleTabChange}
+
+                    // NEW: QR Code Mode
+                    qrCodeMode={qrCodeMode}
                 />
 
                 {/* B. CANVAS AREA (Flex Grow) */}

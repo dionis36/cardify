@@ -1,0 +1,416 @@
+{
+  "$schema": "./schema.json",
+  "id": "template_28",
+  "name": "Design Business Card",
+  "width": 1050,
+  "height": 600,
+  "orientation": "horizontal",
+  "background": {
+    "type": "solid",
+    "color1": "#FFFFFF",
+    "opacity": 1
+  },
+  "colorRoles": {
+    "node_rect_darkBottom": "surface",
+    "node_rect_darkRight": "surface",
+    "node_rect_lightLeft": "background",
+    "node_path_logoShape": "primary-text",
+    "node_text_logoText": "surface",
+    "node_text_sloganText": "surface",
+    "node_text_fullName": "background",
+    "node_circle_iconSurface": "primary-text",
+    "icon_person": "surface",
+    "node_rect_divider": "primary-text",
+    "node_text_position": "primary-text",
+    "node_text_phoneNo": "background",
+    "icon_phone": "primary-text",
+    "node_text_email": "background",
+    "icon_email": "primary-text",
+    "node_text_address": "background",
+    "icon_address": "primary-text"
+        
+  },
+  "layers": [
+    {
+      "id": "node_rect_darkBottom",
+      "type": "Rect",
+      "props": {
+        "id": "node_rect_darkBottom",
+        "x": 120.75757575757551,
+        "y": 402.424242424242,
+        "width": 808.4848484848491,
+        "height": 254.84848484848098,
+        "fill": "#10181b",
+        "cornerRadius": 0,
+        "rotation": 0,
+        "opacity": 1
+      },
+      "editable": true,
+      "locked": true
+    },
+    {
+      "id": "node_rect_lightLeft",
+      "type": "Rect",
+      "props": {
+        "id": "node_rect_lightLeft",
+        "x": -200,
+        "y": 0,
+        "width": 725,
+        "height": 605,
+        "fill": "#ffffff",
+        "cornerRadius": 200,
+        "rotation": 0,
+        "opacity": 1
+      },
+      "editable": true,
+      "locked": true
+    },
+    {
+      "id": "node_rect_darkRight",
+      "type": "Rect",
+      "props": {
+        "id": "node_rect_darkRight",
+        "x": 524,
+        "y": 0,
+        "width": 726,
+        "height": 605,
+        "fill": "#10181b",
+        "cornerRadius": 200,
+        "rotation": 0,
+        "opacity": 1,
+        "src": "data:image/png;base64,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",
+        "qrMetadata": {
+          "value": "https://example.com",
+          "fgColor": "#000000",
+          "bgColor": "transparent",
+          "dotStyle": "squares",
+          "eyeStyle": "square",
+          "eyeRadius": 0,
+          "logoSource": null,
+          "ecLevel": "Q",
+          "contentType": "Website",
+          "inputs": {
+            "website": "https://example.com",
+            "email": "",
+            "phone": "",
+            "smsPhone": "",
+            "smsMessage": "",
+            "firstName": "",
+            "lastName": "",
+            "org": "",
+            "contactPhone": "",
+            "contactEmail": "",
+            "eventTitle": "",
+            "eventLocation": ""
+          }
+        }
+      },
+      "editable": true,
+      "locked": true
+    },
+    {
+      "id": "node_path_logoShape",
+      "type": "Path",
+      "props": {
+        "id": "node_path_logoShape",
+        "x": 113.28063352076636,
+        "y": 55,
+        "width": 0,
+        "height": 0,
+        "data": "",
+        "paths": [
+          {
+            "d": "M35.7778 32.2222C35.7778 24.3675 42.1453 18 50 18C57.8547 18 64.2222 24.3675 64.2222 32.2222V35.7778H67.7778C75.6325 35.7778 82 42.1453 82 50C82 57.8547 75.6325 64.2222 67.7778 64.2222H64.2222V67.7778C64.2222 75.6325 57.8547 82 50 82C42.1453 82 35.7778 75.6325 35.7778 67.7778V64.2222H32.2222C24.3675 64.2222 18 57.8547 18 50C18 42.1453 24.3675 35.7778 32.2222 35.7778H35.7778V32.2222ZM34.8889 50.4444C40.6394 51.8056 48.301 60.1288 50 66.8889C51.699 60.1288 59.3606 51.8056 65.1111 50.4444C59.3606 49.0833 51.699 40.76 50 34C48.301 40.76 40.6394 49.0833 34.8889 50.4444Z",
+            "fillRule": "evenodd"
+          }
+        ],
+        "fill": "#e6aa6e",
+        "stroke": "#e6aa6e",
+        "strokeWidth": 1,
+        "opacity": 1,
+        "rotation": 0,
+        "scaleX": 3.08093349578304,
+        "scaleY": 3.08093349578304
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "node_text_logoText",
+      "type": "Text",
+      "props": {
+        "id": "node_text_logoText",
+        "x": 21,
+        "y": 323.6363636363623,
+        "text": "LOGO TEXT HERE",
+        "fontSize": 50,
+        "fill": "#10181b",
+        "fontFamily": "Quicksand",
+        "rotation": 0,
+        "opacity": 1,
+        "width": 479.0909090909093,
+        "height": 76.06060606060707,
+        "align": "center",
+        "fontStyle": "normal bold"
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "node_text_sloganText",
+      "type": "Text",
+      "props": {
+        "id": "node_text_sloganText",
+        "x": 135.5454545454546,
+        "y": 383,
+        "text": "SLOGAN TEXT",
+        "fontSize": 35,
+        "fill": "#10181b",
+        "fontFamily": "Quicksand",
+        "rotation": 0,
+        "opacity": 1,
+        "width": 250,
+        "height": 40,
+        "align": "center"
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "node_circle_iconSurface",
+      "type": "Circle",
+      "props": {
+        "id": "node_circle_iconSurface",
+        "x": 525,
+        "y": 300,
+        "width": 75,
+        "height": 75,
+        "radius": 37.5,
+        "fill": "#e6aa6e",
+        "rotation": 0,
+        "opacity": 1,
+        "strokeWidth": 10,
+        "stroke": "#10181b"
+      },
+      "editable": true,
+      "locked": true
+    },
+    {
+      "id": "icon_person",
+      "type": "Icon",
+      "props": {
+        "id": "icon_person",
+        "x": 502,
+        "y": 276,
+        "width": 45,
+        "height": 45,
+        "rotation": 0,
+        "opacity": 1,
+        "visible": true,
+        "category": "Icon",
+        "iconName": "fa6:user",
+        "fill": "#10181b",
+        "stroke": "transparent",
+        "strokeWidth": 0,
+        "data": ""
+      },
+      "editable": true,
+      "locked": true
+    },
+    {
+      "id": "node_rect_divider",
+      "type": "Rect",
+      "props": {
+        "id": "node_rect_divider",
+        "x": 580,
+        "y": 296.5,
+        "width": 60,
+        "height": 7,
+        "fill": "#e6aa6e",
+        "cornerRadius": 5,
+        "rotation": 0,
+        "opacity": 1
+      },
+      "editable": true,
+      "locked": true
+    },
+    {
+      "id": "node_text_fullName",
+      "type": "Text",
+      "props": {
+        "id": "node_text_fullName",
+        "x": 655.7575757575755,
+        "y": 272.57575757575756,
+        "text": "FULL NAME",
+        "fontSize": 65,
+        "fill": "#ffffff",
+        "fontFamily": "Quicksand",
+        "rotation": 0,
+        "opacity": 1,
+        "width": 394.2424242424244,
+        "height": 54.84848484848489,
+        "fontStyle": "normal bold"
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "node_text_position",
+      "type": "Text",
+      "props": {
+        "id": "node_text_position",
+        "x": 655,
+        "y": 343,
+        "text": "POSITION",
+        "fontSize": 35,
+        "fill": "#e6aa6e",
+        "fontFamily": "Quicksand",
+        "rotation": 0,
+        "opacity": 1,
+        "width": 250,
+        "height": 40
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "icon_phone",
+      "type": "Icon",
+      "props": {
+        "id": "icon_phone",
+        "x": 655,
+        "y": 447,
+        "width": 30,
+        "height": 30,
+        "rotation": 0,
+        "opacity": 1,
+        "visible": true,
+        "category": "Icon",
+        "iconName": "mdi:phone",
+        "fill": "#e6aa6e",
+        "stroke": "transparent",
+        "strokeWidth": 0,
+        "data": ""
+      },
+      "editable": true,
+      "locked": true
+    },
+    {
+      "id": "icon_email",
+      "type": "Icon",
+      "props": {
+        "id": "icon_email",
+        "x": 655,
+        "y": 487,
+        "width": 30,
+        "height": 30,
+        "rotation": 0,
+        "opacity": 1,
+        "visible": true,
+        "category": "Icon",
+        "iconName": "mdi:email-variant",
+        "fill": "#e6aa6e",
+        "stroke": "transparent",
+        "strokeWidth": 0,
+        "data": ""
+      },
+      "editable": true,
+      "locked": true
+    },
+    {
+      "id": "icon_address",
+      "type": "Icon",
+      "props": {
+        "id": "icon_address",
+        "x": 655,
+        "y": 530,
+        "width": 30,
+        "height": 30,
+        "rotation": 0,
+        "opacity": 1,
+        "visible": true,
+        "category": "Icon",
+        "iconName": "lucide:map-pin",
+        "fill": "transparent",
+        "stroke": "#e6aa6e",
+        "strokeWidth": 2,
+        "data": ""
+      },
+      "editable": true,
+      "locked": true
+    },
+    {
+      "id": "node_text_phoneNo",
+      "type": "Text",
+      "props": {
+        "id": "node_text_phoneNo",
+        "x": 702,
+        "y": 447,
+        "text": "+255 000 000 000",
+        "fontSize": 30,
+        "fill": "#ffffff",
+        "fontFamily": "Quicksand",
+        "rotation": 0,
+        "opacity": 1,
+        "width": 250,
+        "height": 40
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "node_text_email",
+      "type": "Text",
+      "props": {
+        "id": "node_text_email",
+        "x": 701.9999999999981,
+        "y": 486.9999999999974,
+        "text": "example@xyz.com",
+        "fontSize": 30,
+        "fill": "#ffffff",
+        "fontFamily": "Quicksand",
+        "rotation": 0,
+        "opacity": 1,
+        "width": 317.87878787878793,
+        "height": 52.72727272727343
+      },
+      "editable": true,
+      "locked": false
+    },
+    {
+      "id": "node_text_address",
+      "type": "Text",
+      "props": {
+        "id": "node_text_address",
+        "x": 702,
+        "y": 529.9999999999942,
+        "text": "123 Address, Anytown",
+        "fontSize": 30,
+        "fill": "#ffffff",
+        "fontFamily": "Quicksand",
+        "rotation": 0,
+        "opacity": 1,
+        "width": 328.48484848484844,
+        "height": 59.090909090911055
+      },
+      "editable": true,
+      "locked": false
+    }
+  ],
+  "groups": [],
+  "thumbnail": "",
+  "preview": "",
+  "tags": [
+    "creative",
+    "artistic",
+    "design"
+  ],
+  "category": "creative",
+  "colors": [
+    "#10181b",
+    "#ffffff",
+    "#e6aa6e",
+    "transparent"
+  ],
+  "features": []
+}

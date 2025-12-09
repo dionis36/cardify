@@ -64,6 +64,9 @@ interface EditorSidebarProps {
     // NEW: External Tab Control
     activeTab?: SidebarTab | null;
     onTabChange?: (tab: SidebarTab | null) => void;
+
+    // NEW: QR Code Mode
+    qrCodeMode?: 'add' | 'update';
 }
 
 export default function EditorSidebar({
@@ -91,6 +94,7 @@ export default function EditorSidebar({
     onDeleteGroup,
     activeTab: controlledActiveTab,
     onTabChange,
+    qrCodeMode = 'add', // Default to 'add'
 }: EditorSidebarProps) {
     const isDataOnlyMode = mode === "DATA_ONLY";
 
@@ -224,6 +228,7 @@ export default function EditorSidebar({
                                 onNodeChange={onNodeChange}
                                 selectedNodeIndex={selectedIndex}
                                 initialData={qrMetadata}
+                                mode={qrCodeMode}
                             />
                         </div>
                     </div>
