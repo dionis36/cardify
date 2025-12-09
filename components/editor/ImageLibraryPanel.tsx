@@ -24,11 +24,26 @@ interface ImageLibraryPanelProps {
 
 type TabType = 'upload' | 'pexels' | 'recent';
 
+// Pexels category definitions
+const PEXELS_CATEGORIES = [
+    { id: 'animals', label: 'Animals', query: 'animals pets wildlife', bgImage: 'https://images.pexels.com/photos/45170/kittens-cat-cat-puppy-rush-45170.jpeg?auto=compress&cs=tinysrgb&w=200' },
+    { id: 'food', label: 'Food', query: 'food cuisine meal', bgImage: 'https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg?auto=compress&cs=tinysrgb&w=200' },
+    { id: 'office', label: 'Office', query: 'office workspace business', bgImage: 'https://images.pexels.com/photos/7688336/pexels-photo-7688336.jpeg?auto=compress&cs=tinysrgb&w=200' },
+    { id: 'landscape', label: 'Landscape', query: 'landscape nature scenery', bgImage: 'https://images.pexels.com/photos/147411/italy-mountains-dawn-daybreak-147411.jpeg?auto=compress&cs=tinysrgb&w=200' },
+    { id: 'travel', label: 'Travel', query: 'travel destination adventure', bgImage: 'https://images.pexels.com/photos/2174656/pexels-photo-2174656.jpeg?auto=compress&cs=tinysrgb&w=200' },
+    { id: 'nature', label: 'Nature', query: 'nature forest trees', bgImage: 'https://images.pexels.com/photos/1179229/pexels-photo-1179229.jpeg?auto=compress&cs=tinysrgb&w=200' },
+    { id: 'business', label: 'Business', query: 'business professional corporate', bgImage: 'https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=200' },
+    { id: 'technology', label: 'Technology', query: 'technology computer digital', bgImage: 'https://images.pexels.com/photos/546819/pexels-photo-546819.jpeg?auto=compress&cs=tinysrgb&w=200' },
+];
+
 const ImageLibraryPanel: React.FC<ImageLibraryPanelProps> = ({ onAddNode }) => {
     const [activeTab, setActiveTab] = useState<TabType>('upload');
     const [searchQuery, setSearchQuery] = useState('');
+    const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
+    const [activeCategory, setActiveCategory] = useState<string>(PEXELS_CATEGORIES[0].id);
     const [pexelsPhotos, setPexelsPhotos] = useState<PexelsPhoto[]>([]);
     const [curatedPhotos, setCuratedPhotos] = useState<PexelsPhoto[]>([]);
+    const [categoryPhotos, setCategoryPhotos] = useState<Record<string, PexelsPhoto[]>>({});
     const [recentImages, setRecentImages] = useState<string[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -37,12 +52,31 @@ const ImageLibraryPanel: React.FC<ImageLibraryPanelProps> = ({ onAddNode }) => {
     const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    // Load curated photos on mount
+    // Debounce search query
     useEffect(() => {
-        if (activeTab === 'pexels' && curatedPhotos.length === 0) {
-            loadCuratedPhotos();
+        const timer = setTimeout(() => {
+            setDebouncedSearchQuery(searchQuery);
+        }, 500); // 500ms delay
+
+        return () => clearTimeout(timer);
+    }, [searchQuery]);
+
+    // Perform search when debounced query changes
+    useEffect(() => {
+        if (activeTab === 'pexels' && debouncedSearchQuery.trim().length > 0) {
+            performSearch(debouncedSearchQuery, 1);
+        } else {
+            setPexelsPhotos([]);
+            setHasMore(false);
         }
-    }, [activeTab]);
+    }, [debouncedSearchQuery, activeTab]);
+
+    // Load category photos on mount or when category changes
+    useEffect(() => {
+        if (activeTab === 'pexels' && searchQuery.trim().length === 0) {
+            loadCategoryPhotos(activeCategory);
+        }
+    }, [activeTab, activeCategory]);
 
     // Load recent images when tab is active
     useEffect(() => {
@@ -50,28 +84,6 @@ const ImageLibraryPanel: React.FC<ImageLibraryPanelProps> = ({ onAddNode }) => {
             setRecentImages(getRecentImages());
         }
     }, [activeTab]);
-
-    // Debounced search
-    useEffect(() => {
-        if (searchQuery.trim().length > 0) {
-            if (searchTimeoutRef.current) {
-                clearTimeout(searchTimeoutRef.current);
-            }
-            searchTimeoutRef.current = setTimeout(() => {
-                performSearch(searchQuery, 1);
-            }, 500);
-        } else {
-            setPexelsPhotos([]);
-            setPage(1);
-            setHasMore(true);
-        }
-
-        return () => {
-            if (searchTimeoutRef.current) {
-                clearTimeout(searchTimeoutRef.current);
-            }
-        };
-    }, [searchQuery]);
 
     const loadCuratedPhotos = async () => {
         if (!isPexelsConfigured()) {
@@ -90,6 +102,69 @@ const ImageLibraryPanel: React.FC<ImageLibraryPanelProps> = ({ onAddNode }) => {
                 setError(err.message);
             } else {
                 setError('Failed to load curated photos');
+            }
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const loadCategoryPhotos = async (categoryId: string) => {
+        if (!isPexelsConfigured()) {
+            setError('Pexels API key is not configured. Please add NEXT_PUBLIC_PEXELS_API_KEY to your .env.local file.');
+            return;
+        }
+
+        // Check if we already have photos for this category
+        if (categoryPhotos[categoryId] && categoryPhotos[categoryId].length > 0) {
+            return;
+        }
+
+        setLoading(true);
+        setError(null);
+
+        try {
+            const category = PEXELS_CATEGORIES.find(c => c.id === categoryId);
+            if (!category) return;
+
+            const response = await searchPhotos(category.query, 1, 20);
+            setCategoryPhotos(prev => ({
+                ...prev,
+                [categoryId]: response.photos
+            }));
+        } catch (err) {
+            if (err instanceof PexelsServiceError) {
+                setError(err.message);
+            } else {
+                setError('Failed to load category photos');
+            }
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const loadMoreCategoryPhotos = async (categoryId: string, pageNum: number) => {
+        if (!isPexelsConfigured()) {
+            setError('Pexels API key is not configured.');
+            return;
+        }
+
+        setLoading(true);
+        setError(null);
+
+        try {
+            const category = PEXELS_CATEGORIES.find(c => c.id === categoryId);
+            if (!category) return;
+
+            const response = await searchPhotos(category.query, pageNum, 20);
+            setCategoryPhotos(prev => ({
+                ...prev,
+                [categoryId]: [...(prev[categoryId] || []), ...response.photos]
+            }));
+        } catch (err) {
+            if (err instanceof PexelsServiceError) {
+                setError(err.message);
+            } else {
+                setError('Failed to load more photos');
             }
         } finally {
             setLoading(false);
@@ -255,11 +330,12 @@ const ImageLibraryPanel: React.FC<ImageLibraryPanelProps> = ({ onAddNode }) => {
     );
 
     const renderPexelsTab = () => {
-        const photosToDisplay = searchQuery.trim().length > 0 ? pexelsPhotos : curatedPhotos;
+        const isSearching = searchQuery.trim().length > 0;
+        const photosToDisplay = isSearching ? pexelsPhotos : [];
 
         return (
             <div className="space-y-4">
-                {/* Search Bar */}
+                {/* Search Bar with Clear Button */}
                 <div className="relative">
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
                     <input
@@ -267,48 +343,106 @@ const ImageLibraryPanel: React.FC<ImageLibraryPanelProps> = ({ onAddNode }) => {
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         placeholder="Search free photos..."
-                        className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        className="w-full pl-10 pr-10 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     />
-                </div>
-
-                {/* Photos Grid */}
-                <div className="grid grid-cols-2 gap-3 max-h-[500px] overflow-y-auto custom-scrollbar">
-                    {photosToDisplay.map((photo) => (
+                    {searchQuery && (
                         <button
-                            key={photo.id}
-                            onClick={() => handlePexelsImageClick(photo)}
-                            className="relative aspect-square rounded-lg overflow-hidden group hover:ring-2 hover:ring-blue-500 transition-all"
+                            onClick={() => setSearchQuery('')}
+                            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
                         >
-                            <img
-                                src={photo.src.small}
-                                alt={photo.alt || 'Photo'}
-                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-200"
-                            />
-                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors" />
-                            <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
-                                <p className="text-xs text-white truncate">{photo.photographer}</p>
-                            </div>
+                            <X size={18} />
                         </button>
-                    ))}
+                    )}
                 </div>
 
-                {/* Load More Button */}
-                {searchQuery.trim().length > 0 && hasMore && !loading && pexelsPhotos.length > 0 && (
-                    <button
-                        onClick={handleLoadMore}
-                        className="w-full py-2 px-4 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium rounded-md transition-colors"
-                    >
-                        Load More
-                    </button>
+                {/* Category Grid View - Only show when not searching */}
+                {!isSearching && (
+                    <div className="space-y-3">
+                        <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Browse by Category</p>
+                        <div className="grid grid-cols-2 gap-3">
+                            {PEXELS_CATEGORIES.map((category) => (
+                                <button
+                                    key={category.id}
+                                    onClick={() => setSearchQuery(category.query)}
+                                    className="relative aspect-square rounded-lg overflow-hidden transition-all ring-1 ring-gray-200 hover:ring-2 hover:ring-blue-400 hover:shadow-lg group"
+                                >
+                                    {/* Background Image */}
+                                    <img
+                                        src={category.bgImage}
+                                        alt={category.label}
+                                        className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                    />
+                                    {/* Gradient Overlay */}
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+                                    {/* Label */}
+                                    <div className="absolute inset-0 flex items-end justify-center pb-3">
+                                        <span className="text-sm font-bold text-white drop-shadow-lg">
+                                            {category.label}
+                                        </span>
+                                    </div>
+                                </button>
+                            ))}
+                        </div>
+                    </div>
                 )}
 
-                {/* Attribution */}
-                <p className="text-xs text-gray-500 text-center">
-                    Photos provided by{' '}
-                    <a href="https://www.pexels.com" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                        Pexels
-                    </a>
-                </p>
+                {/* Search Results View */}
+                {isSearching && (
+                    <div className="space-y-4">
+                        <div className="grid grid-cols-2 gap-3">
+                            {photosToDisplay.map((photo) => (
+                                <button
+                                    key={photo.id}
+                                    onClick={() => handlePexelsImageClick(photo)}
+                                    className="relative aspect-square rounded-lg overflow-hidden group hover:ring-2 hover:ring-blue-500 transition-all"
+                                >
+                                    <img
+                                        src={photo.src.small}
+                                        alt={photo.alt || 'Photo'}
+                                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-200"
+                                    />
+                                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors" />
+                                    <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <p className="text-xs text-white truncate">{photo.photographer}</p>
+                                    </div>
+                                </button>
+                            ))}
+                        </div>
+
+                        {/* Load More Button for Search */}
+                        {hasMore && !loading && pexelsPhotos.length > 0 && (
+                            <button
+                                onClick={handleLoadMore}
+                                className="w-full py-2.5 px-4 bg-white border-2 border-gray-300 hover:border-blue-400 hover:bg-blue-50 text-gray-700 text-sm font-medium rounded-lg transition-all"
+                            >
+                                Load More Images
+                            </button>
+                        )}
+
+                        {/* Empty State */}
+                        {pexelsPhotos.length === 0 && !loading && (
+                            <div className="text-center py-12">
+                                <ImageIcon className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+                                <p className="text-sm text-gray-500">No photos found</p>
+                            </div>
+                        )}
+                    </div>
+                )}
+
+                {/* Powered by Pexels Attribution */}
+                <div className="pt-3 border-t border-gray-200">
+                    <p className="text-xs text-gray-500 text-center">
+                        Powered by{' '}
+                        <a
+                            href="https://www.pexels.com"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="font-semibold text-blue-600 hover:text-blue-700 hover:underline transition-colors"
+                        >
+                            Pexels
+                        </a>
+                    </p>
+                </div>
             </div>
         );
     };
@@ -384,7 +518,7 @@ const ImageLibraryPanel: React.FC<ImageLibraryPanelProps> = ({ onAddNode }) => {
             </div>
 
             {/* Tab Content */}
-            <div className="flex-1 p-4 overflow-hidden">
+            <div className="flex-1 p-4">
                 {error && (
                     <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md flex items-start gap-2">
                         <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />

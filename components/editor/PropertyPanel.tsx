@@ -540,7 +540,7 @@ export default function PropertyPanel({
     panels.push(
       <SectionContainer key="shape" title={node.type.includes("Image") ? "Image Settings" : "Appearance"} icon={Layout}>
         {/* Crop Button for Images */}
-        {capabilities.hasCrop && (
+        {capabilities.hasCrop && !(node.props as any).qrMetadata && !(node.props as any).isLogo && (
           <div className="mb-4">
             <button
               className="w-full py-2 px-4 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md flex items-center justify-center gap-2 transition-colors text-sm font-medium"

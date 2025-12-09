@@ -833,8 +833,7 @@ const CanvasStage = forwardRef<KonvaStageType, CanvasStageProps>(
                             const shouldKeepRatio = isMultiSelection ? false : (
                                 selectedNodeDef?.type === 'Icon' ||
                                 selectedNodeDef?.type === 'Path' || // ADDED: Keep aspect ratio for custom SVG shapes
-                                (selectedNodeDef?.type === 'Image' && !!(selectedNodeDef.props as any).qrMetadata) ||
-                                (selectedNodeDef?.type === 'Image' && !!(selectedNodeDef.props as any).isLogo)
+                                selectedNodeDef?.type === 'Image' && !(selectedNodeDef.props as any).qrMetadata && !(selectedNodeDef.props as any).isLogo // ADDED: Keep aspect ratio for regular images (not QR or logo)
                             );
 
                             return (
@@ -886,20 +885,27 @@ const CanvasStage = forwardRef<KonvaStageType, CanvasStageProps>(
                         })()}
 
                         {/* NEW: Crop Overlay */}
-                        {editMode === 'crop' && primarySelectedNode && primarySelectedNode.type === 'Image' && (
-                            <CropOverlay
-                                imageNode={{
-                                    x: primarySelectedNode.props.x,
-                                    y: primarySelectedNode.props.y,
-                                    width: primarySelectedNode.props.width,
-                                    height: primarySelectedNode.props.height,
-                                    rotation: primarySelectedNode.props.rotation,
-                                    props: primarySelectedNode.props as any,
-                                }}
-                                onCropChange={() => { }} // Implement crop change logic
-                                onExit={exitEditMode}
-                            />
-                        )}
+                        {editMode === 'crop' && primarySelectedNode && primarySelectedNode.type === 'Image' && (() => {
+                            const nodeIndex = layers.findIndex(n => n.id === primarySelectedNode.id);
+                            return (
+                                <CropOverlay
+                                    imageNode={{
+                                        x: primarySelectedNode.props.x,
+                                        y: primarySelectedNode.props.y,
+                                        width: primarySelectedNode.props.width,
+                                        height: primarySelectedNode.props.height,
+                                        rotation: primarySelectedNode.props.rotation,
+                                        props: primarySelectedNode.props as any,
+                                    }}
+                                    onCropChange={(cropData) => {
+                                        if (nodeIndex !== -1) {
+                                            onNodeChange(nodeIndex, cropData);
+                                        }
+                                    }}
+                                    onExit={exitEditMode}
+                                />
+                            );
+                        })()}
 
                     </Layer>
 
