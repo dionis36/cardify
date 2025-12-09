@@ -4,7 +4,12 @@ import FontLoader from "@/components/FontLoader";
 import { Inter } from 'next/font/google'; // Keep Inter for UI if needed, remove others for canvas clarity
 
 // Keep Inter for UI consistency
-const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'swap' });
+const inter = Inter({
+  subsets: ['latin'],
+  variable: '--font-inter',
+  display: 'swap',
+  fallback: ['system-ui', 'arial']
+});
 
 export const metadata: Metadata = {
   title: "Cardify – Business Card Designer",

@@ -17,7 +17,7 @@ const SNAP_TO_TOLERANCE = 5;
 export interface SnappingLine {
   guideType: "v" | "h";
   lineCoord: number;
-  strokeColor: string; 
+  strokeColor: string;
 }
 
 /**
@@ -26,30 +26,30 @@ export interface SnappingLine {
  * @returns An array of SnappingLine objects.
  */
 function getLinesForNode(nodeProps: KonvaNodeProps, color: string): SnappingLine[] {
-    const { x, y, width, height, rotation } = nodeProps;
-    
-    // Note: Konva's default transformer does not modify x/y when rotating; 
-    // it keeps the top-left bounding box x/y. We rely on that simpler model.
-    if (rotation !== 0) {
-        // For simplicity and stability with Konva's Transformer in this design, 
-        // we only snap nodes when rotation is 0. Complex rotation snapping 
-        // would require calculating the Konva's `getClientRect()`.
-        return [];
-    }
+  const { x, y, width, height, rotation } = nodeProps;
 
-    const lines: SnappingLine[] = [];
-    
-    // Vertical lines (X-coordinates)
-    lines.push({ guideType: "v", lineCoord: x, strokeColor: color }); // Left
-    lines.push({ guideType: "v", lineCoord: x + width / 2, strokeColor: color }); // Center
-    lines.push({ guideType: "v", lineCoord: x + width, strokeColor: color }); // Right
+  // Note: Konva's default transformer does not modify x/y when rotating; 
+  // it keeps the top-left bounding box x/y. We rely on that simpler model.
+  if (rotation !== 0) {
+    // For simplicity and stability with Konva's Transformer in this design, 
+    // we only snap nodes when rotation is 0. Complex rotation snapping 
+    // would require calculating the Konva's `getClientRect()`.
+    return [];
+  }
 
-    // Horizontal lines (Y-coordinates)
-    lines.push({ guideType: "h", lineCoord: y, strokeColor: color }); // Top
-    lines.push({ guideType: "h", lineCoord: y + height / 2, strokeColor: color }); // Middle
-    lines.push({ guideType: "h", lineCoord: y + height, strokeColor: color }); // Bottom
+  const lines: SnappingLine[] = [];
 
-    return lines;
+  // Vertical lines (X-coordinates)
+  lines.push({ guideType: "v", lineCoord: x, strokeColor: color }); // Left
+  lines.push({ guideType: "v", lineCoord: x + width / 2, strokeColor: color }); // Center
+  lines.push({ guideType: "v", lineCoord: x + width, strokeColor: color }); // Right
+
+  // Horizontal lines (Y-coordinates)
+  lines.push({ guideType: "h", lineCoord: y, strokeColor: color }); // Top
+  lines.push({ guideType: "h", lineCoord: y + height / 2, strokeColor: color }); // Middle
+  lines.push({ guideType: "h", lineCoord: y + height, strokeColor: color }); // Bottom
+
+  return lines;
 }
 
 /**
@@ -110,7 +110,7 @@ export function getSnapAndAlignLines(
 
   // If rotated, disable snapping for this drag (simplifies complexity)
   if (rotation !== 0) {
-      return { x: x, y: y, snappingLines: [] };
+    return { x: x, y: y, snappingLines: [] };
   }
 
   // Calculate the 6 alignment points for the node currently being dragged
@@ -138,10 +138,10 @@ export function getSnapAndAlignLines(
       if (Math.abs(targetLine.lineCoord - selfLine.coord) < SNAP_TO_TOLERANCE) {
         // SNAP DETECTED: Calculate the required change in X
         const diffX = targetLine.lineCoord - selfLine.coord;
-        
+
         // Adjust the newX position
         newX = x + diffX;
-        
+
         // Add the detected line to the visible guides
         snappingLines.push(targetLine);
       }
@@ -164,11 +164,11 @@ export function getSnapAndAlignLines(
       }
     });
   });
-  
+
   // Return the new snapped coordinates and the lines to render
-  return { 
-    x: newX, 
-    y: newY, 
-    snappingLines 
+  return {
+    x: newX,
+    y: newY,
+    snappingLines
   };
 }

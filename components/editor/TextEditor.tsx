@@ -9,7 +9,7 @@ import { Stage as KonvaStageType } from "konva/lib/Stage";
 
 interface TextEditorProps {
     // The Konva Text node instance that triggered the edit
-    konvaNode: Konva.Text; 
+    konvaNode: Konva.Text;
     // The node definition from the state
     nodeDef: KonvaNodeDefinition & { type: 'Text', props: TextProps };
     // Ref to the main Konva Stage to calculate position
@@ -38,14 +38,14 @@ const TextEditor: React.FC<TextEditorProps> = ({
     // rotation, alignment, and multi-line wrapping, making the positioning correct.
     const rect = konvaNode.getClientRect();
     const stage = canvasStageRef.current;
-    
+
     // We need the stage container's bounding box to calculate absolute position
-    const containerRect = stage?.container().getBoundingClientRect(); 
-    
+    const containerRect = stage?.container().getBoundingClientRect();
+
     if (!stage || !containerRect) {
         return null;
     }
-    
+
     // Calculate the absolute position of the Konva node's bounding box relative to the viewport
     const absoluteX = containerRect.left + rect.x;
     const absoluteY = containerRect.top + rect.y;
@@ -59,17 +59,17 @@ const TextEditor: React.FC<TextEditorProps> = ({
         left: absoluteX,
         width: rect.width,
         height: rect.height,
-        
+
         // Match Konva text styles
         fontSize: `${props.fontSize}px`,
         fontFamily: props.fontFamily,
         color: props.fill,
         // Konva's default lineHeight is roughly 1.2
-        lineHeight: props.lineHeight ? `${props.lineHeight}` : '1.2', 
+        lineHeight: props.lineHeight ? `${props.lineHeight}` : '1.2',
         textAlign: props.align || 'left',
-        
+
         // Map Konva text decoration and style props
-        textDecoration: props.textDecoration || '', 
+        textDecoration: props.textDecoration || '',
         fontWeight: props.fontStyle?.includes('bold') ? 'bold' : 'normal',
         fontStyle: props.fontStyle?.includes('italic') ? 'italic' : 'normal',
         letterSpacing: props.letterSpacing ? `${props.letterSpacing}px` : 'normal',
@@ -78,14 +78,14 @@ const TextEditor: React.FC<TextEditorProps> = ({
         // Apply Konva rotation directly in CSS (Crucial for alignment)
         transform: `rotateZ(${props.rotation}deg)`,
         // Anchor the rotation to the top-left of the textarea's bounding box
-        transformOrigin: '0% 0%', 
-        
+        transformOrigin: '0% 0%',
+
         // Remove all default textarea styling
         padding: '0px',
         margin: '0px',
         border: '1px solid transparent', // Use transparent border to match Konva's text box
         overflow: 'hidden',
-        background: 'none', 
+        background: 'none',
         resize: 'none',
         boxSizing: 'border-box',
         outline: 'none',
@@ -97,7 +97,7 @@ const TextEditor: React.FC<TextEditorProps> = ({
     // Handle blur: this is the primary commit mechanism
     const handleBlur = useCallback(() => {
         // Remove trailing new lines which can cause layout issues after commit
-        const finalContent = text.replace(/\n+$/, ''); 
+        const finalContent = text.replace(/\n+$/, '');
         onStopEditing(finalContent);
     }, [text, onStopEditing]);
 
@@ -111,12 +111,12 @@ const TextEditor: React.FC<TextEditorProps> = ({
     };
 
     // --- 4. Focus and Initial Setup ---
-    
+
     useEffect(() => {
         if (textareaRef.current) {
             // Immediately focus the textarea
             textareaRef.current.focus();
-            
+
             // Set the selection range to the end of the text for better UX
             const len = textareaRef.current.value.length;
             textareaRef.current.setSelectionRange(len, len);

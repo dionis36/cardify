@@ -11,13 +11,13 @@ interface TextNodeProps {
   node: KonvaNodeDefinition & { type: "Text"; props: TextProps };
   nodeRef?: React.RefObject<Konva.Text>; // Added prop
   isSelected: boolean;
-  onSelect: () => void; 
-  onDeselect: () => void; 
+  onSelect: () => void;
+  onDeselect: () => void;
   onNodeChange: (updates: Partial<TextProps>) => void;
   isLocked: boolean;
   isLayoutDisabled: boolean;
   // NEW PROP: Callback to tell the parent (CanvasStage) to show the HTML editor
-  onStartEditing: (konvaNode: Konva.Text) => void; 
+  onStartEditing: (konvaNode: Konva.Text) => void;
   // NEW PROP: Flag from parent to hide the Konva node when the HTML editor is active
   isVisible?: boolean;
   onDragStart?: (e: Konva.KonvaEventObject<DragEvent>) => void;
@@ -31,7 +31,7 @@ const TextNode: React.FC<TextNodeProps> = memo((({
   nodeRef, // Destructure
   isSelected,
   onSelect,
-  onDeselect, 
+  onDeselect,
   onNodeChange,
   isLocked,
   isLayoutDisabled,
@@ -62,17 +62,17 @@ const TextNode: React.FC<TextNodeProps> = memo((({
   // --- Double-click handler to initiate inline editing ---
   const handleDoubleClick = (e: Konva.KonvaEventObject<MouseEvent | TouchEvent>) => {
     // Prevent event from bubbling up to the stage/layer
-    e.cancelBubble = true; 
-    
+    e.cancelBubble = true;
+
     // Do not allow editing if locked or layout is disabled
     if (isLocked || isLayoutDisabled || !node.editable) return;
 
     const konvaNode = konvaNodeRef.current;
-    
+
     if (konvaNode) {
-        // Stop selection and pass the Konva node instance back to the parent
-        onDeselect();
-        onStartEditing(konvaNode); 
+      // Stop selection and pass the Konva node instance back to the parent
+      onDeselect();
+      onStartEditing(konvaNode);
     }
   };
 
@@ -97,12 +97,12 @@ const TextNode: React.FC<TextNodeProps> = memo((({
       rotation: konvaNode.rotation(),
     });
   };
-  
+
   // Render null when the parent is showing the HTML editor overlay
   if (!isVisible) {
     return null;
   }
-  
+
   // Konva Text Node component
   return (
     <Text
@@ -120,16 +120,16 @@ const TextNode: React.FC<TextNodeProps> = memo((({
       rotation={rotation}
       opacity={opacity}
       visible={safeVisible}
-      draggable={!isLocked && !isLayoutDisabled && node.editable} 
-      
+      draggable={!isLocked && !isLayoutDisabled && node.editable}
+
       // Selection Handlers
-      onClick={onSelect} 
+      onClick={onSelect}
       onTap={onSelect}
-      
+
       // Editing Handler (calls parent)
-      onDblClick={handleDoubleClick} 
+      onDblClick={handleDoubleClick}
       onDblTap={handleDoubleClick}
-      
+
       // Drag & Transform Handlers
       onDragStart={onDragStart}
       onDragMove={onDragMove}
@@ -138,14 +138,14 @@ const TextNode: React.FC<TextNodeProps> = memo((({
         onNodeChange({ x: e.target.x(), y: e.target.y() });
       }}
       onTransformEnd={handleTransformEnd}
-      
+
       // Advanced Text Properties
-      align={safeAlign} 
+      align={safeAlign}
       lineHeight={lineHeight}
       letterSpacing={letterSpacing}
-      textDecoration={decoration} 
-      fontStyle={`${isBold} ${isItalic}`} 
-      
+      textDecoration={decoration}
+      fontStyle={`${isBold} ${isItalic}`}
+
       // Shadow Props
       shadowColor={shadowColor}
       shadowBlur={shadowBlur}
