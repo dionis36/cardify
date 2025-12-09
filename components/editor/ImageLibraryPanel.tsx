@@ -281,7 +281,7 @@ const ImageLibraryPanel: React.FC<ImageLibraryPanelProps> = ({ onAddNode }) => {
                 opacity: 1,
                 visible: true,
             } as ImageProps,
-            editable: false,
+            editable: true,
             locked: false,
         };
 
