@@ -46,6 +46,7 @@ const ImageLibraryPanel: React.FC<ImageLibraryPanelProps> = ({ onAddNode }) => {
     const [categoryPhotos, setCategoryPhotos] = useState<Record<string, PexelsPhoto[]>>({});
     const [recentImages, setRecentImages] = useState<string[]>([]);
     const [loading, setLoading] = useState(false);
+    const [loadingMore, setLoadingMore] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
@@ -177,7 +178,12 @@ const ImageLibraryPanel: React.FC<ImageLibraryPanelProps> = ({ onAddNode }) => {
             return;
         }
 
-        setLoading(true);
+        // Use loadingMore for pagination, loading for initial search
+        if (pageNum > 1) {
+            setLoadingMore(true);
+        } else {
+            setLoading(true);
+        }
         setError(null);
 
         try {
@@ -187,8 +193,8 @@ const ImageLibraryPanel: React.FC<ImageLibraryPanelProps> = ({ onAddNode }) => {
             } else {
                 setPexelsPhotos(prev => [...prev, ...response.photos]);
             }
-            setHasMore(response.photos.length === 20);
             setPage(pageNum);
+            setHasMore(response.photos.length === 20);
         } catch (err) {
             if (err instanceof PexelsServiceError) {
                 setError(err.message);
@@ -196,7 +202,11 @@ const ImageLibraryPanel: React.FC<ImageLibraryPanelProps> = ({ onAddNode }) => {
                 setError('Failed to search photos');
             }
         } finally {
-            setLoading(false);
+            if (pageNum > 1) {
+                setLoadingMore(false);
+            } else {
+                setLoading(false);
+            }
         }
     };
 
@@ -413,9 +423,11 @@ const ImageLibraryPanel: React.FC<ImageLibraryPanelProps> = ({ onAddNode }) => {
                         {hasMore && !loading && pexelsPhotos.length > 0 && (
                             <button
                                 onClick={handleLoadMore}
-                                className="w-full py-2.5 px-4 bg-white border-2 border-gray-300 hover:border-blue-400 hover:bg-blue-50 text-gray-700 text-sm font-medium rounded-lg transition-all"
+                                disabled={loadingMore}
+                                className="w-full py-2.5 px-4 bg-white border-2 border-gray-300 hover:border-blue-400 hover:bg-blue-50 text-gray-700 text-sm font-medium rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                             >
-                                Load More Images
+                                {loadingMore && <Loader2 className="w-4 h-4 animate-spin" />}
+                                {loadingMore ? 'Loading...' : 'Load More Images'}
                             </button>
                         )}
 
