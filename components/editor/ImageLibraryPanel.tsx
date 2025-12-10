@@ -26,14 +26,14 @@ type TabType = 'upload' | 'pexels' | 'recent';
 
 // Pexels category definitions
 const PEXELS_CATEGORIES = [
-    { id: 'animals', label: 'Animals', query: 'animals pets wildlife', bgImage: 'https://images.pexels.com/photos/45170/kittens-cat-cat-puppy-rush-45170.jpeg?auto=compress&cs=tinysrgb&w=200' },
-    { id: 'food', label: 'Food', query: 'food cuisine meal', bgImage: 'https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg?auto=compress&cs=tinysrgb&w=200' },
-    { id: 'office', label: 'Office', query: 'office workspace business', bgImage: 'https://images.pexels.com/photos/7688336/pexels-photo-7688336.jpeg?auto=compress&cs=tinysrgb&w=200' },
-    { id: 'landscape', label: 'Landscape', query: 'landscape nature scenery', bgImage: 'https://images.pexels.com/photos/147411/italy-mountains-dawn-daybreak-147411.jpeg?auto=compress&cs=tinysrgb&w=200' },
-    { id: 'travel', label: 'Travel', query: 'travel destination adventure', bgImage: 'https://images.pexels.com/photos/2174656/pexels-photo-2174656.jpeg?auto=compress&cs=tinysrgb&w=200' },
-    { id: 'nature', label: 'Nature', query: 'nature forest trees', bgImage: 'https://images.pexels.com/photos/1179229/pexels-photo-1179229.jpeg?auto=compress&cs=tinysrgb&w=200' },
-    { id: 'business', label: 'Business', query: 'business professional corporate', bgImage: 'https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=200' },
-    { id: 'technology', label: 'Technology', query: 'technology computer digital', bgImage: 'https://images.pexels.com/photos/546819/pexels-photo-546819.jpeg?auto=compress&cs=tinysrgb&w=200' },
+    { id: 'animals', label: 'Animals', query: 'animals pets wildlife', bgImage: 'https://images.pexels.com/photos/45170/kittens-cat-cat-puppy-rush-45170.jpeg?auto=compress&cs=tinysrgb&w=600' },
+    { id: 'food', label: 'Food', query: 'food cuisine meal', bgImage: 'https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg?auto=compress&cs=tinysrgb&w=600' },
+    { id: 'office', label: 'Office', query: 'office workspace business', bgImage: 'https://images.pexels.com/photos/7688336/pexels-photo-7688336.jpeg?auto=compress&cs=tinysrgb&w=600' },
+    { id: 'landscape', label: 'Landscape', query: 'landscape nature scenery', bgImage: 'https://images.pexels.com/photos/147411/italy-mountains-dawn-daybreak-147411.jpeg?auto=compress&cs=tinysrgb&w=600' },
+    { id: 'travel', label: 'Travel', query: 'travel destination adventure', bgImage: 'https://images.pexels.com/photos/2174656/pexels-photo-2174656.jpeg?auto=compress&cs=tinysrgb&w=600' },
+    { id: 'nature', label: 'Nature', query: 'nature forest trees', bgImage: 'https://images.pexels.com/photos/1179229/pexels-photo-1179229.jpeg?auto=compress&cs=tinysrgb&w=600' },
+    { id: 'business', label: 'Business', query: 'business professional corporate', bgImage: 'https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=600' },
+    { id: 'technology', label: 'Technology', query: 'technology computer digital', bgImage: 'https://images.pexels.com/photos/546819/pexels-photo-546819.jpeg?auto=compress&cs=tinysrgb&w=600' },
 ];
 
 const ImageLibraryPanel: React.FC<ImageLibraryPanelProps> = ({ onAddNode }) => {
