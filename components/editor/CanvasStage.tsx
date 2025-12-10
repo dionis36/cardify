@@ -397,12 +397,28 @@ const CanvasStage = forwardRef<KonvaStageType, CanvasStageProps>(
         }, [layers, fontsLoaded]); // Redraw when layers change AND fonts are loaded
 
         // NEW: Set canvas ready when both fonts and scale are ready
+        // PLUS enforce minimum skeleton display time for professional feel
         useEffect(() => {
             if (fontsLoaded && isScaleCalculated) {
-                // Small delay to ensure everything is rendered before fade-in
+                // Professional UX: Minimum 350ms skeleton display
+                // This prevents the "too fast/mechanical" feel
+                const MINIMUM_SKELETON_DISPLAY_MS = 350;
+                const loadStartTime = Date.now();
+
                 const timer = setTimeout(() => {
-                    setIsCanvasReady(true);
-                }, 50);
+                    const elapsedTime = Date.now() - loadStartTime;
+                    const remainingTime = Math.max(0, MINIMUM_SKELETON_DISPLAY_MS - elapsedTime);
+
+                    // If we haven't shown skeleton for minimum time, wait
+                    if (remainingTime > 0) {
+                        setTimeout(() => {
+                            setIsCanvasReady(true);
+                        }, remainingTime);
+                    } else {
+                        setIsCanvasReady(true);
+                    }
+                }, 50); // Small initial delay to ensure render
+
                 return () => clearTimeout(timer);
             }
         }, [fontsLoaded, isScaleCalculated]);
