@@ -136,10 +136,22 @@ export default function ExportModal({
             setExporting(true);
             try {
                 await onExport(options);
+
+                // Show success notification for PNG/PDF exports
+                const fileExtension = format.toLowerCase();
+                const fullFileName = fileName.endsWith(`.${fileExtension}`) ? fileName : `${fileName}.${fileExtension}`;
+                setSuccessMessage(fullFileName);
+                setExporting(false);
+
+                // Auto-close after a delay
                 setTimeout(() => {
                     onClose();
-                    setExporting(false);
-                }, 500);
+                    // Reset form after closing
+                    setTimeout(() => {
+                        setSuccessMessage(null);
+                        setFileName('card');
+                    }, 300);
+                }, 1500);
             } catch (error) {
                 console.error("Export failed:", error);
                 setExporting(false);
@@ -149,6 +161,15 @@ export default function ExportModal({
 
     // Render Success State
     if (successMessage) {
+        // Determine if this is a template export or file export
+        const isTemplateExport = activeTab === 'template';
+        const messageText = isTemplateExport
+            ? `Template ${successMessage} has been saved.`
+            : `File ${successMessage} has been downloaded.`;
+        const titleText = isTemplateExport
+            ? 'Export Successful!'
+            : 'Download Complete!';
+
         return (
             <div
                 className="fixed inset-0 z-[100] flex items-center justify-center animate-fadeIn p-4"
@@ -162,9 +183,9 @@ export default function ExportModal({
                     <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center text-green-600 mb-4">
                         <CheckCircle size={32} />
                     </div>
-                    <h3 className="text-xl font-bold text-gray-900 mb-2">Export Successful!</h3>
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">{titleText}</h3>
                     <p className="text-gray-500 text-center mb-6">
-                        Template <strong>{successMessage}</strong> has been saved.
+                        {messageText}
                     </p>
                     <div className="w-full bg-gray-100 rounded-full h-1.5 overflow-hidden">
                         <div className="h-full bg-green-500 animate-[width_1.5s_linear_forwards]" style={{ width: '0%' }} />
