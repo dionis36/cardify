@@ -250,12 +250,38 @@ const CanvasStage = forwardRef<KonvaStageType, CanvasStageProps>(
 
         const { width: templateWidth, height: templateHeight, layers } = template;
 
+        // CRITICAL: Calculate initial scale synchronously to prevent tall skeleton flash
+        // This runs during initial render, before any effects
+        const calculateInitialScale = useCallback(() => {
+            const container = parentRef.current;
+            if (!container) {
+                // If parent not available yet, use a small default scale
+                // This prevents the skeleton from being too large
+                return 0.1;
+            }
+
+            const parentWidth = container.offsetWidth;
+            const parentHeight = container.offsetHeight;
+
+            // Same calculation as in the ResizeObserver
+            const scaleX = (parentWidth - STAGE_PADDING) / templateWidth;
+            const scaleY = (parentHeight - STAGE_PADDING) / templateHeight;
+
+            const calculatedScale = Math.min(scaleX, scaleY);
+            return Math.max(0.1, calculatedScale);
+        }, [parentRef, templateWidth, templateHeight]);
+
         // CRITICAL: New state for dynamic stage size and scale
-        const [stageSize, setStageSize] = useState({
+        // Initialize with calculated scale instead of defaulting to 1
+        const [stageSize, setStageSize] = useState(() => ({
             width: templateWidth,
             height: templateHeight,
-            scale: 1
-        });
+            scale: calculateInitialScale()
+        }));
+
+        // NEW: Loading state - tracks when canvas is ready to display
+        const [isScaleCalculated, setIsScaleCalculated] = useState(false);
+        const [isCanvasReady, setIsCanvasReady] = useState(false);
 
         // --- Dynamic Scaling Logic (Plan 3) ---
         useEffect(() => {
@@ -292,6 +318,9 @@ const CanvasStage = forwardRef<KonvaStageType, CanvasStageProps>(
                         height: templateHeight,
                         scale: finalScale,
                     });
+
+                    // Mark scale as calculated on first run
+                    setIsScaleCalculated(true);
                 });
             };
 
@@ -366,6 +395,17 @@ const CanvasStage = forwardRef<KonvaStageType, CanvasStageProps>(
                 layerRef.current?.batchDraw();
             }
         }, [layers, fontsLoaded]); // Redraw when layers change AND fonts are loaded
+
+        // NEW: Set canvas ready when both fonts and scale are ready
+        useEffect(() => {
+            if (fontsLoaded && isScaleCalculated) {
+                // Small delay to ensure everything is rendered before fade-in
+                const timer = setTimeout(() => {
+                    setIsCanvasReady(true);
+                }, 50);
+                return () => clearTimeout(timer);
+            }
+        }, [fontsLoaded, isScaleCalculated]);
 
         // NEW: Use controlled zoom and pan (or fallback to defaults)
         const zoom = externalZoom;
@@ -737,221 +777,280 @@ const CanvasStage = forwardRef<KonvaStageType, CanvasStageProps>(
         const selectedNodeDef = selectedNodeIndices.length === 1 ? layers[selectedNodeIndices[0]] : null;
 
         return (
-            // Wrapper div is not strictly necessary but can help for styling/debug
             <div
                 style={{
-                    // Set the size of the container to the scaled size of the card (with zoom applied)
+                    // Container matches the final card size
                     width: templateWidth * stageSize.scale * zoom,
                     height: templateHeight * stageSize.scale * zoom,
-                    // Optional: add a subtle shadow for a card-like effect
-                    boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
-                    cursor: isSpacePressed ? (isPanning ? 'grabbing' : 'grab') : 'default',
+                    position: 'relative',
                 }}
-                className="bg-white rounded-lg overflow-hidden transition-all duration-500 ease-in-out"
             >
-                <Stage
-                    ref={ref}
-                    // Set Konva stage dimensions to the TEMPLATE dimensions
-                    width={templateWidth}
-                    height={templateHeight}
-                    // CRITICAL: Apply the calculated scale factor combined with zoom
-                    scaleX={stageSize.scale * zoom}
-                    scaleY={stageSize.scale * zoom}
-                    // CRITICAL: Use device pixel ratio for high-DPI displays (Retina, 4K)
-                    pixelRatio={typeof window !== 'undefined' ? window.devicePixelRatio : 1}
-                    // Apply pan offset
-                    x={panOffset.x}
-                    y={panOffset.y}
-                    // Events
-                    onClick={handleStageClick}
-                    onTap={handleStageClick} // Handle mobile touch events
-                    onWheel={handleWheel}
-                    onMouseDown={handleMouseDown}
-                    onMouseMove={handleMouseMove}
-                    onMouseUp={handleMouseUp}
-                    onDblClick={handleStageDblClick}
+                {/* Skeleton Loader - shown while canvas is loading */}
+                {!isCanvasReady && (
+                    <div
+                        style={{
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            width: '100%',
+                            height: '100%',
+                            boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
+                        }}
+                        className="bg-white rounded-lg overflow-hidden"
+                    >
+                        {/* Pulsing shimmer effect */}
+                        <div className="absolute inset-0 bg-gradient-to-r from-gray-100 via-gray-200 to-gray-100 animate-pulse" />
+
+                        {/* Card border */}
+                        <div className="absolute inset-3 border border-gray-300 rounded" />
+
+                        {/* Corner accents - top left and bottom right */}
+                        <div className="absolute top-4 left-4 w-8 h-8 border-l-2 border-t-2 border-gray-400 rounded-tl" />
+                        <div className="absolute bottom-4 right-4 w-8 h-8 border-r-2 border-b-2 border-gray-400 rounded-br" />
+
+                        {/* Logo placeholder - top left area */}
+                        <div className="absolute top-8 left-8 w-12 h-12 rounded bg-gray-300 animate-pulse" />
+
+                        {/* Text line placeholders - generic layout */}
+                        <div className="absolute top-8 right-8 space-y-2">
+                            {/* Short line (name/title) */}
+                            <div className="w-32 h-3 bg-gray-300 rounded animate-pulse" />
+                            {/* Medium line (position) */}
+                            <div className="w-24 h-2 bg-gray-300 rounded animate-pulse" />
+                        </div>
+
+                        {/* Bottom text lines (contact info) */}
+                        <div className="absolute bottom-8 left-8 space-y-2">
+                            <div className="w-40 h-2 bg-gray-300 rounded animate-pulse" />
+                            <div className="w-36 h-2 bg-gray-300 rounded animate-pulse" />
+                            <div className="w-32 h-2 bg-gray-300 rounded animate-pulse" />
+                        </div>
+                    </div>
+                )}
+
+                {/* Actual Canvas - fades in when ready */}
+                <div
+                    style={{
+                        // Set the size of the container to the scaled size of the card (with zoom applied)
+                        width: templateWidth * stageSize.scale * zoom,
+                        height: templateHeight * stageSize.scale * zoom,
+                        // Optional: add a subtle shadow for a card-like effect
+                        boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
+                        cursor: isSpacePressed ? (isPanning ? 'grabbing' : 'grab') : 'default',
+                        // Smooth fade-in when ready
+                        opacity: isCanvasReady ? 1 : 0,
+                        transition: 'opacity 400ms ease-in-out',
+                        // Position absolutely when not ready to overlay with skeleton
+                        position: isCanvasReady ? 'relative' : 'absolute',
+                        top: 0,
+                        left: 0,
+                    }}
+                    className="bg-white rounded-lg overflow-hidden"
                 >
-                    {/* 1. BACKGROUND LAYER (Fixed Size, Unscaled Content) */}
-                    <Layer name="background-layer">
-                        <BackgroundRenderer
-                            template={template}
-                            background={template.background}
-                        />
-
-                        {/* Render bleed/safe margins if necessary (optional) */}
-                        <Rect
-                            x={BLEED_MARGIN} y={BLEED_MARGIN}
-                            width={templateWidth - BLEED_MARGIN * 2}
-                            height={templateHeight - BLEED_MARGIN * 2}
-                            stroke="rgba(0, 0, 0, 0.1)"
-                            strokeWidth={1}
-                            dash={[5, 5]}
-                            listening={false}
-                        />
-
-                    </Layer>
-
-                    {/* 2. CONTENT LAYER (All layers/nodes) */}
-                    <Layer ref={layerRef} name="content-layer">
-                        {layers.map((nodeDef, index) => (
-                            <KonvaNodeRenderer
-                                key={nodeDef.id}
-                                index={index}
-                                node={nodeDef}
-                                isSelected={selectedNodeIndices.includes(index)}
-                                isLocked={nodeDef.locked}
-                                isLayoutDisabled={mode === 'DATA_ONLY'} // Fix: map mode to isLayoutDisabled
-
-                                // Event handlers
-                                onSelect={() => onSelectNodes([index])}
-                                onNodeChange={(idx, updates) => onNodeChange(idx, updates)}
-                                onStartEditing={onStartEditing}
-                                onDragStart={() => { }}
-                                onDragMove={(e) => handleDragMove(e, index)}
-                                onDragEnd={(e) => handleDragEnd(e, index)}
+                    <Stage
+                        ref={ref}
+                        // Set Konva stage dimensions to the TEMPLATE dimensions
+                        width={templateWidth}
+                        height={templateHeight}
+                        // CRITICAL: Apply the calculated scale factor combined with zoom
+                        scaleX={stageSize.scale * zoom}
+                        scaleY={stageSize.scale * zoom}
+                        // CRITICAL: Use device pixel ratio for high-DPI displays (Retina, 4K)
+                        pixelRatio={typeof window !== 'undefined' ? window.devicePixelRatio : 1}
+                        // Apply pan offset
+                        x={panOffset.x}
+                        y={panOffset.y}
+                        // Events
+                        onClick={handleStageClick}
+                        onTap={handleStageClick} // Handle mobile touch events
+                        onWheel={handleWheel}
+                        onMouseDown={handleMouseDown}
+                        onMouseMove={handleMouseMove}
+                        onMouseUp={handleMouseUp}
+                        onDblClick={handleStageDblClick}
+                    >
+                        {/* 1. BACKGROUND LAYER (Fixed Size, Unscaled Content) */}
+                        <Layer name="background-layer">
+                            <BackgroundRenderer
+                                template={template}
+                                background={template.background}
                             />
-                        ))}
-                    </Layer>
 
-                    {/* 3. OVERLAYS (Crop, Print Specs, etc.) */}
-                    {/* Print Specs Overlay - Renders ON TOP of content but BELOW Transformer */}
-
-
-                    {/* Transformer Layer - Always on top */}
-                    <Layer name="transformer-layer">
-
-
-
-                        {/* Transformer - Visible for single or multi-selection in full edit mode */}
-                        {selectedNodeIndices.length > 0 && (() => {
-                            // Check if any selected nodes are unlocked and transformable
-                            const hasTransformableNodes = selectedNodeIndices.some(index => {
-                                const nodeDef = layers[index];
-                                return nodeDef && !nodeDef.locked && nodeDef.type !== 'Line' && nodeDef.type !== 'Arrow';
-                            });
-
-                            // For multi-selection, check if all selected nodes have same type for keepRatio
-                            const isMultiSelection = selectedNodeIndices.length > 1;
-                            const shouldKeepRatio = isMultiSelection ? false : (
-                                selectedNodeDef?.type === 'Icon' ||
-                                selectedNodeDef?.type === 'Path' || // ADDED: Keep aspect ratio for custom SVG shapes
-                                selectedNodeDef?.type === 'Image' && !(selectedNodeDef.props as any).qrMetadata && !(selectedNodeDef.props as any).isLogo // ADDED: Keep aspect ratio for regular images (not QR or logo)
-                            );
-
-                            return (
-                                <Transformer
-                                    ref={trRef}
-                                    rotationSnaps={[0, 90, 180, 270]}
-                                    anchorSize={10}
-                                    // Enhanced visual styling for multi-selection
-                                    borderStrokeWidth={isMultiSelection ? 2 : 1}
-                                    borderStroke={isMultiSelection ? '#3B82F6' : '#4F46E5'} // Blue-500 for multi, Indigo-600 for single
-                                    enabledAnchors={['top-left', 'top-right', 'bottom-left', 'bottom-right']}
-                                    padding={5}
-                                    // Show transformer if in FULL_EDIT mode and has transformable nodes
-                                    visible={!!(mode === 'FULL_EDIT' && hasTransformableNodes)}
-                                    ignoreStroke={false}
-                                    flipEnabled={false}
-                                    // CRITICAL: Enable keepRatio for Icon nodes, Path shapes (custom SVG), and QR/Logo images to maintain aspect ratio
-                                    keepRatio={shouldKeepRatio}
-
-                                    // ADDED bounding box check for minimum size and template bounds
-                                    boundBoxFunc={(oldBox, newBox) => {
-                                        // Prevent scaling down too small (in TEMPLATE coordinates, not screen pixels)
-                                        const MIN_SIZE = 10; // 10 pixels in template space
-
-                                        if (newBox.width < MIN_SIZE || newBox.height < MIN_SIZE) {
-                                            return oldBox;
-                                        }
-
-                                        // Template bounds clamping
-                                        const templateMaxX = template.width;
-                                        const templateMaxY = template.height;
-
-                                        // Clamping logic (relative to the Group)
-                                        let x = Math.max(0, newBox.x);
-                                        let y = Math.max(0, newBox.y);
-
-                                        // Clamp max X/Y position
-                                        if (x + newBox.width > templateMaxX) {
-                                            x = templateMaxX - newBox.width;
-                                        }
-                                        if (y + newBox.height > templateMaxY) {
-                                            y = templateMaxY - newBox.height;
-                                        }
-
-                                        return { x, y, width: newBox.width, height: newBox.height, rotation: newBox.rotation };
-                                    }}
-                                />
-                            );
-                        })()}
-
-                        {/* NEW: Crop Overlay */}
-                        {editMode === 'crop' && primarySelectedNode && primarySelectedNode.type === 'Image' && (() => {
-                            const nodeIndex = layers.findIndex(n => n.id === primarySelectedNode.id);
-                            return (
-                                <CropOverlay
-                                    imageNode={{
-                                        x: primarySelectedNode.props.x,
-                                        y: primarySelectedNode.props.y,
-                                        width: primarySelectedNode.props.width,
-                                        height: primarySelectedNode.props.height,
-                                        rotation: primarySelectedNode.props.rotation,
-                                        props: primarySelectedNode.props as any,
-                                    }}
-                                    onCropChange={(cropData) => {
-                                        if (nodeIndex !== -1) {
-                                            onNodeChange(nodeIndex, cropData);
-                                        }
-                                    }}
-                                    onExit={exitEditMode}
-                                />
-                            );
-                        })()}
-
-                    </Layer>
-
-                    {/* 3. ALIGNMENT/SNAPPING LINES LAYER */}
-                    <Layer name="snapping-layer" listening={false} visible={isSnapping}>
-                        {verticalLines.map((line, i) => (
+                            {/* Render bleed/safe margins if necessary (optional) */}
                             <Rect
-                                key={`v-${i}`}
-                                x={line.lineCoord - 0.5} // Line should be 1px wide, center on the value
-                                y={0}
-                                width={1}
-                                height={templateHeight}
-                                fill={line.strokeColor || "#4F46E5"} // Indigo-600
-                                opacity={0.7}
+                                x={BLEED_MARGIN} y={BLEED_MARGIN}
+                                width={templateWidth - BLEED_MARGIN * 2}
+                                height={templateHeight - BLEED_MARGIN * 2}
+                                stroke="rgba(0, 0, 0, 0.1)"
+                                strokeWidth={1}
+                                dash={[5, 5]}
+                                listening={false}
                             />
-                        ))}
-                        {horizontalLines.map((line, i) => (
-                            <Rect
-                                key={`h-${i}`}
-                                x={0}
-                                y={line.lineCoord - 0.5} // Line should be 1px wide, center on the value
-                                width={templateWidth}
-                                height={1}
-                                fill={line.strokeColor || "#4F46E5"} // Indigo-600
-                                opacity={0.7}
-                            />
-                        ))}
-                    </Layer>
 
-                    {/* 4. SELECTION RECTANGLE LAYER */}
-                    {selectionRect && isSelecting && (
-                        <Layer name="selection-layer" listening={false}>
-                            <Rect
-                                x={selectionRect.x}
-                                y={selectionRect.y}
-                                width={selectionRect.width}
-                                height={selectionRect.height}
-                                fill="rgba(59, 130, 246, 0.2)" // Blue-500 with 20% opacity
-                                stroke="#3B82F6" // Blue-500
-                                strokeWidth={1 / (stageSize.scale * zoom)} // Keep stroke width consistent at all zoom levels
-                            />
                         </Layer>
-                    )}
-                </Stage>
+
+                        {/* 2. CONTENT LAYER (All layers/nodes) */}
+                        <Layer ref={layerRef} name="content-layer">
+                            {layers.map((nodeDef, index) => (
+                                <KonvaNodeRenderer
+                                    key={nodeDef.id}
+                                    index={index}
+                                    node={nodeDef}
+                                    isSelected={selectedNodeIndices.includes(index)}
+                                    isLocked={nodeDef.locked}
+                                    isLayoutDisabled={mode === 'DATA_ONLY'} // Fix: map mode to isLayoutDisabled
+
+                                    // Event handlers
+                                    onSelect={() => onSelectNodes([index])}
+                                    onNodeChange={(idx, updates) => onNodeChange(idx, updates)}
+                                    onStartEditing={onStartEditing}
+                                    onDragStart={() => { }}
+                                    onDragMove={(e) => handleDragMove(e, index)}
+                                    onDragEnd={(e) => handleDragEnd(e, index)}
+                                />
+                            ))}
+                        </Layer>
+
+                        {/* 3. OVERLAYS (Crop, Print Specs, etc.) */}
+                        {/* Print Specs Overlay - Renders ON TOP of content but BELOW Transformer */}
+
+
+                        {/* Transformer Layer - Always on top */}
+                        <Layer name="transformer-layer">
+
+
+
+                            {/* Transformer - Visible for single or multi-selection in full edit mode */}
+                            {selectedNodeIndices.length > 0 && (() => {
+                                // Check if any selected nodes are unlocked and transformable
+                                const hasTransformableNodes = selectedNodeIndices.some(index => {
+                                    const nodeDef = layers[index];
+                                    return nodeDef && !nodeDef.locked && nodeDef.type !== 'Line' && nodeDef.type !== 'Arrow';
+                                });
+
+                                // For multi-selection, check if all selected nodes have same type for keepRatio
+                                const isMultiSelection = selectedNodeIndices.length > 1;
+                                const shouldKeepRatio = isMultiSelection ? false : (
+                                    selectedNodeDef?.type === 'Icon' ||
+                                    selectedNodeDef?.type === 'Path' || // ADDED: Keep aspect ratio for custom SVG shapes
+                                    selectedNodeDef?.type === 'Image' && !(selectedNodeDef.props as any).qrMetadata && !(selectedNodeDef.props as any).isLogo // ADDED: Keep aspect ratio for regular images (not QR or logo)
+                                );
+
+                                return (
+                                    <Transformer
+                                        ref={trRef}
+                                        rotationSnaps={[0, 90, 180, 270]}
+                                        anchorSize={10}
+                                        // Enhanced visual styling for multi-selection
+                                        borderStrokeWidth={isMultiSelection ? 2 : 1}
+                                        borderStroke={isMultiSelection ? '#3B82F6' : '#4F46E5'} // Blue-500 for multi, Indigo-600 for single
+                                        enabledAnchors={['top-left', 'top-right', 'bottom-left', 'bottom-right']}
+                                        padding={5}
+                                        // Show transformer if in FULL_EDIT mode and has transformable nodes
+                                        visible={!!(mode === 'FULL_EDIT' && hasTransformableNodes)}
+                                        ignoreStroke={false}
+                                        flipEnabled={false}
+                                        // CRITICAL: Enable keepRatio for Icon nodes, Path shapes (custom SVG), and QR/Logo images to maintain aspect ratio
+                                        keepRatio={shouldKeepRatio}
+
+                                        // ADDED bounding box check for minimum size and template bounds
+                                        boundBoxFunc={(oldBox, newBox) => {
+                                            // Prevent scaling down too small (in TEMPLATE coordinates, not screen pixels)
+                                            const MIN_SIZE = 10; // 10 pixels in template space
+
+                                            if (newBox.width < MIN_SIZE || newBox.height < MIN_SIZE) {
+                                                return oldBox;
+                                            }
+
+                                            // Template bounds clamping
+                                            const templateMaxX = template.width;
+                                            const templateMaxY = template.height;
+
+                                            // Clamping logic (relative to the Group)
+                                            let x = Math.max(0, newBox.x);
+                                            let y = Math.max(0, newBox.y);
+
+                                            // Clamp max X/Y position
+                                            if (x + newBox.width > templateMaxX) {
+                                                x = templateMaxX - newBox.width;
+                                            }
+                                            if (y + newBox.height > templateMaxY) {
+                                                y = templateMaxY - newBox.height;
+                                            }
+
+                                            return { x, y, width: newBox.width, height: newBox.height, rotation: newBox.rotation };
+                                        }}
+                                    />
+                                );
+                            })()}
+
+                            {/* NEW: Crop Overlay */}
+                            {editMode === 'crop' && primarySelectedNode && primarySelectedNode.type === 'Image' && (() => {
+                                const nodeIndex = layers.findIndex(n => n.id === primarySelectedNode.id);
+                                return (
+                                    <CropOverlay
+                                        imageNode={{
+                                            x: primarySelectedNode.props.x,
+                                            y: primarySelectedNode.props.y,
+                                            width: primarySelectedNode.props.width,
+                                            height: primarySelectedNode.props.height,
+                                            rotation: primarySelectedNode.props.rotation,
+                                            props: primarySelectedNode.props as any,
+                                        }}
+                                        onCropChange={(cropData) => {
+                                            if (nodeIndex !== -1) {
+                                                onNodeChange(nodeIndex, cropData);
+                                            }
+                                        }}
+                                        onExit={exitEditMode}
+                                    />
+                                );
+                            })()}
+
+                        </Layer>
+
+                        {/* 3. ALIGNMENT/SNAPPING LINES LAYER */}
+                        <Layer name="snapping-layer" listening={false} visible={isSnapping}>
+                            {verticalLines.map((line, i) => (
+                                <Rect
+                                    key={`v-${i}`}
+                                    x={line.lineCoord - 0.5} // Line should be 1px wide, center on the value
+                                    y={0}
+                                    width={1}
+                                    height={templateHeight}
+                                    fill={line.strokeColor || "#4F46E5"} // Indigo-600
+                                    opacity={0.7}
+                                />
+                            ))}
+                            {horizontalLines.map((line, i) => (
+                                <Rect
+                                    key={`h-${i}`}
+                                    x={0}
+                                    y={line.lineCoord - 0.5} // Line should be 1px wide, center on the value
+                                    width={templateWidth}
+                                    height={1}
+                                    fill={line.strokeColor || "#4F46E5"} // Indigo-600
+                                    opacity={0.7}
+                                />
+                            ))}
+                        </Layer>
+
+                        {/* 4. SELECTION RECTANGLE LAYER */}
+                        {selectionRect && isSelecting && (
+                            <Layer name="selection-layer" listening={false}>
+                                <Rect
+                                    x={selectionRect.x}
+                                    y={selectionRect.y}
+                                    width={selectionRect.width}
+                                    height={selectionRect.height}
+                                    fill="rgba(59, 130, 246, 0.2)" // Blue-500 with 20% opacity
+                                    stroke="#3B82F6" // Blue-500
+                                    strokeWidth={1 / (stageSize.scale * zoom)} // Keep stroke width consistent at all zoom levels
+                                />
+                            </Layer>
+                        )}
+                    </Stage>
+                </div>
             </div>
         );
     });
