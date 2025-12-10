@@ -757,6 +757,8 @@ const CanvasStage = forwardRef<KonvaStageType, CanvasStageProps>(
                     // CRITICAL: Apply the calculated scale factor combined with zoom
                     scaleX={stageSize.scale * zoom}
                     scaleY={stageSize.scale * zoom}
+                    // CRITICAL: Use device pixel ratio for high-DPI displays (Retina, 4K)
+                    pixelRatio={typeof window !== 'undefined' ? window.devicePixelRatio : 1}
                     // Apply pan offset
                     x={panOffset.x}
                     y={panOffset.y}

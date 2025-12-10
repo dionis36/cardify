@@ -81,9 +81,24 @@ const ImageNode: React.FC<ImageNodeProps> = memo(({
   const image = useCachedImage(src);
 
   // Apply filters when image loads or props change
+  // Only cache if filters are applied to maintain maximum quality
   useEffect(() => {
     if (image && konvaNodeRef.current) {
-      konvaNodeRef.current.cache();
+      const hasFilters = filters && (
+        (filters.blur && filters.blur > 0) ||
+        (filters.brightness && filters.brightness !== 100) ||
+        (filters.contrast && filters.contrast !== 100) ||
+        (filters.grayscale && filters.grayscale > 0) ||
+        (filters.sepia && filters.sepia > 0)
+      );
+
+      // Only cache if we have filters, cornerRadius, or stroke
+      if (hasFilters || cornerRadius || (stroke && strokeWidth)) {
+        konvaNodeRef.current.cache();
+      } else {
+        // Clear cache for maximum quality when no effects
+        konvaNodeRef.current.clearCache();
+      }
     }
   }, [image, filters, width, height, cornerRadius, stroke, strokeWidth, flipHorizontal, flipVertical]);
 

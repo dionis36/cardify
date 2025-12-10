@@ -245,7 +245,8 @@ const ImageLibraryPanel: React.FC<ImageLibraryPanelProps> = ({ onAddNode }) => {
     };
 
     const handlePexelsImageClick = async (photo: PexelsPhoto) => {
-        const imageUrl = photo.src.large;
+        // Use large2x for highest quality on canvas
+        const imageUrl = photo.src.large2x || photo.src.large;
         addImageToCanvas(imageUrl, photo.width, photo.height);
         addToRecentImages(imageUrl);
         setRecentImages(getRecentImages());
@@ -407,7 +408,7 @@ const ImageLibraryPanel: React.FC<ImageLibraryPanelProps> = ({ onAddNode }) => {
                                     className="relative aspect-square rounded-lg overflow-hidden group hover:ring-2 hover:ring-blue-500 transition-all"
                                 >
                                     <img
-                                        src={photo.src.small}
+                                        src={photo.src.medium}
                                         alt={photo.alt || 'Photo'}
                                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-200"
                                     />
