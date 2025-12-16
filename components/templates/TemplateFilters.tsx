@@ -45,9 +45,9 @@ export default function TemplateFilters({ filters, onFilterChange }: TemplateFil
     return (
         <div className="w-full bg-white border-b border-gray-200 sticky top-0 z-10 shadow-sm">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-                <div className="flex items-center justify-between gap-4">
+                <div className="flex items-center justify-between gap-2 sm:gap-4">
                     {/* Search Bar - Always Visible */}
-                    <div className="relative flex-1 max-w-md">
+                    <div className="relative flex-1 w-full sm:max-w-md">
                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <Search size={18} className="text-gray-400" />
                         </div>
@@ -63,15 +63,15 @@ export default function TemplateFilters({ filters, onFilterChange }: TemplateFil
                     {/* Filter Toggle Button */}
                     <button
                         onClick={() => setIsOpen(!isOpen)}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${isOpen || activeFiltersCount > 0
+                        className={`flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${isOpen || activeFiltersCount > 0
                             ? 'bg-blue-50 text-blue-700 border border-blue-200'
-                            : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                            : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 active:bg-gray-100'
                             }`}
                     >
                         <Filter size={18} />
-                        Filters
+                        <span className="hidden sm:inline">Filters</span>
                         {activeFiltersCount > 0 && (
-                            <span className="ml-1 bg-blue-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                            <span className="bg-blue-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
                                 {activeFiltersCount}
                             </span>
                         )}
@@ -82,7 +82,7 @@ export default function TemplateFilters({ filters, onFilterChange }: TemplateFil
                 {/* Collapsible Filter Panel */}
                 {isOpen && (
                     <div className="mt-4 pt-4 border-t border-gray-100 animate-in slide-in-from-top-2 duration-200">
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
                             {/* Categories */}
                             <div>
                                 <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
