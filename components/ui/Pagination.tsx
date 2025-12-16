@@ -60,16 +60,16 @@ export function Pagination({
     if (totalItems === 0) return null;
 
     return (
-        <div className="flex flex-col items-center gap-4 py-8">
+        <div className="flex flex-col items-center gap-3 sm:gap-4 py-6 sm:py-8">
             {/* Pagination Controls */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 sm:gap-2">
                 {/* Previous Button */}
                 <button
                     onClick={() => onPageChange(currentPage - 1)}
                     disabled={currentPage === 1}
-                    className={`h-10 w-10 flex items-center justify-center rounded-full border transition-all ${currentPage === 1
+                    className={`h-11 w-11 sm:h-10 sm:w-10 flex items-center justify-center rounded-full border transition-all ${currentPage === 1
                         ? 'border-gray-200 text-gray-300 cursor-not-allowed'
-                        : 'border-gray-300 text-gray-600 hover:bg-gray-50'
+                        : 'border-gray-300 text-gray-600 hover:bg-gray-50 active:bg-gray-100'
                         }`}
                     aria-label="Previous page"
                 >
@@ -77,11 +77,11 @@ export function Pagination({
                 </button>
 
                 {/* Page Numbers */}
-                <div className="flex items-center gap-1 mx-2">
+                <div className="flex items-center gap-1 sm:gap-1 mx-1 sm:mx-2">
                     {getPageNumbers().map((page, index) => {
                         if (page === '...') {
                             return (
-                                <span key={`ellipsis-${index}`} className="px-2 text-gray-400">
+                                <span key={`ellipsis-${index}`} className="px-1 sm:px-2 text-gray-400 text-sm">
                                     ...
                                 </span>
                             );
@@ -94,9 +94,9 @@ export function Pagination({
                             <button
                                 key={pageNum}
                                 onClick={() => onPageChange(pageNum)}
-                                className={`h-10 w-10 flex items-center justify-center rounded-full text-sm font-medium transition-all ${isActive
+                                className={`h-11 w-11 sm:h-10 sm:w-10 flex items-center justify-center rounded-full text-sm font-medium transition-all ${isActive
                                     ? 'bg-blue-600 text-white shadow-md'
-                                    : 'text-blue-600 hover:bg-blue-50'
+                                    : 'text-blue-600 hover:bg-blue-50 active:bg-blue-100'
                                     }`}
                             >
                                 {pageNum}
@@ -109,10 +109,10 @@ export function Pagination({
                 <button
                     onClick={() => onPageChange(currentPage + 1)}
                     disabled={currentPage === totalPages}
-                    className={`h-10 w-10 flex items-center justify-center rounded-full border transition-all ${currentPage === totalPages
+                    className={`h-11 w-11 sm:h-10 sm:w-10 flex items-center justify-center rounded-full border transition-all ${currentPage === totalPages
                         ? 'border-gray-200 text-gray-300 cursor-not-allowed'
-                        : 'border-gray-300 text-gray-600 hover:bg-gray-50 text-gray-700'
-                        }`} // Added text-gray-700 to ensure visibility if not disabled
+                        : 'border-gray-300 text-gray-600 hover:bg-gray-50 active:bg-gray-100'
+                        }`}
                     aria-label="Next page"
                 >
                     <ChevronRight size={20} className={currentPage === totalPages ? "" : "text-gray-600"} />
@@ -120,7 +120,7 @@ export function Pagination({
             </div>
 
             {/* Summary Text */}
-            <p className="text-gray-500 text-sm">
+            <p className="text-gray-500 text-xs sm:text-sm text-center px-4">
                 {startItem} - {endItem} of {totalItems} business card designs
             </p>
         </div>

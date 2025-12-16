@@ -127,11 +127,11 @@ const TemplatesPage = () => {
 
         {/* Header */}
         <div className="bg-white border-b border-gray-200">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-            <h1 className="text-4xl font-extrabold text-gray-900 tracking-tight mb-2">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 md:py-12">
+            <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900 tracking-tight mb-2">
               Template Library
             </h1>
-            <p className="text-lg text-gray-500 max-w-2xl">
+            <p className="text-base sm:text-lg text-gray-500 max-w-2xl">
               Jumpstart your design with our professionally crafted templates.
               Customize every detail to match your brand.
             </p>
