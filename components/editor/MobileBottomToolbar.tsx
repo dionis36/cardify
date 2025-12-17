@@ -179,14 +179,14 @@ export default function MobileBottomToolbar({
                     buttonRef={buttonRefs.qrcode}
                 />
 
-                {/* 9. Settings - Tab */}
-                <ToolbarButton
+                {/* 9. Settings - Tab (COMMENTED OUT - Will activate when mobile settings ready) */}
+                {/* <ToolbarButton
                     icon={Settings}
                     label="Settings"
                     active={activePanel === 'settings'}
                     onClick={() => onPanelChange('settings')}
                     buttonRef={buttonRefs.settings}
-                />
+                /> */}
             </div>
         </div>
     );
