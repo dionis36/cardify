@@ -12,6 +12,14 @@ import EditorTopbar from "@/components/editor/EditorTopbar";
 import MobileEditorTopbar from "@/components/editor/MobileEditorTopbar";
 import MobileBottomToolbar from "@/components/editor/MobileBottomToolbar";
 import PropertyPanel from "@/components/editor/PropertyPanel";
+import LayerList from "@/components/editor/LayerList";
+import { ShapeLibrary } from "@/components/editor/ShapeLibrary";
+import IconLibrary from "@/components/editor/IconLibrary";
+import LogoLibraryPanel from "@/components/editor/LogoLibraryPanel";
+import ImageLibraryPanel from "@/components/editor/ImageLibraryPanel";
+import BackgroundPanel from "@/components/editor/BackgroundPanel";
+import QRCodeDesigner from "@/components/editor/QRCodeDesigner";
+import ShortcutsReference from "@/components/editor/ShortcutsReference";
 import ZoomControls from "@/components/editor/ZoomControls";
 
 import ConfirmationModal from "@/components/ui/ConfirmationModal";
@@ -283,6 +291,9 @@ export default function Editor() {
     const [qrCodeMode, setQrCodeMode] = useState<'add' | 'update'>('add');
 
 
+    // Mobile panel state - MUST match desktop SidebarTab
+    type MobilePanelType = 'layers' | 'elements' | 'icons' | 'logos' | 'images' | 'background' | 'qrcode' | 'settings' | 'properties' | null;
+    const [activeMobilePanel, setActiveMobilePanel] = useState<MobilePanelType>(null);
 
     const selectedNode = selectedIndices.length === 1 ? currentPage.layers[selectedIndices[0]] : null;
     const selectedNodes = selectedIndices.map(i => currentPage.layers[i]).filter(Boolean);
@@ -972,7 +983,7 @@ export default function Editor() {
 
             />
 
-            <div className="flex flex-1 pt-14 overflow-hidden">
+            <div className="flex flex-col lg:flex-row flex-1 pt-14 overflow-hidden">
                 {/* A. LEFT SIDEBAR (Fixed Width - Layer/Element/Data/Page Controls) */}
                 <EditorSidebar
                     // Element/Layer Management
@@ -1053,32 +1064,203 @@ export default function Editor() {
                     />
                 </main>
 
-                {/* C. RIGHT SIDEBAR (Fixed Width - Property Panel) */}
+                {/* C. RIGHT SIDEBAR / MOBILE CONTENT AREA - Dynamic Container */}
+                {/* Desktop: Shows PropertyPanel (fixed width, right side) */}
+                {/* Mobile: Shows PropertyPanel OR mobile panel content (full width below canvas) */}
                 <div className="property-panel relative z-50 h-full shrink-0">
-                    <PropertyPanel
-                        node={selectedNode}
+                    {/* PropertyPanel - Desktop: always visible | Mobile: only when element selected AND no mobile panel active */}
+                    {(!activeMobilePanel || (typeof window !== 'undefined' && window.innerWidth >= 1024)) && (
+                        <PropertyPanel
+                            node={selectedNode}
 
-                        onPropChange={(_id: string, updates: Partial<KonvaNodeProps>) =>
-                            selectedIndices.length === 1 && onNodeChange(selectedIndices[0], updates)
-                        }
-                        onDefinitionChange={(_id: string, updates: Partial<KonvaNodeDefinition>) =>
-                            selectedIndices.length === 1 && onNodeDefinitionChange(selectedIndices[0], updates)
-                        }
+                            onPropChange={(_id: string, updates: Partial<KonvaNodeProps>) =>
+                                selectedIndices.length === 1 && onNodeChange(selectedIndices[0], updates)
+                            }
+                            onDefinitionChange={(_id: string, updates: Partial<KonvaNodeDefinition>) =>
+                                selectedIndices.length === 1 && onNodeDefinitionChange(selectedIndices[0], updates)
+                            }
 
+                            // NEW PROPS for Layer Ordering
+                            onMoveToFront={moveLayerToFront}
+                            onMoveToBack={moveLayerToBack}
+                            onMoveUp={moveLayerUp}
+                            onMoveDown={moveLayerDown}
 
-                        // NEW PROPS for Layer Ordering
-                        onMoveToFront={moveLayerToFront}
-                        onMoveToBack={moveLayerToBack}
-                        onMoveUp={moveLayerUp}
-                        onMoveDown={moveLayerDown}
+                            // NEW: Allow deleting nodes from property panel
+                            onDelete={handleDelete}
+                            shouldFocus={shouldFocusTextEditor}
+                            onFocusHandled={onTextEditorFocusHandled}
+                        />
+                    )}
 
+                    {/* Mobile Content Panels - Only visible on mobile when toolbar button tapped */}
+                    {activeMobilePanel && (
+                        <div className="lg:hidden flex-1 overflow-y-auto bg-gray-50 border-t border-gray-200 min-h-0 h-full">
+                            {/* Layers Panel */}
+                            {activeMobilePanel === 'layers' && (
+                                <div className="h-full flex flex-col bg-white">
+                                    <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-white sticky top-0 z-10">
+                                        <h2 className="text-lg font-bold text-gray-900">Layers</h2>
+                                        <button
+                                            onClick={() => setActiveMobilePanel(null)}
+                                            className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg"
+                                        >
+                                            ✕
+                                        </button>
+                                    </div>
+                                    <div className="flex-1 overflow-y-auto p-4">
+                                        <LayerList
+                                            layers={currentPage.layers}
+                                            selectedIndex={selectedIndices.length === 1 ? selectedIndices[0] : null}
+                                            onSelectLayer={(index: number | null) => setSelectedIndices(index !== null ? [index] : [])}
+                                            onMoveLayer={moveLayer}
+                                            onRemoveLayer={onRemoveLayer}
+                                            onDefinitionChange={onNodeDefinitionChange}
+                                            groups={currentPage.groups}
+                                            onGroupChange={onGroupChange}
+                                            onCreateGroup={onCreateGroup}
+                                            onDeleteGroup={onDeleteGroup}
+                                            mode="FULL_EDIT"
+                                        />
+                                    </div>
+                                </div>
+                            )}
 
+                            {/* Shapes Panel */}
+                            {activeMobilePanel === 'elements' && (
+                                <div className="h-full flex flex-col bg-white">
+                                    <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-white sticky top-0 z-10">
+                                        <h2 className="text-lg font-bold text-gray-900">Shapes</h2>
+                                        <button
+                                            onClick={() => setActiveMobilePanel(null)}
+                                            className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg"
+                                        >
+                                            ✕
+                                        </button>
+                                    </div>
+                                    <div className="flex-1 overflow-y-auto">
+                                        <ShapeLibrary onAddNode={onAddNode} />
+                                    </div>
+                                </div>
+                            )}
 
-                        // NEW: Allow deleting nodes from property panel
-                        onDelete={handleDelete}
-                        shouldFocus={shouldFocusTextEditor}
-                        onFocusHandled={onTextEditorFocusHandled}
-                    />
+                            {/* Icons Panel */}
+                            {activeMobilePanel === 'icons' && (
+                                <div className="h-full flex flex-col bg-white">
+                                    <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-white sticky top-0 z-10">
+                                        <h2 className="text-lg font-bold text-gray-900">Icons</h2>
+                                        <button
+                                            onClick={() => setActiveMobilePanel(null)}
+                                            className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg"
+                                        >
+                                            ✕
+                                        </button>
+                                    </div>
+                                    <div className="flex-1 overflow-y-auto">
+                                        <IconLibrary onAddLayer={onAddNode} />
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Logos Panel */}
+                            {activeMobilePanel === 'logos' && (
+                                <div className="h-full flex flex-col bg-white">
+                                    <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-white sticky top-0 z-10">
+                                        <h2 className="text-lg font-bold text-gray-900">Logos</h2>
+                                        <button
+                                            onClick={() => setActiveMobilePanel(null)}
+                                            className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg"
+                                        >
+                                            ✕
+                                        </button>
+                                    </div>
+                                    <div className="flex-1 overflow-y-auto">
+                                        <LogoLibraryPanel onSelectLogo={onSelectLogo} />
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Images Panel */}
+                            {activeMobilePanel === 'images' && (
+                                <div className="h-full flex flex-col bg-white">
+                                    <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-white sticky top-0 z-10">
+                                        <h2 className="text-lg font-bold text-gray-900">Images</h2>
+                                        <button
+                                            onClick={() => setActiveMobilePanel(null)}
+                                            className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg"
+                                        >
+                                            ✕
+                                        </button>
+                                    </div>
+                                    <div className="flex-1 overflow-y-auto">
+                                        <ImageLibraryPanel onAddNode={onAddNode} />
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Background Panel */}
+                            {activeMobilePanel === 'background' && (
+                                <div className="h-full flex flex-col bg-white">
+                                    <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-white sticky top-0 z-10">
+                                        <h2 className="text-lg font-bold text-gray-900">Background</h2>
+                                        <button
+                                            onClick={() => setActiveMobilePanel(null)}
+                                            className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg"
+                                        >
+                                            ✕
+                                        </button>
+                                    </div>
+                                    <div className="flex-1 overflow-y-auto">
+                                        <BackgroundPanel
+                                            currentBackground={currentPage.background}
+                                            onBackgroundChange={onBackgroundChange}
+                                        />
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* QR Code Panel */}
+                            {activeMobilePanel === 'qrcode' && (
+                                <div className="h-full flex flex-col bg-white">
+                                    <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-white sticky top-0 z-10">
+                                        <h2 className="text-lg font-bold text-gray-900">QR Code</h2>
+                                        <button
+                                            onClick={() => setActiveMobilePanel(null)}
+                                            className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg"
+                                        >
+                                            ✕
+                                        </button>
+                                    </div>
+                                    <div className="flex-1 overflow-y-auto">
+                                        <QRCodeDesigner
+                                            onAddImage={onAddImage}
+                                            onAddNode={onAddNode}
+                                            onNodeChange={onNodeChange}
+                                            mode="add"
+                                        />
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Settings Panel */}
+                            {activeMobilePanel === 'settings' && (
+                                <div className="h-full flex flex-col bg-white">
+                                    <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-white sticky top-0 z-10">
+                                        <h2 className="text-lg font-bold text-gray-900">Keyboard Shortcuts</h2>
+                                        <button
+                                            onClick={() => setActiveMobilePanel(null)}
+                                            className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg"
+                                        >
+                                            ✕
+                                        </button>
+                                    </div>
+                                    <div className="flex-1 overflow-y-auto p-4">
+                                        <ShortcutsReference />
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    )}
                 </div>
             </div>
             {/* Reset Confirmation Modal */}
@@ -1103,14 +1285,32 @@ export default function Editor() {
 
             {/* Mobile Bottom Toolbar (only visible on mobile) */}
             <MobileBottomToolbar
-                onShowLayers={() => setActiveMobilePanel('layers')}
-                onShowAddMenu={() => setActiveMobilePanel('add')}
-                onShowBackground={() => setActiveMobilePanel('background')}
-                onToggleView={() => {
-                    // Toggle view mode (could show/hide guides, rulers, etc.)
-                    console.log("Toggle view");
+                activePanel={activeMobilePanel}
+                onPanelChange={setActiveMobilePanel}
+                onAddText={() => {
+                    // Same logic as desktop - add text node immediately
+                    const id = `node_text_${Date.now()}`;
+                    const newTextNode: KonvaNodeDefinition = {
+                        id,
+                        type: 'Text',
+                        props: {
+                            id,
+                            x: 50,
+                            y: 50,
+                            text: "Click to edit text",
+                            fontSize: 28,
+                            fill: '#000000',
+                            fontFamily: 'Inter',
+                            rotation: 0,
+                            opacity: 1,
+                            width: 250,
+                            height: 40,
+                        } as any,
+                        editable: true,
+                        locked: false,
+                    };
+                    dispatch({ type: 'ADD_NODE', node: newTextNode });
                 }}
-                onShowTools={() => setActiveMobilePanel('tools')}
                 selectedCount={selectedIndices.length}
             />
         </div>
