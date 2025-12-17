@@ -250,8 +250,8 @@ export default function EditorSidebar({
 
 
     return (
-        // The container is now a flex row
-        <div className="flex h-full bg-gray-50 border-r border-gray-200 overflow-hidden font-sans">
+        // The container is now a flex row - hidden on mobile, visible on desktop (lg+)
+        <div className="hidden lg:flex h-full bg-gray-50 border-r border-gray-200 overflow-hidden font-sans">
 
             {/* 1. NARROW ICON NAVIGATION PALETTE (Fixed Width: 80px for labels) */}
             <div className="w-20 bg-[#1e1e2e] flex flex-col justify-between items-center py-4 border-r border-gray-800 flex-shrink-0 z-20 shadow-xl h-full">

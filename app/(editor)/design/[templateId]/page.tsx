@@ -9,6 +9,8 @@ import { produce } from "immer";
 import CanvasStage from "@/components/editor/CanvasStage";
 import EditorSidebar, { SidebarTab } from "@/components/editor/EditorSidebar";
 import EditorTopbar from "@/components/editor/EditorTopbar";
+import MobileEditorTopbar from "@/components/editor/MobileEditorTopbar";
+import MobileBottomToolbar from "@/components/editor/MobileBottomToolbar";
 import PropertyPanel from "@/components/editor/PropertyPanel";
 import ZoomControls from "@/components/editor/ZoomControls";
 
@@ -944,6 +946,18 @@ export default function Editor() {
     // --- RENDER ---
     return (
         <div className="flex h-screen w-screen bg-gray-900 overflow-hidden">
+            {/* Mobile Top Bar (only visible on mobile) */}
+            <MobileEditorTopbar
+                templateName={currentPage.name}
+                onUndo={() => dispatch({ type: 'UNDO' })}
+                onRedo={() => dispatch({ type: 'REDO' })}
+                onExport={handleOpenExportModal}
+                onReset={handleReset}
+                canUndo={state.history.length > 0}
+                canRedo={state.future.length > 0}
+            />
+
+            {/* Desktop Top Bar (hidden on mobile) */}
             <EditorTopbar
                 templateName={currentPage.name}
                 onDownload={handleOpenExportModal}
@@ -1003,11 +1017,13 @@ export default function Editor() {
                     qrCodeMode={qrCodeMode}
                 />
 
-                {/* B. CANVAS AREA (Flex Grow) */}
+                {/* B. CANVAS AREA (Flex Grow on desktop, Fixed height on mobile) */}
                 <main
                     ref={mainRef}
                     // FIX LAYER 2: Ensure canvas container stays below (z-0 relative)
-                    className="relative z-0 flex-1 flex justify-center items-center overflow-auto p-8 bg-gray-200"
+                    // Mobile: Fixed 35vh height, FULL WIDTH, minimal padding
+                    // Desktop: flex-1 to take remaining space, normal padding
+                    className="relative z-0 w-full h-[35vh] min-h-[250px] lg:h-auto lg:flex-1 flex justify-center items-center overflow-auto p-1 lg:p-8 bg-gray-200"
                 >
                     <CanvasStage
                         ref={stageRef}
@@ -1083,6 +1099,19 @@ export default function Editor() {
                 onExportAsTemplate={handleExportAsTemplate}
                 templateWidth={currentPage.width}
                 templateHeight={currentPage.height}
+            />
+
+            {/* Mobile Bottom Toolbar (only visible on mobile) */}
+            <MobileBottomToolbar
+                onShowLayers={() => setActiveMobilePanel('layers')}
+                onShowAddMenu={() => setActiveMobilePanel('add')}
+                onShowBackground={() => setActiveMobilePanel('background')}
+                onToggleView={() => {
+                    // Toggle view mode (could show/hide guides, rulers, etc.)
+                    console.log("Toggle view");
+                }}
+                onShowTools={() => setActiveMobilePanel('tools')}
+                selectedCount={selectedIndices.length}
             />
         </div>
     );

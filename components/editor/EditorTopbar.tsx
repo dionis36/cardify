@@ -38,7 +38,7 @@ export default function EditorTopbar({
     hasLogo = false,
 }: EditorTopbarProps) {
     return (
-        <div className="absolute top-0 left-0 right-0 h-14 bg-white border-b border-gray-200 flex items-center justify-between px-4 z-50 shadow-sm">
+        <div className="absolute top-0 left-0 right-0 h-14 bg-white border-b border-gray-200 flex items-center justify-between px-4 z-50 shadow-sm hidden lg:flex">
 
             {/* 1. Left: Back & Title */}
             <div className="flex items-center space-x-4">

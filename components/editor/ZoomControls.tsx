@@ -23,7 +23,8 @@ const ZoomControls: React.FC<ZoomControlsProps> = ({
     const zoomPercentage = Math.round(zoom * 100);
 
     return (
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-50">
+        // Hidden on mobile (use pinch-to-zoom), visible on desktop
+        <div className="hidden lg:block absolute bottom-6 left-1/2 -translate-x-1/2 z-50">
             <div className="flex items-center gap-0 bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">
                 {/* Zoom Out Button */}
                 <button

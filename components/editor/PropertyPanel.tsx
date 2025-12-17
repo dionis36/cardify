@@ -213,7 +213,7 @@ export default function PropertyPanel({
 }: PropertyPanelProps) {
   if (!node) {
     return (
-      <div className="property-panel w-80 border-l bg-gray-50 flex flex-col items-center justify-center h-full text-gray-400">
+      <div className="property-panel hidden lg:flex w-80 border-l bg-gray-50 flex-col items-center justify-center h-full text-gray-400">
         <Layout size={48} className="mb-4 opacity-20" />
         <p className="text-sm font-medium">Select an element to edit</p>
       </div>
@@ -702,7 +702,7 @@ export default function PropertyPanel({
   );
 
   return (
-    <div className="property-panel w-80 border-l bg-white flex flex-col h-full shadow-lg z-10">
+    <div className="property-panel hidden lg:flex w-80 border-l bg-white flex-col h-full shadow-lg z-10">
       <div className="px-5 py-4 border-b border-gray-100 bg-white sticky top-0 z-10 flex items-center justify-between">
         <h2 className="font-bold text-base text-gray-800 tracking-tight">
           {node.type} Properties
