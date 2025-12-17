@@ -38,8 +38,8 @@ function ToolbarButton({ icon: Icon, label, onClick, badge, active, buttonRef }:
             ref={buttonRef}
             onClick={onClick}
             className={`flex flex-col items-center justify-center gap-1 p-2 rounded-lg transition-all touch-target relative min-w-[64px] flex-shrink-0 ${active
-                    ? "bg-blue-50 text-blue-600 ring-2 ring-blue-600 ring-inset"
-                    : "text-gray-700 hover:bg-gray-100 active:bg-gray-200"
+                ? "bg-blue-600 text-white ring-2 ring-blue-500 ring-inset"
+                : "text-gray-300 hover:bg-gray-800 active:bg-gray-700"
                 }`}
         >
             <div className="relative">
@@ -50,7 +50,7 @@ function ToolbarButton({ icon: Icon, label, onClick, badge, active, buttonRef }:
                     </span>
                 )}
             </div>
-            <span className={`text-[10px] font-medium ${active ? "text-blue-600" : "text-gray-600"}`}>
+            <span className={`text-[10px] font-medium ${active ? 'text-white' : 'text-gray-400'}`}>
                 {label}
             </span>
         </button>
@@ -102,7 +102,7 @@ export default function MobileBottomToolbar({
     return (
         <div
             ref={scrollContainerRef}
-            className="lg:hidden fixed bottom-0 inset-x-0 h-16 bg-white border-t border-gray-200 z-50 overflow-x-auto overflow-y-hidden safe-area-inset-bottom shadow-lg"
+            className="lg:hidden fixed bottom-0 inset-x-0 h-16 bg-[#1e1e2e] border-t border-gray-800 z-50 overflow-x-auto overflow-y-hidden safe-area-inset-bottom shadow-lg"
         >
             {/* Scrollable container - EXACT MATCH to desktop sidebar order */}
             <div className="flex items-center gap-2 px-2 h-full min-w-max">
