@@ -1098,8 +1098,8 @@ export default function Editor() {
                         <div className="lg:hidden flex-1 overflow-y-auto bg-gray-50 border-t border-gray-200 min-h-0 h-full">
                             {/* Layers Panel */}
                             {activeMobilePanel === 'layers' && (
-                                <div className="h-full flex flex-col bg-white">
-                                    <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-white sticky top-0 z-10">
+                                <div className="h-full overflow-y-auto bg-white pb-24">
+                                    <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-white">
                                         <h2 className="text-lg font-bold text-gray-900">Layers</h2>
                                         <button
                                             onClick={() => setActiveMobilePanel(null)}
@@ -1108,7 +1108,7 @@ export default function Editor() {
                                             ✕
                                         </button>
                                     </div>
-                                    <div className="flex-1 overflow-y-auto p-4">
+                                    <div className="p-4">
                                         <LayerList
                                             layers={currentPage.layers}
                                             selectedIndex={selectedIndices.length === 1 ? selectedIndices[0] : null}
@@ -1128,8 +1128,8 @@ export default function Editor() {
 
                             {/* Shapes Panel */}
                             {activeMobilePanel === 'elements' && (
-                                <div className="h-full flex flex-col bg-white">
-                                    <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-white sticky top-0 z-10">
+                                <div className="h-full overflow-y-auto bg-white pb-24">
+                                    <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-white">
                                         <h2 className="text-lg font-bold text-gray-900">Shapes</h2>
                                         <button
                                             onClick={() => setActiveMobilePanel(null)}
@@ -1138,7 +1138,7 @@ export default function Editor() {
                                             ✕
                                         </button>
                                     </div>
-                                    <div className="flex-1 overflow-y-auto">
+                                    <div className="p-4">
                                         <ShapeLibrary onAddNode={onAddNode} />
                                     </div>
                                 </div>
@@ -1146,8 +1146,8 @@ export default function Editor() {
 
                             {/* Icons Panel */}
                             {activeMobilePanel === 'icons' && (
-                                <div className="h-full flex flex-col bg-white">
-                                    <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-white sticky top-0 z-10">
+                                <div className="h-full overflow-y-auto bg-white pb-24">
+                                    <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-white">
                                         <h2 className="text-lg font-bold text-gray-900">Icons</h2>
                                         <button
                                             onClick={() => setActiveMobilePanel(null)}
@@ -1156,7 +1156,7 @@ export default function Editor() {
                                             ✕
                                         </button>
                                     </div>
-                                    <div className="flex-1 overflow-y-auto">
+                                    <div className="p-4">
                                         <IconLibrary onAddLayer={onAddNode} />
                                     </div>
                                 </div>
@@ -1164,8 +1164,8 @@ export default function Editor() {
 
                             {/* Logos Panel */}
                             {activeMobilePanel === 'logos' && (
-                                <div className="h-full flex flex-col bg-white">
-                                    <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-white sticky top-0 z-10">
+                                <div className="h-full overflow-y-auto bg-white pb-24">
+                                    <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-white">
                                         <h2 className="text-lg font-bold text-gray-900">Logos</h2>
                                         <button
                                             onClick={() => setActiveMobilePanel(null)}
@@ -1174,7 +1174,7 @@ export default function Editor() {
                                             ✕
                                         </button>
                                     </div>
-                                    <div className="flex-1 overflow-y-auto">
+                                    <div className="p-4">
                                         <LogoLibraryPanel onSelectLogo={onSelectLogo} />
                                     </div>
                                 </div>
@@ -1182,8 +1182,8 @@ export default function Editor() {
 
                             {/* Images Panel */}
                             {activeMobilePanel === 'images' && (
-                                <div className="h-full flex flex-col bg-white">
-                                    <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-white sticky top-0 z-10">
+                                <div className="h-full overflow-y-auto bg-white pb-24">
+                                    <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-white">
                                         <h2 className="text-lg font-bold text-gray-900">Images</h2>
                                         <button
                                             onClick={() => setActiveMobilePanel(null)}
@@ -1192,7 +1192,7 @@ export default function Editor() {
                                             ✕
                                         </button>
                                     </div>
-                                    <div className="flex-1 overflow-y-auto">
+                                    <div className="p-4">
                                         <ImageLibraryPanel onAddNode={onAddNode} />
                                     </div>
                                 </div>
@@ -1200,8 +1200,8 @@ export default function Editor() {
 
                             {/* Background Panel */}
                             {activeMobilePanel === 'background' && (
-                                <div className="h-full flex flex-col bg-white">
-                                    <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-white sticky top-0 z-10">
+                                <div className="h-full overflow-y-auto bg-white pb-24">
+                                    <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-white">
                                         <h2 className="text-lg font-bold text-gray-900">Background</h2>
                                         <button
                                             onClick={() => setActiveMobilePanel(null)}
@@ -1210,7 +1210,7 @@ export default function Editor() {
                                             ✕
                                         </button>
                                     </div>
-                                    <div className="flex-1 overflow-y-auto">
+                                    <div className="p-4">
                                         <BackgroundPanel
                                             currentBackground={currentPage.background}
                                             onBackgroundChange={onBackgroundChange}
@@ -1221,8 +1221,8 @@ export default function Editor() {
 
                             {/* QR Code Panel */}
                             {activeMobilePanel === 'qrcode' && (
-                                <div className="h-full flex flex-col bg-white">
-                                    <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-white sticky top-0 z-10">
+                                <div className="h-full overflow-y-auto bg-white pb-24">
+                                    <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-white">
                                         <h2 className="text-lg font-bold text-gray-900">QR Code</h2>
                                         <button
                                             onClick={() => setActiveMobilePanel(null)}
@@ -1231,7 +1231,7 @@ export default function Editor() {
                                             ✕
                                         </button>
                                     </div>
-                                    <div className="flex-1 overflow-y-auto">
+                                    <div className="p-4">
                                         <QRCodeDesigner
                                             onAddImage={onAddImage}
                                             onAddNode={onAddNode}
@@ -1244,8 +1244,8 @@ export default function Editor() {
 
                             {/* Settings Panel */}
                             {activeMobilePanel === 'settings' && (
-                                <div className="h-full flex flex-col bg-white">
-                                    <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-white sticky top-0 z-10">
+                                <div className="h-full overflow-y-auto bg-white pb-24">
+                                    <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-white">
                                         <h2 className="text-lg font-bold text-gray-900">Keyboard Shortcuts</h2>
                                         <button
                                             onClick={() => setActiveMobilePanel(null)}
@@ -1254,7 +1254,7 @@ export default function Editor() {
                                             ✕
                                         </button>
                                     </div>
-                                    <div className="flex-1 overflow-y-auto p-4">
+                                    <div className="p-4">
                                         <ShortcutsReference />
                                     </div>
                                 </div>
