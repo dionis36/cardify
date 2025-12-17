@@ -1,33 +1,36 @@
 // app/api/design/route.ts
 import { NextRequest, NextResponse } from "next/server";
-
-interface DesignStorage {
-  [key: string]: any;
-}
-
-// In-memory demo storage (reset on server restart)
-// NOTE: For a production application, this should be replaced with a database call.
-const designs: DesignStorage = {};
+import { prisma } from "@/lib/prisma";
 
 /**
  * API Route to retrieve a saved design by ID.
  * Usage: GET /api/design?id={designId}
  */
 export async function GET(req: NextRequest) {
-  const { searchParams } = new URL(req.url);
-  const id = searchParams.get("id");
-  
-  if (!id) {
-    return NextResponse.json({ error: "Missing design ID" }, { status: 400 });
-  }
+  try {
+    const { searchParams } = new URL(req.url);
+    const id = searchParams.get("id");
 
-  const design = designs[id];
-  
-  if (!design) {
-    return NextResponse.json({ error: "Design not found" }, { status: 404 });
-  }
+    if (!id) {
+      return NextResponse.json({ error: "Missing design ID" }, { status: 400 });
+    }
 
-  return NextResponse.json(design);
+    const design = await prisma.design.findUnique({
+      where: { id }
+    });
+
+    if (!design) {
+      return NextResponse.json({ error: "Design not found" }, { status: 404 });
+    }
+
+    return NextResponse.json(design.data);
+  } catch (error) {
+    console.error("Failed to fetch design:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch design" },
+      { status: 500 }
+    );
+  }
 }
 
 /**
@@ -39,17 +42,51 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const { id, data } = body;
-    
+
     if (!id || !data) {
       return NextResponse.json({ error: "Missing id or data" }, { status: 400 });
     }
 
-    // Save data to the in-memory store
-    designs[id] = data;
-    
-    return NextResponse.json({ success: true, id });
+    // Upsert: create if doesn't exist, update if exists
+    const design = await prisma.design.upsert({
+      where: { id },
+      update: {
+        data,
+        updatedAt: new Date()
+      },
+      create: {
+        id,
+        data
+      }
+    });
+
+    return NextResponse.json({ success: true, id: design.id });
   } catch (error) {
     console.error("Failed to save design:", error);
     return NextResponse.json({ error: "Failed to save design" }, { status: 500 });
+  }
+}
+
+/**
+ * API Route to delete a design.
+ * Usage: DELETE /api/design?id={designId}
+ */
+export async function DELETE(req: NextRequest) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const id = searchParams.get("id");
+
+    if (!id) {
+      return NextResponse.json({ error: "Missing design ID" }, { status: 400 });
+    }
+
+    await prisma.design.delete({
+      where: { id }
+    });
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("Failed to delete design:", error);
+    return NextResponse.json({ error: "Failed to delete design" }, { status: 500 });
   }
 }

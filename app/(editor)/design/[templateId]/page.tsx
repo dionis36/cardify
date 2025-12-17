@@ -895,6 +895,39 @@ export default function Editor() {
         }
     }, [currentPage]);
 
+    // --- SAVE HANDLER ---
+    const [saving, setSaving] = useState(false);
+
+    const handleSave = useCallback(async () => {
+        setSaving(true);
+        try {
+            const response = await fetch('/api/design', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    id: templateId,
+                    data: currentPage
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to save design');
+            }
+
+            const result = await response.json();
+            console.log('Design saved successfully:', result);
+
+            // Optional: Show success message
+            // You can add a toast notification here later
+        } catch (error) {
+            console.error('Save failed:', error);
+            alert('Failed to save design. Please try again.');
+        } finally {
+            setSaving(false);
+        }
+    }, [templateId, currentPage]);
+
+
     // Handle Logo Selection - ONLY changes the logo, NOT the theme
     const onSelectLogo = useCallback((logoVariant: LogoVariant) => {
         // Find existing logo layer (Image with isLogo=true, or legacy Icon)
@@ -985,8 +1018,8 @@ export default function Editor() {
                 onRedo={() => dispatch({ type: 'REDO' })}
                 canUndo={state.history.length > 0}
                 canRedo={state.future.length > 0}
-                saving={false}
-                onSave={() => { }}
+                saving={saving}
+                onSave={handleSave}
                 onBack={() => { }}
                 onReset={handleReset}
 

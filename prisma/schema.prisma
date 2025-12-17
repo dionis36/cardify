@@ -1,0 +1,50 @@
+// Prisma schema for Cardify
+// This schema defines the database structure without authentication
+// User relations can be added later when centralized auth is implemented
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Design storage (replaces in-memory storage)
+model Design {
+  id        String   @id @default(cuid())
+  data      Json     // Stores the entire design JSON
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([createdAt])
+  @@map("designs")
+}
+
+// Uploaded files tracking
+model UploadedFile {
+  id           String   @id @default(cuid())
+  filename     String
+  originalName String
+  mimeType     String
+  size         Int
+  path         String   // URL path to the file
+  createdAt    DateTime @default(now())
+  
+  @@index([createdAt])
+  @@map("uploaded_files")
+}
+
+// Template exports
+model Template {
+  id        String   @id
+  filename  String
+  path      String
+  metadata  Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([createdAt])
+  @@map("templates")
+}
