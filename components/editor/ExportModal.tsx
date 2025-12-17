@@ -209,28 +209,32 @@ export default function ExportModal({
             }}
         >
             <div
-                className="relative w-full max-w-2xl bg-white rounded-2xl shadow-2xl overflow-hidden animate-scaleIn flex flex-col max-h-[90vh]"
+                className="relative w-full max-w-2xl bg-white rounded-2xl lg:shadow-2xl overflow-hidden animate-scaleIn flex flex-col max-h-[90vh] lg:rounded-2xl rounded-t-3xl"
                 onClick={(e) => e.stopPropagation()}
             >
                 {/* Header & Tabs */}
                 <div className="bg-gray-50 border-b border-gray-200">
-                    <div className="px-6 py-4 flex items-center justify-between">
-                        <h2 className="text-xl font-bold text-gray-900">Export Design</h2>
+                    {/* Mobile Handle */}
+                    <div className="lg:hidden flex justify-center pt-3 pb-2">
+                        <div className="w-12 h-1 bg-gray-300 rounded-full"></div>
+                    </div>
+                    <div className="px-4 lg:px-6 py-3 lg:py-4 flex items-center justify-between">
+                        <h2 className="text-lg lg:text-xl font-bold text-gray-900">Export Design</h2>
                         <button
                             onClick={onClose}
-                            className="p-2 hover:bg-gray-200 rounded-full transition-colors text-gray-500 hover:text-gray-700"
+                            className="p-2 lg:p-2 hover:bg-gray-200 rounded-full transition-colors text-gray-500 hover:text-gray-700 min-w-[44px] min-h-[44px] flex items-center justify-center"
                             title="Close"
                         >
-                            <X size={20} />
+                            <X size={22} className="lg:w-5 lg:h-5" />
                         </button>
                     </div>
 
                     {/* Tabs - Segmented Control Style */}
-                    <div className="px-6 pb-0">
+                    <div className="px-4 lg:px-6 pb-0">
                         <div className="flex border-b border-gray-200">
                             <button
                                 onClick={() => setActiveTab('file')}
-                                className={`pb-3 px-4 text-sm font-medium transition-all relative ${activeTab === 'file'
+                                className={`pb-3 px-3 lg:px-4 text-sm font-medium transition-all relative min-h-[48px] flex items-center ${activeTab === 'file'
                                     ? 'text-blue-600'
                                     : 'text-gray-500 hover:text-gray-700'
                                     }`}
@@ -247,7 +251,7 @@ export default function ExportModal({
                             {onExportAsTemplate && (
                                 <button
                                     onClick={() => setActiveTab('template')}
-                                    className={`pb-3 px-4 text-sm font-medium transition-all relative ${activeTab === 'template'
+                                    className={`pb-3 px-3 lg:px-4 text-sm font-medium transition-all relative min-h-[48px] flex items-center ${activeTab === 'template'
                                         ? 'text-blue-600'
                                         : 'text-gray-500 hover:text-gray-700'
                                         }`}
@@ -266,47 +270,47 @@ export default function ExportModal({
                 </div>
 
                 {/* Content - Scrollable */}
-                <div className="p-8 overflow-y-auto custom-scrollbar">
+                <div className="p-4 lg:p-8 overflow-y-auto custom-scrollbar pb-6 lg:pb-8">
                     {activeTab === 'file' ? (
-                        <div className="space-y-8">
+                        <div className="space-y-6 lg:space-y-8">
                             {/* Format Selection */}
                             <div>
-                                <label className="block text-sm font-semibold text-gray-900 mb-4">
+                                <label className="block text-sm lg:text-sm font-semibold text-gray-900 mb-3 lg:mb-4">
                                     Select Format
                                 </label>
-                                <div className="grid grid-cols-2 gap-4">
+                                <div className="grid grid-cols-2 gap-3">
                                     <button
                                         onClick={() => setFormat("PNG")}
                                         className={`
-                                            group flex flex-col items-center justify-center p-6 rounded-xl border-2 transition-all duration-200
+                                            group flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all duration-200
                                             ${format === "PNG"
                                                 ? "border-blue-600 bg-blue-50/50 text-blue-700 shadow-sm"
                                                 : "border-gray-200 hover:border-blue-200 hover:bg-gray-50 text-gray-600"
                                             }
                                         `}
                                     >
-                                        <div className={`p-3 rounded-full mb-3 transition-colors ${format === "PNG" ? "bg-blue-100" : "bg-gray-100 group-hover:bg-blue-50"}`}>
-                                            <FileImage size={28} />
+                                        <div className={`p-2 rounded-full mb-2 transition-colors ${format === "PNG" ? "bg-blue-100" : "bg-gray-100 group-hover:bg-blue-50"}`}>
+                                            <FileImage size={24} />
                                         </div>
-                                        <span className="font-semibold text-lg">PNG Image</span>
-                                        <span className="text-sm opacity-75 mt-1">Best for Digital & Web</span>
+                                        <span className="font-semibold text-sm">PNG Image</span>
+                                        <span className="text-xs opacity-75 mt-0.5">Digital & Web</span>
                                     </button>
 
                                     <button
                                         onClick={() => setFormat("PDF")}
                                         className={`
-                                            group flex flex-col items-center justify-center p-6 rounded-xl border-2 transition-all duration-200
+                                            group flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all duration-200
                                             ${format === "PDF"
                                                 ? "border-blue-600 bg-blue-50/50 text-blue-700 shadow-sm"
                                                 : "border-gray-200 hover:border-blue-200 hover:bg-gray-50 text-gray-600"
                                             }
                                         `}
                                     >
-                                        <div className={`p-3 rounded-full mb-3 transition-colors ${format === "PDF" ? "bg-blue-100" : "bg-gray-100 group-hover:bg-blue-50"}`}>
-                                            <FileText size={28} />
+                                        <div className={`p-2 rounded-full mb-2 transition-colors ${format === "PDF" ? "bg-blue-100" : "bg-gray-100 group-hover:bg-blue-50"}`}>
+                                            <FileText size={24} />
                                         </div>
-                                        <span className="font-semibold text-lg">PDF Document</span>
-                                        <span className="text-sm opacity-75 mt-1">Best for Printing</span>
+                                        <span className="font-semibold text-sm">PDF Document</span>
+                                        <span className="text-xs opacity-75 mt-0.5">Printing</span>
                                     </button>
                                 </div>
                             </div>
@@ -322,7 +326,7 @@ export default function ExportModal({
                                         value={fileName}
                                         onChange={(e) => setFileName(e.target.value)}
                                         placeholder="card"
-                                        className="w-full pl-4 pr-12 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                        className="w-full pl-4 pr-12 py-3.5 lg:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-base"
                                     />
                                     <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 font-medium">
                                         .{format.toLowerCase()}
@@ -466,10 +470,10 @@ export default function ExportModal({
                 </div>
 
                 {/* Footer */}
-                <div className="bg-gray-50 border-t border-gray-200 px-8 py-5 flex items-center justify-end gap-3">
+                <div className="bg-gray-50 border-t border-gray-200 px-4 lg:px-8 py-4 lg:py-5 flex items-center justify-end gap-2 lg:gap-3">
                     <button
                         onClick={onClose}
-                        className="px-6 py-2.5 rounded-lg font-medium text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 hover:border-gray-400 transition-all shadow-sm"
+                        className="px-5 lg:px-6 py-3 lg:py-2.5 rounded-lg font-medium text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 hover:border-gray-400 transition-all shadow-sm min-h-[48px] flex items-center justify-center"
                     >
                         Cancel
                     </button>
@@ -477,7 +481,7 @@ export default function ExportModal({
                         onClick={handleExport}
                         disabled={exporting || (activeTab === 'template' && !templateName.trim())}
                         className={`
-                            px-8 py-2.5 rounded-lg font-medium text-white shadow-md transition-all flex items-center gap-2
+                            px-6 lg:px-8 py-3 lg:py-2.5 rounded-lg font-medium text-white shadow-md transition-all flex items-center gap-2 min-h-[48px] justify-center
                             ${exporting || (activeTab === 'template' && !templateName.trim())
                                 ? 'bg-blue-400 cursor-not-allowed opacity-75'
                                 : 'bg-blue-600 hover:bg-blue-700 hover:shadow-lg transform hover:-translate-y-0.5'
