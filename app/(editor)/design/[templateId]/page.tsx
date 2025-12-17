@@ -298,6 +298,15 @@ export default function Editor() {
     const selectedNode = selectedIndices.length === 1 ? currentPage.layers[selectedIndices[0]] : null;
     const selectedNodes = selectedIndices.map(i => currentPage.layers[i]).filter(Boolean);
 
+    // Handler for selecting nodes - closes mobile panels to show PropertyPanel
+    const handleSelectNodes = (indices: number[]) => {
+        setSelectedIndices(indices);
+        // Close any active mobile panel when element is selected (on mobile)
+        if (indices.length > 0 && typeof window !== 'undefined' && window.innerWidth < 1024) {
+            setActiveMobilePanel(null);
+        }
+    };
+
     // Regenerate QR codes client-side when template loads (for variations with color roles)
     useEffect(() => {
         const regenerateQRCodes = async () => {
@@ -1041,7 +1050,7 @@ export default function Editor() {
                         parentRef={mainRef}
                         template={currentPage}
                         selectedNodeIndices={selectedIndices}
-                        onSelectNodes={(indices: number[]) => setSelectedIndices(indices)}
+                        onSelectNodes={handleSelectNodes}
                         onDeselectNode={() => setSelectedIndices([])}
                         onNodeChange={onNodeChange}
                         onStartEditing={onStartEditing}
@@ -1070,27 +1079,29 @@ export default function Editor() {
                 <div className="property-panel relative z-50 h-full shrink-0">
                     {/* PropertyPanel - Desktop: always visible | Mobile: only when element selected AND no mobile panel active */}
                     {(!activeMobilePanel || (typeof window !== 'undefined' && window.innerWidth >= 1024)) && (
-                        <PropertyPanel
-                            node={selectedNode}
+                        <div className="h-full overflow-y-auto bg-white pb-80 lg:pb-0">
+                            <PropertyPanel
+                                node={selectedNode}
 
-                            onPropChange={(_id: string, updates: Partial<KonvaNodeProps>) =>
-                                selectedIndices.length === 1 && onNodeChange(selectedIndices[0], updates)
-                            }
-                            onDefinitionChange={(_id: string, updates: Partial<KonvaNodeDefinition>) =>
-                                selectedIndices.length === 1 && onNodeDefinitionChange(selectedIndices[0], updates)
-                            }
+                                onPropChange={(_id: string, updates: Partial<KonvaNodeProps>) =>
+                                    selectedIndices.length === 1 && onNodeChange(selectedIndices[0], updates)
+                                }
+                                onDefinitionChange={(_id: string, updates: Partial<KonvaNodeDefinition>) =>
+                                    selectedIndices.length === 1 && onNodeDefinitionChange(selectedIndices[0], updates)
+                                }
 
-                            // NEW PROPS for Layer Ordering
-                            onMoveToFront={moveLayerToFront}
-                            onMoveToBack={moveLayerToBack}
-                            onMoveUp={moveLayerUp}
-                            onMoveDown={moveLayerDown}
+                                // NEW PROPS for Layer Ordering
+                                onMoveToFront={moveLayerToFront}
+                                onMoveToBack={moveLayerToBack}
+                                onMoveUp={moveLayerUp}
+                                onMoveDown={moveLayerDown}
 
-                            // NEW: Allow deleting nodes from property panel
-                            onDelete={handleDelete}
-                            shouldFocus={shouldFocusTextEditor}
-                            onFocusHandled={onTextEditorFocusHandled}
-                        />
+                                // NEW: Allow deleting nodes from property panel
+                                onDelete={handleDelete}
+                                shouldFocus={shouldFocusTextEditor}
+                                onFocusHandled={onTextEditorFocusHandled}
+                            />
+                        </div>
                     )}
 
                     {/* Mobile Content Panels - Only visible on mobile when toolbar button tapped */}
