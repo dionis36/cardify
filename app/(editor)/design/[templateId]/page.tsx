@@ -1095,10 +1095,10 @@ export default function Editor() {
 
                     {/* Mobile Content Panels - Only visible on mobile when toolbar button tapped */}
                     {activeMobilePanel && (
-                        <div className="lg:hidden flex-1 overflow-y-auto bg-gray-50 border-t border-gray-200 min-h-0 h-full">
+                        <div className="lg:hidden flex-1 bg-gray-50 border-t border-gray-200 min-h-0 h-full">
                             {/* Layers Panel */}
                             {activeMobilePanel === 'layers' && (
-                                <div className="h-full overflow-y-auto bg-white pb-24">
+                                <div className="h-full overflow-y-auto bg-white pb-80">
                                     <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-white">
                                         <h2 className="text-lg font-bold text-gray-900">Layers</h2>
                                         <button
@@ -1128,7 +1128,7 @@ export default function Editor() {
 
                             {/* Shapes Panel */}
                             {activeMobilePanel === 'elements' && (
-                                <div className="h-full overflow-y-auto bg-white pb-24">
+                                <div className="h-full overflow-y-auto bg-white pb-80">
                                     <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-white">
                                         <h2 className="text-lg font-bold text-gray-900">Shapes</h2>
                                         <button
@@ -1146,7 +1146,7 @@ export default function Editor() {
 
                             {/* Icons Panel */}
                             {activeMobilePanel === 'icons' && (
-                                <div className="h-full overflow-y-auto bg-white pb-24">
+                                <div className="h-full overflow-y-auto bg-white pb-64">
                                     <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-white">
                                         <h2 className="text-lg font-bold text-gray-900">Icons</h2>
                                         <button
@@ -1164,7 +1164,7 @@ export default function Editor() {
 
                             {/* Logos Panel */}
                             {activeMobilePanel === 'logos' && (
-                                <div className="h-full overflow-y-auto bg-white pb-24">
+                                <div className="h-full overflow-y-auto bg-white pb-80">
                                     <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-white">
                                         <h2 className="text-lg font-bold text-gray-900">Logos</h2>
                                         <button
@@ -1182,7 +1182,7 @@ export default function Editor() {
 
                             {/* Images Panel */}
                             {activeMobilePanel === 'images' && (
-                                <div className="h-full overflow-y-auto bg-white pb-24">
+                                <div className="h-full overflow-y-auto bg-white pb-80">
                                     <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-white">
                                         <h2 className="text-lg font-bold text-gray-900">Images</h2>
                                         <button
@@ -1200,7 +1200,7 @@ export default function Editor() {
 
                             {/* Background Panel */}
                             {activeMobilePanel === 'background' && (
-                                <div className="h-full overflow-y-auto bg-white pb-24">
+                                <div className="h-full overflow-y-auto bg-white pb-64">
                                     <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-white">
                                         <h2 className="text-lg font-bold text-gray-900">Background</h2>
                                         <button
@@ -1221,7 +1221,7 @@ export default function Editor() {
 
                             {/* QR Code Panel */}
                             {activeMobilePanel === 'qrcode' && (
-                                <div className="h-full overflow-y-auto bg-white pb-24">
+                                <div className="h-full overflow-y-auto bg-white pb-80">
                                     <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-white">
                                         <h2 className="text-lg font-bold text-gray-900">QR Code</h2>
                                         <button
@@ -1244,7 +1244,7 @@ export default function Editor() {
 
                             {/* Settings Panel */}
                             {activeMobilePanel === 'settings' && (
-                                <div className="h-full overflow-y-auto bg-white pb-24">
+                                <div className="h-full overflow-y-auto bg-white pb-64">
                                     <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-white">
                                         <h2 className="text-lg font-bold text-gray-900">Keyboard Shortcuts</h2>
                                         <button
