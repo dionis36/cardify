@@ -99,10 +99,43 @@ export default function MobileBottomToolbar({
         });
     }, [activePanel]);
 
+    // Detect keyboard visibility by monitoring viewport height changes
+    const [isKeyboardVisible, setIsKeyboardVisible] = React.useState(false);
+
+    useEffect(() => {
+        if (typeof window === 'undefined') return;
+
+        const initialHeight = window.visualViewport?.height || window.innerHeight;
+
+        const handleResize = () => {
+            const currentHeight = window.visualViewport?.height || window.innerHeight;
+            // If viewport height decreased significantly (>150px), keyboard is likely visible
+            const keyboardVisible = initialHeight - currentHeight > 150;
+            setIsKeyboardVisible(keyboardVisible);
+        };
+
+        // Listen to visualViewport resize (better for keyboard detection)
+        if (window.visualViewport) {
+            window.visualViewport.addEventListener('resize', handleResize);
+        } else {
+            window.addEventListener('resize', handleResize);
+        }
+
+        return () => {
+            if (window.visualViewport) {
+                window.visualViewport.removeEventListener('resize', handleResize);
+            } else {
+                window.removeEventListener('resize', handleResize);
+            }
+        };
+    }, []);
+
     return (
         <div
             ref={scrollContainerRef}
-            className="lg:hidden fixed bottom-0 inset-x-0 h-16 bg-[#1e1e2e] border-t border-gray-800 z-50 overflow-x-auto overflow-y-hidden safe-area-inset-bottom shadow-lg"
+            className={`lg:hidden fixed bottom-0 inset-x-0 h-16 bg-[#1e1e2e] border-t border-gray-800 z-50 overflow-x-auto overflow-y-hidden shadow-lg transition-transform duration-300 ${isKeyboardVisible ? 'translate-y-full' : 'translate-y-0'
+                }`}
+            style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
         >
             {/* Scrollable container - EXACT MATCH to desktop sidebar order */}
             <div className="flex items-center gap-2 px-2 h-full min-w-max">
