@@ -69,6 +69,7 @@ export async function POST(req: NextRequest) {
                     colorRoles: template.colorRoles,
                     strictColorRoles: template.strictColorRoles,
                 },
+                isPublic: true, // Make imported templates public by default
             },
         });
 

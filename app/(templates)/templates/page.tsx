@@ -6,7 +6,7 @@ import { CardTemplate } from "@/types/template";
 import TemplateCard from "@/components/templates/TemplateCard";
 import TemplateGrid from "@/components/templates/TemplateGrid";
 import TemplateFilters from "@/components/templates/TemplateFilters";
-import { templateRegistry, TemplateFilterOptions } from "@/lib/templateRegistry";
+import { TemplateFilterOptions } from "@/lib/templateRegistry";
 import { Pagination } from "@/components/ui/Pagination";
 
 const TemplatesPage = () => {
@@ -24,28 +24,76 @@ const TemplatesPage = () => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Initial load
+  // Initial load from database
   useEffect(() => {
     const loadTemplates = async () => {
-      const allTemplates = await templateRegistry.getAllTemplates();
-      setTemplates(allTemplates);
-      setIsLoaded(true);
-      setIsLoading(false);
+      try {
+        console.log('[Templates] Fetching from /api/templates...');
+        const response = await fetch('/api/templates');
+        console.log('[Templates] Response status:', response.status);
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const baseTemplates = await response.json();
+        console.log('[Templates] Loaded base templates:', baseTemplates.length);
+
+        // Generate color variations for each template
+        const { generateVariations } = await import('@/lib/templateVariations');
+        const { shuffleArray } = await import('@/lib/utils');
+
+        console.log('[Templates] Generating variations...');
+        const allTemplatesNested = await Promise.all(
+          baseTemplates.map((t: CardTemplate) => generateVariations(t))
+        );
+        const allTemplates = allTemplatesNested.flat();
+
+        // Shuffle so variations aren't grouped together
+        const shuffled = shuffleArray(allTemplates);
+
+        console.log('[Templates] Total with variations:', shuffled.length);
+        setTemplates(shuffled);
+        setIsLoaded(true);
+        setIsLoading(false);
+      } catch (error) {
+        console.error('[Templates] Failed to load templates:', error);
+        setIsLoading(false);
+      }
     };
     loadTemplates();
   }, []);
 
-  // Filter logic
+  // Filter logic - now done client-side since we have all templates
   const [filteredTemplates, setFilteredTemplates] = useState<CardTemplate[]>([]);
 
   useEffect(() => {
-    const filterTemplates = async () => {
-      const filtered = await templateRegistry.getTemplates(filters);
-      setFilteredTemplates(filtered);
-    };
-    if (isLoaded) {
-      filterTemplates();
+    if (!isLoaded) return;
+
+    console.log('[Templates] Filtering templates. Total:', templates.length);
+    console.log('[Templates] Filters:', filters);
+
+    let filtered = templates;
+
+    // Filter by category
+    if (filters.category && filters.category !== 'All') {
+      filtered = filtered.filter(t => t.category === filters.category);
+      console.log('[Templates] After category filter:', filtered.length);
     }
+
+    // Filter by search
+    if (filters.search) {
+      const searchLower = filters.search.toLowerCase();
+      filtered = filtered.filter(t =>
+        t.name.toLowerCase().includes(searchLower) ||
+        t.category.toLowerCase().includes(searchLower) ||
+        (t.tags && t.tags.some((tag: string) => tag.toLowerCase().includes(searchLower)))
+      );
+      console.log('[Templates] After search filter:', filtered.length);
+    }
+
+    console.log('[Templates] Final filtered count:', filtered.length);
+    setFilteredTemplates(filtered);
   }, [filters, templates, isLoaded]);
 
   // Pagination State

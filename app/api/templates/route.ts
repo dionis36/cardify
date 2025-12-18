@@ -31,8 +31,17 @@ export async function GET(req: NextRequest) {
       ],
     });
 
-    // Transform data field to match CardTemplate structure
-    const formattedTemplates = templates.map(t => t.data as unknown as CardTemplate);
+    // Transform to include both metadata and template data
+    const formattedTemplates = templates.map(t => ({
+      ...(t.data as any), // Spread the template JSON data
+      // Override with database metadata to ensure consistency
+      id: t.id,
+      name: t.name,
+      description: t.description,
+      category: t.category,
+      tags: t.tags,
+      thumbnail: t.thumbnail || (t.data as any).thumbnail || '',
+    }));
 
     return NextResponse.json(formattedTemplates);
   } catch (error) {
