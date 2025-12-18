@@ -38,13 +38,23 @@ model UploadedFile {
 
 // Template exports
 model Template {
-  id        String   @id
-  filename  String
-  path      String
-  metadata  Json?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          String   @id
+  filename    String
+  name        String   // Template display name
+  description String?  // Optional description
+  category    String   @default("General") // Category for organization
+  tags        String[] // Array of tags for filtering
+  thumbnail   String?  // URL to thumbnail image
+  data        Json     // The actual template JSON
+  metadata    Json?    // Additional metadata
+  version     Int      @default(1) // Template version
+  isPublic    Boolean  @default(true) // Public/private flag
+  isFeatured  Boolean  @default(false) // Featured templates
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
   
+  @@index([category])
   @@index([createdAt])
+  @@index([isFeatured])
   @@map("templates")
 }

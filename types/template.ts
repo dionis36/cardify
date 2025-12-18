@@ -316,6 +316,7 @@ export type Orientation = "horizontal" | "vertical";
 export interface CardTemplate {
     id: string;
     name: string;
+    description?: string; // Optional description for template management
     width: number;
     height: number;
     orientation: Orientation;

@@ -5,7 +5,9 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "lint": "next lint",
+    "import-templates": "tsx scripts/import-templates.ts"
   },
   "dependencies": {
     "@iconify-json/fa6-brands": "^1.2.6",
@@ -39,6 +41,7 @@
     "postcss": "^8.4.38",
     "prisma": "^5.22.0",
     "tailwindcss": "^3.4.4",
+    "tsx": "^4.21.0",
     "typescript": "^5.3.0"
   }
 }
