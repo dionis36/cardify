@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { Upload, Download, Trash2, Star, Eye, EyeOff, RefreshCw, Search, Filter } from 'lucide-react';
+import { Upload, Download, Trash2, Star, Eye, EyeOff, RefreshCw, Search, Filter, Edit } from 'lucide-react';
+import TemplateEditorModal from '@/components/admin/TemplateEditorModal';
 
 interface Template {
     id: string;
@@ -15,6 +16,7 @@ interface Template {
     version: number;
     createdAt: string;
     updatedAt: string;
+    data: any; // Template JSON data
 }
 
 export default function TemplateManagementPage() {
@@ -329,6 +331,7 @@ interface TemplateCardProps {
 
 function TemplateCard({ template, selected, onSelect, onRefresh }: TemplateCardProps) {
     const [updating, setUpdating] = useState(false);
+    const [isEditorOpen, setIsEditorOpen] = useState(false);
 
     const handleDelete = async () => {
         if (!confirm(`Delete template "${template.name}"?`)) return;
@@ -445,6 +448,13 @@ function TemplateCard({ template, selected, onSelect, onRefresh }: TemplateCardP
 
             <div className="flex items-center justify-between pt-3 border-t">
                 <button
+                    onClick={() => setIsEditorOpen(true)}
+                    className="text-sm text-green-600 hover:text-green-700 transition"
+                >
+                    <Edit size={14} className="inline mr-1" />
+                    Edit
+                </button>
+                <button
                     onClick={handleExport}
                     className="text-sm text-blue-600 hover:text-blue-700 transition"
                 >
@@ -459,6 +469,14 @@ function TemplateCard({ template, selected, onSelect, onRefresh }: TemplateCardP
                     Delete
                 </button>
             </div>
+
+            {/* Editor Modal */}
+            <TemplateEditorModal
+                template={template}
+                isOpen={isEditorOpen}
+                onClose={() => setIsEditorOpen(false)}
+                onSave={onRefresh}
+            />
         </div>
     );
 }
